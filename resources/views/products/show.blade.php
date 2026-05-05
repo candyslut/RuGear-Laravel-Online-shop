@@ -11,20 +11,20 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-        <div class="bg-[#161920] border border-gray-800 rounded-3xl overflow-hidden aspect-square flex items-center justify-center relative shadow-2xl">
+        <div class="relative group bg-[#161920] border border-gray-800 rounded-3xl overflow-hidden aspect-square flex items-center justify-center shadow-2xl">
+            <div class="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-purple-500/5"></div>
+
             @if($product->image)
-                <img src="{{ asset($product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-contain p-8">
+            <img
+                src="{{ asset($product->image) }}"
+                alt="{{ $product->name }}"
+                class="relative w-[85%] h-[85%] object-contain bg-white rounded-3xl shadow-inner transition-transform duration-500 group-hover:scale-105">
             @else
-                <svg class="w-32 h-32 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                </svg>
+            <svg class="w-32 h-32 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+            </svg>
             @endif
-            
-            <div class="absolute top-6 left-6">
-                <span class="bg-orange-500 text-black text-[10px] font-black px-4 py-1 rounded-full uppercase tracking-widest">
-                    {{ $product->category->name ?? 'Gear' }}
-                </span>
-            </div>
+
         </div>
 
         <div class="flex flex-col h-full">
@@ -61,49 +61,49 @@
 
             <div class="mt-auto">
                 @auth
-                    @php
-                        $itemInCart = auth()->user()->cartItems->where('product_id', $product->id)->first();
-                    @endphp
+                @php
+                $itemInCart = auth()->user()->cartItems->where('product_id', $product->id)->first();
+                @endphp
 
-                    @if($itemInCart)
-                        <div class="flex items-center justify-between bg-[#161920] border border-gray-800 rounded-2xl p-2 shadow-2xl">
-                            <form action="{{ route('cart.remove', $product) }}" method="POST" class="inline">
-                                @csrf
-                                <button class="w-14 h-14 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-all active:scale-90 text-2xl">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
-                                    </svg>
-                                </button>
-                            </form>
+                @if($itemInCart)
+                <div class="flex items-center justify-between bg-[#161920] border border-gray-800 rounded-2xl p-2 shadow-2xl">
+                    <form action="{{ route('cart.remove', $product) }}" method="POST" class="inline">
+                        @csrf
+                        <button class="w-14 h-14 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-all active:scale-90 text-2xl">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                            </svg>
+                        </button>
+                    </form>
 
-                            <div class="flex flex-col items-center">
-                                <span class="text-[10px] text-gray-500 uppercase font-bold tracking-widest mb-1">В сетапе</span>
-                                <span class="text-2xl font-black text-orange-500 tabular-nums">
-                                    {{ $itemInCart->quantity }}
-                                </span>
-                            </div>
+                    <div class="flex flex-col items-center">
+                        <span class="text-[10px] text-gray-500 uppercase font-bold tracking-widest mb-1">В сетапе</span>
+                        <span class="text-2xl font-black text-orange-500 tabular-nums">
+                            {{ $itemInCart->quantity }}
+                        </span>
+                    </div>
 
-                            <form action="{{ route('cart.add', $product) }}" method="POST" class="inline">
-                                @csrf
-                                <button class="w-14 h-14 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-all active:scale-90 text-2xl">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                                    </svg>
-                                </button>
-                            </form>
-                        </div>
-                    @else
-                        <form action="{{ route('cart.add', $product) }}" method="POST">
-                            @csrf
-                            <button class="w-full py-5 bg-orange-500 hover:bg-orange-400 text-black font-black uppercase tracking-widest rounded-2xl transition-all shadow-[0_0_30px_rgba(249,115,22,0.3)] active:scale-[0.98]">
-                                Добавить в сетап
-                            </button>
-                        </form>
-                    @endif
+                    <form action="{{ route('cart.add', $product) }}" method="POST" class="inline">
+                        @csrf
+                        <button class="w-14 h-14 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-all active:scale-90 text-2xl">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
                 @else
-                    <a href="{{ route('login') }}" class="block w-full py-5 bg-gray-800 hover:bg-gray-700 text-white text-center font-black uppercase tracking-widest rounded-2xl transition-all">
-                        Войди, чтобы купить
-                    </a>
+                <form action="{{ route('cart.add', $product) }}" method="POST">
+                    @csrf
+                    <button class="w-full py-5 bg-orange-500 hover:bg-orange-400 text-black font-black uppercase tracking-widest rounded-2xl transition-all shadow-[0_0_30px_rgba(249,115,22,0.3)] active:scale-[0.98]">
+                        Добавить в сетап
+                    </button>
+                </form>
+                @endif
+                @else
+                <a href="{{ route('login') }}" class="block w-full py-5 bg-gray-800 hover:bg-gray-700 text-white text-center font-black uppercase tracking-widest rounded-2xl transition-all">
+                    Войди, чтобы купить
+                </a>
                 @endauth
             </div>
         </div>
