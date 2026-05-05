@@ -18,27 +18,28 @@ class ProductSeeder extends Seeder
         ];
 
         $products = [
-            ['name' => 'ZaryaTech Механическая клавиатура ZK-87', 'price' => 6900, 'cat' => 'Клавиатуры'],
-            ['name' => 'Volna Беспроводная клавиатура VLK-300', 'price' => 4100, 'cat' => 'Клавиатуры'],
-            ['name' => 'SibirKey Игровая клавиатура SK-RGB', 'price' => 5800, 'cat' => 'Клавиатуры'],
+            ['name' => 'ZaryaTech Механическая клавиатура ZK-87', 'price' => 6900, 'image' => 'images/products/keyboard.png', 'cat' => 'Клавиатуры'],
+            ['name' => 'Volna Беспроводная клавиатура VLK-300', 'price' => 4100, 'image' => 'images/products/keyboard.png', 'cat' => 'Клавиатуры'],
+            ['name' => 'SibirKey Игровая клавиатура SK-RGB', 'price' => 5800, 'image' => 'images/products/keyboard.png', 'cat' => 'Клавиатуры'],
 
-            ['name' => 'Taiga Devices Игровая мышь TD-GM1', 'price' => 3200, 'cat' => 'Мыши'],
-            ['name' => 'Volna Беспроводная мышь VM-200', 'price' => 1700, 'cat' => 'Мыши'],
-            ['name' => 'UralTech Эргономичная мышь UT-Vertical', 'price' => 2900, 'cat' => 'Мыши'],
+            ['name' => 'Taiga Devices Игровая мышь TD-GM1', 'price' => 3200, 'image' => 'images/products/mouse.png', 'cat' => 'Мыши'],
+            ['name' => 'Volna Беспроводная мышь VM-200', 'price' => 1700, 'image' => 'images/products/mouse.png', 'cat' => 'Мыши'],
+            ['name' => 'UralTech Эргономичная мышь UT-Vertical', 'price' => 2900, 'image' => 'images/products/mouse.png', 'cat' => 'Мыши'],
 
-            ['name' => 'ZaryaSound Накладные наушники ZS-500', 'price' => 7200, 'cat' => 'Наушники'],
-            ['name' => 'Baikal Audio Беспроводные наушники BA-Air', 'price' => 6500, 'cat' => 'Наушники'],
-            ['name' => 'SibirSound Игровая гарнитура SS-Pro', 'price' => 4800, 'cat' => 'Наушники'],
+            ['name' => 'ZaryaSound Накладные наушники ZS-500', 'price' => 7200, 'image' => 'images/products/earphones.png', 'cat' => 'Наушники'],
+            ['name' => 'Baikal Audio Беспроводные наушники BA-Air', 'price' => 6500, 'image' => 'images/products/earphones.png', 'cat' => 'Наушники'],
+            ['name' => 'SibirSound Игровая гарнитура SS-Pro', 'price' => 4800, 'image' => 'images/products/earphones.png', 'cat' => 'Наушники'],
 
-            ['name' => 'Taiga Pad Игровой коврик XL', 'price' => 1400, 'cat' => 'Ковры'],
-            ['name' => 'Ural Surface Коврик с подсветкой US-RGB', 'price' => 2100, 'cat' => 'Ковры'],
-            ['name' => 'Volna Minimal Коврик черный', 'price' => 800, 'cat' => 'Ковры'],
+            ['name' => 'Taiga Pad Игровой коврик XL', 'price' => 1400, 'image' => 'images/products/cover.png', 'cat' => 'Ковры'],
+            ['name' => 'Ural Surface Коврик с подсветкой US-RGB', 'price' => 2100, 'image' => 'images/products/cover.png', 'cat' => 'Ковры'],
+            ['name' => 'Volna Minimal Коврик черный', 'price' => 800, 'image' => 'images/products/cover.png', 'cat' => 'Ковры'],
         ];
 
         foreach ($products as $item) {
             Product::create([
                 'name' => $item['name'],
                 'price' => $item['price'],
+                'image' => $item['image'],
                 'category_id' => $categories[$item['cat']]->id,
             ]);
         }

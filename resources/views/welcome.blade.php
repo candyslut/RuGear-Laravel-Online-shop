@@ -15,10 +15,17 @@
         @foreach($products as $product)
         <div class="group bg-[#161920] border border-gray-800 rounded-3xl overflow-hidden hover:border-orange-500/50 transition-all duration-300 flex flex-col shadow-xl">
 
-            <div class="aspect-square bg-gradient-to-br from-gray-800 to-gray-900 relative flex items-center justify-center">
-                <svg class="w-16 h-16 text-gray-700 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="aspect-square bg-gradient-to-br from-gray-800 to-gray-900 relative flex items-center justify-center overflow-hidden">
+                @if($product->image)
+                <img src="{{ asset($product->image) }}"
+                    alt="{{ $product->name }}"
+                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                @else
+                <svg class="w-16 h-16 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                 </svg>
+                @endif
+
                 <div class="absolute top-4 left-4">
                     <span class="bg-black/50 backdrop-blur-md text-[10px] font-bold px-2 py-1 rounded border border-gray-700 uppercase tracking-widest text-orange-400">
                         {{ $product->category->name ?? 'Common' }}
@@ -26,7 +33,7 @@
                 </div>
             </div>
 
-            <div class="p-6 flex flex-col flex-grow">
+            <div class="p-6 fleFx flex-col flex-grow">
                 <a href="{{ route('products.show', $product) }}">
                     <h2 class="text-lg font-bold text-white hover:text-orange-500 transition-colors mb-4">
                         {{ $product->name }}
