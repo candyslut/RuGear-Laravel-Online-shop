@@ -43,7 +43,6 @@
 
                     @if($itemInCart)
                     <div class="flex items-center bg-gray-900/50 border border-gray-700 rounded-2xl p-1 shadow-inner">
-                        {{-- Кнопка Минус --}}
                         <form action="{{ route('cart.remove', $product) }}" method="POST" class="inline">
                             @csrf
                             <button class="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 rounded-xl transition-all active:scale-95 font-bold text-xl">
