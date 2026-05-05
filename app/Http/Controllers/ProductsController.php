@@ -13,4 +13,9 @@ class ProductsController extends Controller
         $products = Product::with('category')->get();
         return view('welcome', compact('products'));
     }
+
+    public function show(Product $product) {
+        $product->load('category');
+        return view('products.show', compact('product'));
+    }
 }

@@ -27,7 +27,11 @@
             </div>
 
             <div class="p-6 flex flex-col flex-grow">
-                <h2 class="text-lg font-bold text-white group-hover:text-orange-500 transition-colors mb-4">{{ $product->name }}</h2>
+                <a href="{{ route('products.show', $product) }}">
+                    <h2 class="text-lg font-bold text-white hover:text-orange-500 transition-colors mb-4">
+                        {{ $product->name }}
+                    </h2>
+                </a>
 
                 <div class="mt-auto pt-6 flex justify-between items-center border-t border-gray-800/50">
                     <span class="text-xl font-black text-white italic">{{ number_format($product->price, 0, '.', ' ') }} ₽</span>

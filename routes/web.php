@@ -3,7 +3,8 @@
 use App\Http\Controllers\{ProductsController, ProfileController, CartController, DashboardController};
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [ProductsController::class, 'index'])->name('home');
+Route::get('/', [ProductsController::class, 'index'])->name('products.index');
+Route::get('/product/{product}', [ProductsController::class, 'show'])->name('products.show');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
