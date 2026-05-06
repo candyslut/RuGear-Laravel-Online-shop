@@ -33,4 +33,8 @@ class User extends Authenticatable
     public function cartItems() {
         return $this->hasMany(CartItems::class);
     }
+
+    public function commentaries() {
+        return $this->hasMany(Commentary::class);
+    }
 }
