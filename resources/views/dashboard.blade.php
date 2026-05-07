@@ -109,34 +109,31 @@
             @endif
         </div>
 
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="button" onclick="toggleModal('logout-modal', true)" class="text-xs text-red-600 hover:text-red-500 uppercase font-bold">
-                Выход
-            </button>
+        <button type="button" onclick="toggleModal('logout-modal', true)" class="text-xs text-red-600 hover:text-red-500 uppercase font-bold">
+            Выход
+        </button>
 
-            <div id="logout-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-                <div class="bg-[#161920] border border-gray-800 w-full max-w-md rounded-3xl p-8 shadow-2xl transform transition-all">
-                    <h3 class="text-2xl font-black text-white uppercase tracking-tighter mb-4 text-center">
-                        Уже <span class="text-orange-500">уходишь?</span>
-                    </h3>
-                    <p class="text-gray-400 text-center mb-8 italic">Ты уверен, что хочешь покинуть систему RuGear?</p>
+        <div id="logout-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+            <div class="bg-[#161920] border border-gray-800 w-full max-w-md rounded-3xl p-8 shadow-2xl">
+                <h3 class="text-2xl font-black text-white uppercase tracking-tighter mb-4 text-center">
+                    Уже <span class="text-orange-500">уходишь?</span>
+                </h3>
+                <p class="text-gray-400 text-center mb-8 italic">Ты уверен, что хочешь покинуть систему RuGear?</p>
 
-                    <div class="grid grid-cols-2 gap-4">
-                        <button onclick="toggleModal('logout-modal', false)" class="py-4 bg-gray-800 hover:bg-gray-700 text-white font-bold uppercase tracking-widest rounded-xl transition-all">
-                            Остаться
+                <div class="grid grid-cols-2 gap-4">
+                    <button type="button" onclick="toggleModal('logout-modal', false)" class="py-4 bg-gray-800 hover:bg-gray-700 text-white font-bold uppercase tracking-widest rounded-xl transition-all">
+                        Остаться
+                    </button>
+
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="w-full py-4 bg-orange-500 hover:bg-orange-600 text-black font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-orange-500/20">
+                            Выйти
                         </button>
-
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="w-full py-4 bg-orange-500 hover:bg-orange-600 text-black font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-orange-500/20">
-                                Выйти
-                            </button>
-                        </form>
-                    </div>
+                    </form>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
 </x-shop-layout>
 
