@@ -16,6 +16,13 @@ class Product extends Model
         return $this->hasMany(Commentary::class);
     }
 
+    // public function filter($queryObj, $data)
+    // {
+    //     if (isset($data['search']) && !empty($data['search'])) {
+    //         $queryObj->where('name', 'like', '%' . $data['search'] . '%');
+    //     }
+    // }
+
     public function scopeFilter($query, array $filters)
     {
         $query->when($filters['search'] ?? null, function ($query, $search) {

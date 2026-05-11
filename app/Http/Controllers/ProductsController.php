@@ -2,20 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\Product;
-use App\Models\Category; 
-use Illuminate\Http\Request;
+use App\Models\Category;
+use App\Http\Requests\FilterRequest;
+
+use App\Services\FilterService;
 
 class ProductsController extends Controller
 {
-    public function index(Request $request)
-    {
-        $products = Product::with('category')
-            ->filter($request->only(['search', 'category', 'min_price', 'max_price']))
-            ->paginate(12)
-            ->withQueryString(); 
 
+    protected $filterService;
+
+    public function __construct(FilterService $filterService)
+    {
+        $this->filterService = $filterService;
+    }
+
+    public function index(FilterRequest $request)
+    {
+        $query = Product::with('category');
+
+        $this->filterService->applyFilters($query, $request->validated());
+
+        $products = $query->paginate(12)->withQueryString();
         $categories = Category::all();
 
         return view('welcome', compact('products', 'categories'));
