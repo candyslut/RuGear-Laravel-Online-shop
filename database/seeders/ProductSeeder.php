@@ -11,37 +11,60 @@ class ProductSeeder extends Seeder
     public function run(): void
     {
         $categories = [
-            'Клавиатуры' => Category::create(['name' => 'Клавиатуры']),
-            'Мыши'       => Category::create(['name' => 'Мыши']),
-            'Наушники'   => Category::create(['name' => 'Наушники']),
-            'Ковры'      => Category::create(['name' => 'Ковры']),
+            'Клавиатуры' => [
+                'model' => Category::create(['name' => 'Клавиатуры']),
+                'image' => 'images/products/keyboard.png',
+                'prefix' => ['ZaryaTech', 'Volna', 'SibirKey', 'UralBoard', 'Nordic'],
+                'min_price' => 4000,
+                'max_price' => 12000
+            ],
+            'Мыши' => [
+                'model' => Category::create(['name' => 'Мыши']),
+                'image' => 'images/products/mouse.png',
+                'prefix' => ['Taiga', 'Volna', 'UralTech', 'SibirClick', 'Zarya'],
+                'min_price' => 1500,
+                'max_price' => 7000
+            ],
+            'Наушники' => [
+                'model' => Category::create(['name' => 'Наушники']),
+                'image' => 'images/products/earphones.png',
+                'prefix' => ['ZaryaSound', 'Baikal', 'SibirSound', 'UralAudio', 'Echo'],
+                'min_price' => 3500,
+                'max_price' => 15000
+            ],
+            'Ковры' => [
+                'model' => Category::create(['name' => 'Ковры']),
+                'image' => 'images/products/cover.png',
+                'prefix' => ['Taiga Pad', 'Ural Surface', 'Volna Minimal', 'SibirMat', 'Glow'],
+                'min_price' => 800,
+                'max_price' => 3000
+            ],
         ];
 
-        $products = [
-            ['name' => 'ZaryaTech Механическая клавиатура ZK-87', 'price' => 6900, 'image' => 'images/products/keyboard.png', 'cat' => 'Клавиатуры'],
-            ['name' => 'Volna Беспроводная клавиатура VLK-300', 'price' => 4100, 'image' => 'images/products/keyboard.png', 'cat' => 'Клавиатуры'],
-            ['name' => 'SibirKey Игровая клавиатура SK-RGB', 'price' => 5800, 'image' => 'images/products/keyboard.png', 'cat' => 'Клавиатуры'],
-
-            ['name' => 'Taiga Devices Игровая мышь TD-GM1', 'price' => 3200, 'image' => 'images/products/mouse.png', 'cat' => 'Мыши'],
-            ['name' => 'Volna Беспроводная мышь VM-200', 'price' => 1700, 'image' => 'images/products/mouse.png', 'cat' => 'Мыши'],
-            ['name' => 'UralTech Эргономичная мышь UT-Vertical', 'price' => 2900, 'image' => 'images/products/mouse.png', 'cat' => 'Мыши'],
-
-            ['name' => 'ZaryaSound Накладные наушники ZS-500', 'price' => 7200, 'image' => 'images/products/earphones.png', 'cat' => 'Наушники'],
-            ['name' => 'Baikal Audio Беспроводные наушники BA-Air', 'price' => 6500, 'image' => 'images/products/earphones.png', 'cat' => 'Наушники'],
-            ['name' => 'SibirSound Игровая гарнитура SS-Pro', 'price' => 4800, 'image' => 'images/products/earphones.png', 'cat' => 'Наушники'],
-
-            ['name' => 'Taiga Pad Игровой коврик XL', 'price' => 1400, 'image' => 'images/products/cover.png', 'cat' => 'Ковры'],
-            ['name' => 'Ural Surface Коврик с подсветкой US-RGB', 'price' => 2100, 'image' => 'images/products/cover.png', 'cat' => 'Ковры'],
-            ['name' => 'Volna Minimal Коврик черный', 'price' => 800, 'image' => 'images/products/cover.png', 'cat' => 'Ковры'],
-        ];
-
-        foreach ($products as $item) {
-            Product::create([
-                'name' => $item['name'],
-                'price' => $item['price'],
-                'image' => $item['image'],
-                'category_id' => $categories[$item['cat']]->id,
-            ]);
+        foreach ($categories as $catName => $data) {
+            for ($i = 1; $i <= 10; $i++) {
+                $brand = $data['prefix'][array_rand($data['prefix'])];
+                
+                Product::create([
+                    'name' => "$brand " . $this->getSuffix($catName) . " #$i",
+                    'price' => rand($data['min_price'], $data['max_price']),
+                    'image' => $data['image'],
+                    'category_id' => $data['model']->id,
+                ]);
+            }
         }
+    }
+
+    /**
+     */
+    private function getSuffix($category): string
+    {
+        return match ($category) {
+            'Клавиатуры' => 'Mechanical K-' . rand(100, 999),
+            'Мыши'       => 'Gaming Mouse M-' . rand(10, 99),
+            'Наушники'   => 'Wireless Headset H-' . rand(500, 800),
+            'Ковры'      => 'Control Pad Pro ' . rand(1, 5),
+            default      => 'Device',
+        };
     }
 }

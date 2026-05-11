@@ -4,6 +4,10 @@ use App\Http\Controllers\{ProductsController, ProfileController, CartController,
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [ProductsController::class, 'index'])->name('products.index');
+Route::get('/support', function() {
+    return view('support');
+})->name('support');
+
 Route::get('/product/{product}', [ProductsController::class, 'show'])->name('products.show');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])

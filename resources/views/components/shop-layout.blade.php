@@ -19,8 +19,7 @@
 
                 <nav class="hidden md:flex items-center space-x-10 text-sm font-medium text-gray-400">
                     <a href="/" class="hover:text-orange-500 transition">Каталог</a>
-                    <a href="#" class="hover:text-orange-500 transition">Сборки</a>
-                    <a href="#" class="hover:text-orange-500 transition">Поддержка</a>
+                    <a href="{{route('support')}}" class="hover:text-orange-500 transition">Поддержка</a>
                 </nav>
 
                 <div class="flex items-center space-x-6">
