@@ -20,6 +20,9 @@
                 <nav class="hidden md:flex items-center space-x-10 text-sm font-medium text-gray-400">
                     <a href="/" class="hover:text-orange-500 transition">Каталог</a>
                     <a href="{{route('support')}}" class="hover:text-orange-500 transition">Поддержка</a>
+                    @if(auth()->user() && auth()->user()->role === 'admin')
+                    <a href="{{route('admin.tickets.index')}}" class="hover:text-orange-500 transition">Админ панель</a>
+                    @endif
                 </nav>
 
                 <div class="flex items-center space-x-6">

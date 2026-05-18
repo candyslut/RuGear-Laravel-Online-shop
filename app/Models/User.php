@@ -37,4 +37,8 @@ class User extends Authenticatable
     public function commentaries() {
         return $this->hasMany(Commentary::class);
     }
+
+    public function tickets() {
+        return $this->hasMany(Ticket::class);
+    }
 }
