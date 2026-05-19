@@ -9,10 +9,16 @@ class CartService
 {
     public function addToCart(User $user, Product $product): void
     {
+        if ($product->quantity <= 0) {
+            return;
+        }
+
         $cartItem = $user->cartItems()->where('product_id', $product->id)->first();
 
         if ($cartItem) {
-            $cartItem->increment('quantity');
+            if ($cartItem->quantity < $product->quantity) {
+                $cartItem->increment('quantity');
+            }
         } else {
             $user->cartItems()->create([
                 'product_id' => $product->id,

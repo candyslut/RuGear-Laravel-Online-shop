@@ -46,9 +46,6 @@
                 Управление каталогом
             </h1>
 
-            <p class="text-xs text-gray-500 leading-tight">
-                Добавление девайсов, изменение технических характеристик и цен.
-            </p>
         </div>
 
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
@@ -137,6 +134,7 @@
                     data-id="{{ $product->id }}"
                     data-name="{{ $product->name }}"
                     data-price="{{ $product->price }}"
+                    data-quantity="{{ $product->quantity }}"
                     data-description="{{ $product->description }}"
                     data-category-type="{{ match($product->category->name ?? '') { 'Мыши'=>'mouse', 'Клавиатуры'=>'keyboard', 'Наушники'=>'headphone', 'Ковры'=>'pad', default=>'' } }}"
                     data-specs="{{ json_encode($product->specification) }}"
@@ -174,14 +172,20 @@
 
             <form action="{{ route('admin.products.store') }}" method="POST" class="space-y-6">
                 @csrf
+
+                <div class="space-y-2">
+                    <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest block">Название девайса</label>
+                    <input type="text" name="name" value="{{ old('name') }}" required class="w-full bg-gray-950 border border-gray-900 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-orange-500">
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                        <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest block">Название девайса</label>
-                        <input type="text" name="name" value="{{ old('name') }}" required class="w-full bg-gray-950 border border-gray-900 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-orange-500">
-                    </div>
                     <div class="space-y-2">
                         <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest block">Цена (₽)</label>
                         <input type="number" name="price" value="{{ old('price') }}" required class="w-full bg-gray-950 border border-gray-900 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-orange-500">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest block">Количество (шт.)</label>
+                        <input type="number" name="quantity" value="{{ old('quantity', 0) }}" required class="w-full bg-gray-950 border border-gray-900 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-orange-500">
                     </div>
                 </div>
 
@@ -267,14 +271,19 @@
                 @csrf
                 @method('PUT')
 
+                <div class="space-y-2">
+                    <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest block">Название девайса</label>
+                    <input type="text" id="edit-name" name="name" required class="w-full bg-gray-950 border border-gray-900 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-orange-500">
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                        <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest block">Название девайса</label>
-                        <input type="text" id="edit-name" name="name" required class="w-full bg-gray-950 border border-gray-900 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-orange-500">
-                    </div>
                     <div class="space-y-2">
                         <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest block">Цена (₽)</label>
                         <input type="number" id="edit-price" name="price" required class="w-full bg-gray-950 border border-gray-900 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-orange-500">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest block">Количество (шт.)</label>
+                        <input type="number" id="edit-quantity" name="quantity" required class="w-full bg-gray-950 border border-gray-900 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-orange-500">
                     </div>
                 </div>
 
@@ -336,7 +345,6 @@
 
 
     <script>
-        // --- Логика модального окна СОЗДАНИЯ ---
         const createModal = document.getElementById('create-product-modal');
         const openCreateBtn = document.getElementById('open-create-modal-btn');
         const closeCreateBtn = document.getElementById('close-create-modal-btn');
@@ -364,7 +372,6 @@
             }
         });
 
-        // --- Логика модального окна РЕДАКТИРОВАНИЯ ---
         const editModal = document.getElementById('edit-product-modal');
         const editForm = document.getElementById('edit-product-form');
         const closeEditBtn = document.getElementById('close-edit-modal-btn');
@@ -374,6 +381,7 @@
                 const id = this.getAttribute('data-id');
                 const name = this.getAttribute('data-name');
                 const price = this.getAttribute('data-price');
+                const quantity = this.getAttribute('data-quantity');
                 const description = this.getAttribute('data-description');
                 const categoryType = this.getAttribute('data-category-type');
                 const specs = JSON.parse(this.getAttribute('data-specs') || '{}');
@@ -383,6 +391,7 @@
                 document.getElementById('edit-modal-title-name').textContent = name;
                 document.getElementById('edit-name').value = name;
                 document.getElementById('edit-price').value = price;
+                document.getElementById('edit-quantity').value = quantity || 0;
                 document.getElementById('edit-description').value = description || '';
 
                 document.getElementById('edit-spec-container').classList.add('hidden');
@@ -428,7 +437,6 @@
             document.body.classList.remove('overflow-hidden');
         });
 
-        // Закрытие модалок по клику на темную вуаль фона
         window.addEventListener('click', function(e) {
             if (e.target === createModal) {
                 createModal.classList.add('hidden');

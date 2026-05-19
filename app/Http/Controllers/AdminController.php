@@ -49,11 +49,12 @@ class AdminController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
+            'quantity' => 'required|integer|min:0', 
             'description' => 'nullable|string',
-            'category_type' => 'required|string',
+            'category_type' => 'required|string|in:mouse,keyboard,headphone,pad', 
         ]);
 
         $this->productService->store($request);
@@ -70,17 +71,46 @@ class AdminController extends Controller
 
     public function update(Request $request, Product $product)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
+            'quantity' => 'required|integer|min:0',
             'description' => 'nullable|string',
+
+            'sensor' => 'nullable|string',
+            'max_dpi' => 'nullable|integer',
+            'polling_rate' => 'nullable|integer',
+            'switches' => 'nullable|string',
+            'connection' => 'nullable|string', 
+            'battery_life' => 'nullable|integer',
+            'weight' => 'nullable|integer',
+
+            'switch_type' => 'nullable|string',
+            'form_factor' => 'nullable|string',
+            'keycap_material' => 'nullable|string',
+            'hotswap' => 'nullable|string',
+            'illumination' => 'nullable|string',
+            'construction' => 'nullable|string',
+
+            'sound_type' => 'nullable|string',
+            'drivers' => 'nullable|string',
+            'frequency' => 'nullable|string',
+            'impedance' => 'nullable|string',
+            'microphone' => 'nullable|string',
+
+            'surface' => 'nullable|string',
+            'material' => 'nullable|string',
+            'base_material' => 'nullable|string',
+            'dimensions' => 'nullable|string',
+            'thickness' => 'nullable|string',
+            'edges' => 'nullable|string',
         ]);
 
-        $this->productService->update($product, $request);
+        $this->productService->update($product, $validated);
 
         return redirect()
             ->route('admin.products.index')
-            ->with('success', 'Данные девайса успешно обновлены прямо из списка.');
+            ->with('success', 'Данные девайса успешно обновлены.');
     }
 
     public function destroy(Product $product)

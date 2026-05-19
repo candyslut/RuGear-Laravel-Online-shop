@@ -48,17 +48,19 @@ class ProductSeeder extends Seeder
         foreach ($categories as $catName => $data) {
             for ($i = 1; $i <= 10; $i++) {
                 $brand = $data['prefix'][array_rand($data['prefix'])];
-                
-                // 1. Сначала создаем базовый пустой объект товара
+
+                // Генерируем количество: в 20% случаев товар закончился (0), в остальных — от 1 до 15 шт.
+                $quantity = (rand(1, 100) <= 20) ? 0 : rand(1, 15);
+
                 $product = new Product([
                     'name' => "$brand " . $this->getSuffix($catName) . " #$i",
                     'price' => rand($data['min_price'], $data['max_price']),
                     'image' => $data['image'],
                     'category_id' => $data['model']->id,
+                    'quantity' => $quantity, // Передаем сгенерированное количество в модель
                     'description' => "Отличный девайс из линейки $brand. Высокое качество сборки и максимальный комфорт в использовании.",
                 ]);
 
-                // 2. Генерируем нужную спецификацию на основе имени категории
                 $specification = match ($catName) {
                     'Мыши' => MouseSpecification::create([
                         'sensor' => ['PixArt PAW3395', 'Hero 25K', 'Focus Pro 30K'][rand(0, 2)],
@@ -102,12 +104,10 @@ class ProductSeeder extends Seeder
                     default => null
                 };
 
-                // 3. Если спецификация была успешно создана — связываем её с товаром
                 if ($specification) {
                     $product->specification()->associate($specification);
                 }
 
-                // 4. Сохраняем товар со всеми заполненными полями полиморфизма
                 $product->save();
             }
         }

@@ -104,7 +104,7 @@
 
             <div id="filters-menu" class="overflow-hidden">
                 <div class="bg-[#161920] border border-gray-800 p-8 rounded-[2rem] shadow-2xl grid grid-cols-1 md:grid-cols-3 gap-8 border-t-orange-500/20">
-                    
+
                     <div class="space-y-4">
                         <div class="flex items-center gap-2 mb-2">
                             <div class="w-1 h-4 bg-orange-500 rounded-full"></div>
@@ -114,9 +114,9 @@
                             <select name="category" class="w-full bg-gray-900/50 border border-gray-800 rounded-xl px-5 py-4 text-white focus:outline-none focus:border-orange-500 transition-all appearance-none cursor-pointer text-sm">
                                 <option value="">Все категории</option>
                                 @foreach($categories as $category)
-                                    <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
-                                        {{ $category->name }}
-                                    </option>
+                                <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
                                 @endforeach
                             </select>
                         </div>
@@ -130,12 +130,12 @@
                         <div class="flex items-center gap-3">
                             <div class="relative flex-grow">
                                 <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] text-gray-600 font-black">ОТ</span>
-                                <input type="number" name="min_price" value="{{ request('min_price') }}" 
+                                <input type="number" name="min_price" value="{{ request('min_price') }}"
                                     class="w-full bg-gray-900/50 border border-gray-800 rounded-xl pl-10 pr-4 py-4 text-white placeholder-gray-700 focus:outline-none focus:border-orange-500 transition-all text-sm" placeholder="0">
                             </div>
                             <div class="relative flex-grow">
                                 <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] text-gray-600 font-black">ДО</span>
-                                <input type="number" name="max_price" value="{{ request('max_price') }}" 
+                                <input type="number" name="max_price" value="{{ request('max_price') }}"
                                     class="w-full bg-gray-900/50 border border-gray-800 rounded-xl pl-10 pr-4 py-4 text-white placeholder-gray-700 focus:outline-none focus:border-orange-500 transition-all text-sm" placeholder="∞">
                             </div>
                         </div>
@@ -148,9 +148,11 @@
                                 <p class="text-[9px] text-gray-500 leading-tight italic">Найдено в этой выборке: {{ $products->total() }}</p>
                             </div>
                             @if(request()->anyFilled(['search', 'category', 'min_price', 'max_price']))
-                                <a href="{{ route('products.index') }}" class="p-2.5 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-all" title="Сбросить всё">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                                </a>
+                            <a href="{{ route('products.index') }}" class="p-2.5 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition-all" title="Сбросить всё">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </a>
                             @endif
                         </div>
                     </div>
@@ -161,72 +163,71 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         @forelse($products as $product)
-            <div class="group bg-[#161920] border border-gray-800 rounded-[2rem] overflow-hidden hover:border-orange-500/50 transition-all duration-500 flex flex-col shadow-xl">
-                <div class="aspect-square bg-gradient-to-br from-gray-800 to-gray-900 relative flex items-center justify-center overflow-hidden">
-                    @if($product->image)
-                        <img src="{{ asset($product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-                    @else
-                        <svg class="w-16 h-16 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-                    @endif
-                    <div class="absolute top-5 left-5">
-                        <span class="bg-black/60 backdrop-blur-md text-[9px] font-black px-3 py-1.5 rounded-lg border border-gray-700 uppercase tracking-[0.2em] text-orange-400">
-                            {{ $product->category->name ?? 'Common' }}
-                        </span>
-                    </div>
+        <div class="group bg-[#161920] border border-gray-800 rounded-[2rem] overflow-hidden hover:border-orange-500/50 transition-all duration-500 flex flex-col shadow-xl">
+
+            <div class="aspect-square bg-gradient-to-br from-gray-800 to-gray-900 relative overflow-hidden">
+                @if($product->image)
+                <img
+                    src="{{ asset($product->image) }}"
+                    alt="{{ $product->name }}"
+                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                @else
+                <div class="w-full h-full flex items-center justify-center">
+                    <svg class="w-16 h-16 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                </div>
+                @endif
+
+                <div class="absolute top-5 left-5">
+                    <span class="bg-black/60 backdrop-blur-md text-[9px] font-black px-3 py-1.5 rounded-lg border border-gray-700 uppercase tracking-[0.2em] text-orange-400">
+                        {{ $product->category->name ?? 'Базовый' }}
+                    </span>
                 </div>
 
-                <div class="p-8 flex flex-col flex-grow">
-                    <a href="{{ route('products.show', $product) }}">
-                        <h2 class="text-lg font-bold text-white hover:text-orange-500 transition-colors mb-4 leading-tight">
-                            {{ $product->name }}
-                        </h2>
-                    </a>
+                @if($product->quantity <= 0)
+                    <div class="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center">
+                    <span class="bg-red-950/90 text-red-400 border border-red-900/50 text-[10px] font-mono font-black uppercase tracking-widest px-4 py-2 rounded-xl">
+                        Нет в наличии
+                    </span>
+            </div>
+            @endif
+        </div>
 
-                    <div class="mt-auto pt-6 flex justify-between items-center border-t border-gray-800/50">
-                        <span class="text-2xl font-black text-white italic">{{ number_format($product->price, 0, '.', ' ') }} ₽</span>
-                        
-                        @auth
-                            @php $itemInCart = auth()->user()->cartItems->where('product_id', $product->id)->first(); @endphp
-                            @if($itemInCart)
-                                <div class="flex items-center bg-gray-900/80 border border-gray-700 rounded-xl p-1">
-                                    <form action="{{ route('cart.remove', $product) }}" method="POST" class="inline">
-                                        @csrf
-                                        <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white transition-all active:scale-90 font-bold">-</button>
-                                    </form>
-                                    <span class="px-3 text-orange-500 font-black text-sm tabular-nums">{{ $itemInCart->quantity }}</span>
-                                    <form action="{{ route('cart.add', $product) }}" method="POST" class="inline">
-                                        @csrf
-                                        <button class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white transition-all active:scale-90 font-bold">+</button>
-                                    </form>
-                                </div>
-                            @else
-                                <form action="{{ route('cart.add', $product) }}" method="POST">
-                                    @csrf
-                                    <button class="w-12 h-12 flex items-center justify-center bg-gray-800 hover:bg-orange-500 text-white hover:text-black rounded-xl transition-all duration-300 shadow-lg active:scale-90">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                                    </button>
-                                </form>
-                            @endif
-                        @else
-                            <a href="{{ route('login') }}" class="w-12 h-12 flex items-center justify-center bg-gray-800 hover:bg-orange-500 text-white rounded-xl transition-all active:scale-90">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                            </a>
-                        @endauth
-                    </div>
-                </div>
+        <div class="p-6 flex-grow flex flex-col justify-between">
+            <div class="mb-4">
+                <h3 class="text-white font-black text-lg line-clamp-2 hover:text-orange-500 transition-colors">
+                    <a href="{{ route('products.show', $product) }}">{{ $product->name }}</a>
+                </h3>
             </div>
-        @empty
-            <div class="col-span-full py-32 flex flex-col items-center justify-center bg-[#161920] border border-gray-800 border-dashed rounded-[3rem]">
-                <div class="relative mb-6">
-                    <svg class="w-20 h-20 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    <div class="absolute inset-0 animate-ping opacity-20">
-                         <svg class="w-20 h-20 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    </div>
-                </div>
-                <p class="text-gray-500 italic font-medium text-lg">Объектов по данным координатам не обнаружено.</p>
-                <a href="{{ route('products.index') }}" class="mt-6 px-8 py-3 border border-orange-500/30 text-orange-500 hover:bg-orange-500 hover:text-black transition-all rounded-xl text-[10px] uppercase font-black tracking-widest">Сбросить параметры</a>
+
+            <div class="flex items-center justify-between pt-4 border-t border-gray-800/50">
+                <span class="text-2xl font-black text-white italic">
+                    {{ number_format($product->price, 0, '.', ' ') }} ₽
+                </span>
+
+                <livewire:cart-counter
+                    :product="$product"
+                    :key="'cart-counter-' . $product->id" />
             </div>
-        @endforelse
+        </div>
+    </div>
+    @empty
+    <div class="col-span-full py-32 flex flex-col items-center justify-center bg-[#161920] border border-gray-800 border-dashed rounded-[3rem]">
+        <div class="relative mb-6">
+            <svg class="w-20 h-20 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <div class="absolute inset-0 animate-ping opacity-20">
+                <svg class="w-20 h-20 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </div>
+        </div>
+        <p class="text-gray-500 italic font-medium text-lg">Объектов по данным координатам не обнаружено.</p>
+        <a href="{{ route('products.index') }}" class="mt-6 px-8 py-3 border border-orange-500/30 text-orange-500 hover:bg-orange-500 hover:text-black transition-all rounded-xl text-[10px] uppercase font-black tracking-widest">Сбросить параметры</a>
+    </div>
+    @endforelse
     </div>
 
     <div class="mt-16 custom-pagination">
@@ -237,9 +238,9 @@
         function toggleFilters() {
             const menu = document.getElementById('filters-menu');
             const btn = document.getElementById('filter-btn');
-            
+
             menu.classList.toggle('active');
-            
+
             if (menu.classList.contains('active')) {
                 btn.classList.add('bg-orange-500', 'text-black', 'border-orange-500');
                 btn.classList.remove('bg-gray-800', 'text-gray-400', 'border-gray-700');
@@ -252,7 +253,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
             const hasFilters = urlParams.has('category') || urlParams.has('min_price') || urlParams.has('max_price');
-            
+
             if (hasFilters) {
                 const menu = document.getElementById('filters-menu');
                 const btn = document.getElementById('filter-btn');

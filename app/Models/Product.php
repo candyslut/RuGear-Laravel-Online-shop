@@ -9,10 +9,12 @@ class Product extends Model
 {
     protected $fillable = [
         'name',
-        'description',
         'price',
-        'category_id'
-        ]; 
+        'quantity', 
+        'description',
+        'category_id',
+        'image',
+    ];
 
     public function category()
     {
@@ -50,7 +52,8 @@ class Product extends Model
         });
     }
 
-    public function specification(): MorphTo {
+    public function specification(): MorphTo
+    {
         return $this->morphTo();
     }
 }

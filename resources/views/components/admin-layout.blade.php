@@ -55,14 +55,14 @@
 
                     <a href="{{ route('admin.users') }}"
                         class="flex items-center gap-4 px-4 py-3
-       {{ request()->routeIs('admin.users.*')
-            ? 'bg-gradient-to-r from-orange-500/10 to-transparent border-l-2 border-orange-500 text-white font-black uppercase tracking-wider'
-            : 'text-gray-500 hover:text-white font-semibold'
-       }}
-       rounded-r-xl transition-all text-sm">
+    {{ request()->routeIs('admin.users', 'admin.users.*')
+        ? 'bg-gradient-to-r from-orange-500/10 to-transparent border-l-2 border-orange-500 text-white font-black uppercase tracking-wider'
+        : 'text-gray-500 hover:text-white font-semibold'
+    }}
+    rounded-r-xl transition-all text-sm">
 
                         <i class="fa-solid fa-users text-lg
-        {{ request()->routeIs('admin.users.*') ? 'text-orange-500' : '' }}"></i>
+        {{ request()->routeIs('admin.users', 'admin.users.*') ? 'text-orange-500' : '' }}"></i>
 
                         Пользователи
                     </a>
