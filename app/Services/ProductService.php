@@ -29,13 +29,10 @@ class ProductService
 
         $category = Category::where('name', $categoryName)->first();
 
-        // Логика сохранения загруженного изображения
-        $imagePath = 'images/products/default.png'; // Дефолт на крайний случай
+        $imagePath = 'images/products/default.png';
         if ($request->hasFile('image')) {
             $file = $request->file('image');
-            // Генерируем уникальное имя файла, чтобы избежать перезаписи при одинаковых названиях
             $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-            // Переносим файл в публичную директорию public/images/products/
             $file->move(public_path('images/products'), $filename);
             $imagePath = 'images/products/' . $filename;
         }
@@ -49,7 +46,6 @@ class ProductService
             'image' => $imagePath,
         ]);
 
-        // Создаем пустую спецификацию на основе выбранного типа категории
         $specification = $this->createSpecification(
             $request->category_type,
             $request
@@ -62,22 +58,15 @@ class ProductService
         $product->save();
     }
 
-    /**
-     * Обновление основных полей девайса, замена картинки и обновление характеристик
-     */
     public function update(Product $product, Request $request): void
     {
-        // Вытаскиваем только базовые поля для самой таблицы products
         $productData = $request->only(['name', 'price', 'quantity', 'description']);
 
-        // Если админ загрузил новую картинку
         if ($request->hasFile('image')) {
-            // Удаляем старый файл с диска, если он существует и это не дефолтная заглушка
             if ($product->image && $product->image !== 'images/products/default.png' && file_exists(public_path($product->image))) {
                 @unlink(public_path($product->image));
             }
 
-            // Сохраняем новое изображение
             $file = $request->file('image');
             $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('images/products'), $filename);
@@ -85,13 +74,10 @@ class ProductService
             $productData['image'] = 'images/products/' . $filename;
         }
 
-        // Синхронизируем базовые данные в БД
         $product->update($productData);
 
-        // Если у товара уже создана связь со спецификацией — обновляем её поля
         if ($product->specification) {
 
-            // Собираем массив абсолютно всех возможных характеристик девайсов
             $specFields = $request->only([
                 'sensor',
                 'max_dpi',
@@ -119,8 +105,6 @@ class ProductService
                 'edges'
             ]);
 
-            // Фильтруем строго через замыкание, отсекая исключительно null.
-            // Пустые строки и значения "0" (например, вес или батарея) успешно пройдут дальше.
             $filteredSpecs = array_filter(
                 $specFields,
                 fn($value) => !is_null($value)
