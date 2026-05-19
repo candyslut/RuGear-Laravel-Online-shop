@@ -39,17 +39,58 @@
         </a>
     </div>
 
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
+
         <div class="space-y-1">
             <h1 class="text-2xl md:text-3xl font-black uppercase tracking-wider text-white">
                 Управление каталогом
             </h1>
-            <p class="text-xs text-gray-500 leading-tight">Добавление девайсов, изменение технических характеристик и цен.</p>
+
+            <p class="text-xs text-gray-500 leading-tight">
+                Добавление девайсов, изменение технических характеристик и цен.
+            </p>
         </div>
 
-        <button type="button" id="open-create-modal-btn" class="inline-flex items-center gap-2 px-5 py-3 bg-orange-500 hover:bg-orange-400 text-black font-black uppercase text-xs tracking-widest rounded-xl transition-all active:scale-95 cursor-pointer">
-            <i class="fa-solid fa-plus"></i> Добавить девайс
-        </button>
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+
+            <form method="GET"
+                action="{{ route('admin.products.index') }}"
+                class="relative w-full sm:w-[320px]">
+
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Поиск девайса..."
+                    class="w-full bg-[#161920] border border-gray-800 rounded-2xl px-5 py-3 pr-12 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-orange-500 transition-all">
+
+                <button
+                    type="submit"
+                    class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-orange-500 transition-colors cursor-pointer">
+
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </form>
+
+            @if(request('search'))
+            <a href="{{ route('admin.products.index') }}"
+                class="inline-flex items-center justify-center gap-2 px-4 py-3 bg-gray-900 hover:bg-red-500/10 border border-gray-800 hover:border-red-500/20 text-gray-400 hover:text-red-400 rounded-2xl text-xs font-black uppercase tracking-widest transition-all">
+
+                <i class="fa-solid fa-xmark"></i>
+                Сброс
+            </a>
+            @endif
+
+            <button
+                type="button"
+                id="open-create-modal-btn"
+                class="inline-flex items-center justify-center gap-2 px-5 py-3 bg-orange-500 hover:bg-orange-400 text-black font-black uppercase text-xs tracking-widest rounded-2xl transition-all active:scale-95 cursor-pointer">
+
+                <i class="fa-solid fa-plus"></i>
+                Добавить девайс
+            </button>
+
+        </div>
     </div>
 
     @if(session('success'))
@@ -91,7 +132,7 @@
             </div>
 
             <div class="flex items-center gap-2 mt-6 pt-4 border-t border-gray-900">
-                <button type="button" 
+                <button type="button"
                     class="open-edit-modal-btn p-2.5 bg-gray-900 hover:bg-orange-500/10 text-gray-500 hover:text-orange-500 rounded-xl transition-all border border-gray-800 hover:border-orange-500/20 active:scale-95 cursor-pointer"
                     data-id="{{ $product->id }}"
                     data-name="{{ $product->name }}"
@@ -246,7 +287,7 @@
                     <h3 class="text-xs font-mono text-gray-500 uppercase tracking-wider border-b border-gray-900 pb-2">
                         Технические характеристики (<span id="edit-spec-category-title">Спецификация</span>)
                     </h3>
-                    
+
                     <div id="edit-fields-mouse" class="edit-spec-fields-group hidden grid grid-cols-1 md:grid-cols-2 gap-4">
                         <input type="text" name="sensor" placeholder="Сенсор" class="bg-gray-950 border border-gray-900 rounded-xl px-4 py-2.5 text-sm text-white">
                         <input type="number" name="max_dpi" placeholder="Макс. DPI" class="bg-gray-950 border border-gray-900 rounded-xl px-4 py-2.5 text-sm text-white">
@@ -266,7 +307,7 @@
                         <input type="text" name="illumination" placeholder="Подсветка" class="bg-gray-950 border border-gray-900 rounded-xl px-4 py-2.5 text-sm text-white">
                         <input type="text" name="construction" placeholder="Строение" class="bg-gray-950 border border-gray-900 rounded-xl px-4 py-2.5 text-sm text-white">
                     </div>
-                    
+
                     <div id="edit-fields-headphone" class="edit-spec-fields-group hidden grid grid-cols-1 md:grid-cols-2 gap-4">
                         <input type="text" name="sound_type" placeholder="Звук" class="bg-gray-950 border border-gray-900 rounded-xl px-4 py-2.5 text-sm text-white">
                         <input type="text" name="drivers" placeholder="Динамики" class="bg-gray-950 border border-gray-900 rounded-xl px-4 py-2.5 text-sm text-white">
@@ -352,12 +393,17 @@
 
                 if (categoryType && Object.keys(specs).length > 0) {
                     const targetFieldsBlock = document.getElementById(`edit-fields-${categoryType}`);
-                    
+
                     if (targetFieldsBlock) {
                         document.getElementById('edit-spec-container').classList.remove('hidden');
                         targetFieldsBlock.classList.remove('hidden');
-                        
-                        const catTitles = { 'mouse': 'Мышь', 'keyboard': 'Клавиатура', 'headphone': 'Наушники', 'pad': 'Коврик' };
+
+                        const catTitles = {
+                            'mouse': 'Мышь',
+                            'keyboard': 'Клавиатура',
+                            'headphone': 'Наушники',
+                            'pad': 'Коврик'
+                        };
                         document.getElementById('edit-spec-category-title').textContent = catTitles[categoryType] || 'Спецификация';
 
                         targetFieldsBlock.querySelectorAll('input').forEach(input => {
