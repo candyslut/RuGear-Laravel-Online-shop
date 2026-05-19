@@ -40,53 +40,32 @@
     </div>
 
     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
-
         <div class="space-y-1">
             <h1 class="text-2xl md:text-3xl font-black uppercase tracking-wider text-white">
                 Управление каталогом
             </h1>
-
+            <p class="text-xs text-gray-500 leading-tight">
+                Добавление девайсов, изменение технических характеристик и цен.
+            </p>
         </div>
 
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
-
-            <form method="GET"
-                action="{{ route('admin.products.index') }}"
-                class="relative w-full sm:w-[320px]">
-
-                <input
-                    type="text"
-                    name="search"
-                    value="{{ request('search') }}"
-                    placeholder="Поиск девайса..."
-                    class="w-full bg-[#161920] border border-gray-800 rounded-2xl px-5 py-3 pr-12 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-orange-500 transition-all">
-
-                <button
-                    type="submit"
-                    class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-orange-500 transition-colors cursor-pointer">
-
+            <form method="GET" action="{{ route('admin.products.index') }}" class="relative w-full sm:w-[320px]">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Поиск девайса..." class="w-full bg-[#161920] border border-gray-800 rounded-2xl px-5 py-3 pr-12 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-orange-500 transition-all">
+                <button type="submit" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-orange-500 transition-colors cursor-pointer">
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </button>
             </form>
 
             @if(request('search'))
-            <a href="{{ route('admin.products.index') }}"
-                class="inline-flex items-center justify-center gap-2 px-4 py-3 bg-gray-900 hover:bg-red-500/10 border border-gray-800 hover:border-red-500/20 text-gray-400 hover:text-red-400 rounded-2xl text-xs font-black uppercase tracking-widest transition-all">
-
-                <i class="fa-solid fa-xmark"></i>
-                Сброс
+            <a href="{{ route('admin.products.index') }}" class="inline-flex items-center justify-center gap-2 px-4 py-3 bg-gray-900 hover:bg-red-500/10 border border-gray-800 hover:border-red-500/20 text-gray-400 hover:text-red-400 rounded-2xl text-xs font-black uppercase tracking-widest transition-all">
+                <i class="fa-solid fa-xmark"></i> Сброс
             </a>
             @endif
 
-            <button
-                type="button"
-                id="open-create-modal-btn"
-                class="inline-flex items-center justify-center gap-2 px-5 py-3 bg-orange-500 hover:bg-orange-400 text-black font-black uppercase text-xs tracking-widest rounded-2xl transition-all active:scale-95 cursor-pointer">
-
-                <i class="fa-solid fa-plus"></i>
-                Добавить девайс
+            <button type="button" id="open-create-modal-btn" class="inline-flex items-center justify-center gap-2 px-5 py-3 bg-orange-500 hover:bg-orange-400 text-black font-black uppercase text-xs tracking-widest rounded-2xl transition-all active:scale-95 cursor-pointer">
+                <i class="fa-solid fa-plus"></i> Добавить девайс
             </button>
-
         </div>
     </div>
 
@@ -113,7 +92,7 @@
             <div class="space-y-4">
                 <div class="flex items-start justify-between gap-3">
                     <div class="w-12 h-12 bg-gray-900 border border-gray-800 rounded-2xl flex items-center justify-center font-black text-orange-500 text-sm overflow-hidden">
-                        <img src="{{ asset($product->image) }}" alt="" class="w-8 h-8 object-contain opacity-60 group-hover:opacity-100 transition-opacity" onerror="this.style.display='none'">
+                        <img src="{{ asset($product->image) }}" alt="" class="w-10 h-10 object-contain opacity-80 group-hover:opacity-100 transition-opacity" onerror="this.style.display='none'">
                     </div>
                     <span class="text-[9px] bg-gray-900 text-gray-400 px-2 py-0.5 rounded-md border border-gray-800 font-bold uppercase tracking-widest">
                         {{ $product->category->name ?? 'Без категории' }}
@@ -124,7 +103,12 @@
                     <h3 class="text-md font-black text-white group-hover:text-orange-400 transition-colors line-clamp-1">
                         {{ $product->name }}
                     </h3>
-                    <span class="text-lg font-mono font-black text-white block mt-1">{{ number_format($product->price, 0, '.', ' ') }} ₽</span>
+                    <div class="flex items-center justify-between mt-1">
+                        <span class="text-lg font-mono font-black text-white">{{ number_format($product->price, 0, '.', ' ') }} ₽</span>
+                        <span class="text-xs font-mono {{ $product->quantity > 0 ? 'text-gray-500' : 'text-red-500 font-bold' }}">
+                            {{ $product->quantity }} шт.
+                        </span>
+                    </div>
                 </div>
             </div>
 
@@ -159,7 +143,6 @@
     </div>
     @endif
 
-
     <div id="create-product-modal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="max-w-3xl w-full bg-[#161920] border border-gray-800 rounded-3xl shadow-2xl p-8 relative my-8">
             <button type="button" id="close-create-modal-btn" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors cursor-pointer text-xl">
@@ -170,9 +153,8 @@
                 Добавление девайса
             </h1>
 
-            <form action="{{ route('admin.products.store') }}" method="POST" class="space-y-6">
+            <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                 @csrf
-
                 <div class="space-y-2">
                     <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest block">Название девайса</label>
                     <input type="text" name="name" value="{{ old('name') }}" required class="w-full bg-gray-950 border border-gray-900 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-orange-500">
@@ -194,15 +176,21 @@
                     <textarea name="description" rows="3" class="w-full bg-gray-950 border border-gray-900 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-orange-500 resize-none">{{ old('description') }}</textarea>
                 </div>
 
-                <div class="space-y-2">
-                    <label class="text-[10px] text-orange-500 font-bold uppercase tracking-widest block">Категория девайса</label>
-                    <select id="create_category_type" name="category_type" required class="w-full bg-gray-950 border border-gray-900 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-orange-500 cursor-pointer">
-                        <option value="" disabled selected>Выберите категорию...</option>
-                        <option value="mouse">Мыши</option>
-                        <option value="keyboard">Клавиатуры</option>
-                        <option value="headphone">Наушники</option>
-                        <option value="pad">Ковры</option>
-                    </select>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest block">Фото девайса</label>
+                        <input type="file" name="image" accept="image/*" required class="w-full bg-gray-950 border border-gray-900 rounded-xl px-4 py-2.5 text-sm text-gray-400 file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-orange-500 file:text-black hover:file:bg-orange-400 cursor-pointer">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] text-orange-500 font-bold uppercase tracking-widest block">Категория девайса</label>
+                        <select id="create_category_type" name="category_type" required class="w-full bg-gray-950 border border-gray-900 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-orange-500 cursor-pointer">
+                            <option value="" disabled selected>Выберите категорию...</option>
+                            <option value="mouse">Мыши</option>
+                            <option value="keyboard">Клавиатуры</option>
+                            <option value="headphone">Наушники</option>
+                            <option value="pad">Ковры</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div id="create-spec-fields" class="pt-2">
@@ -256,7 +244,6 @@
         </div>
     </div>
 
-
     <div id="edit-product-modal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="max-w-3xl w-full bg-[#161920] border border-gray-800 rounded-3xl shadow-2xl p-8 relative my-8">
             <button type="button" id="close-edit-modal-btn" class="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors cursor-pointer text-xl">
@@ -267,7 +254,7 @@
                 Редактирование: <span id="edit-modal-title-name" class="text-orange-500">Девайс</span>
             </h1>
 
-            <form id="edit-product-form" action="" method="POST" class="space-y-6">
+            <form id="edit-product-form" action="" method="POST" enctype="multipart/form-data" class="space-y-6">
                 @csrf
                 @method('PUT')
 
@@ -290,6 +277,11 @@
                 <div class="space-y-2">
                     <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest block">Описание</label>
                     <textarea id="edit-description" name="description" rows="3" class="w-full bg-gray-950 border border-gray-900 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-orange-500 resize-none"></textarea>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest block">Изменить фото девайса (необязательно)</label>
+                    <input type="file" name="image" accept="image/*" class="w-full bg-gray-950 border border-gray-900 rounded-xl px-4 py-2.5 text-sm text-gray-400 file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-orange-500 file:text-black hover:file:bg-orange-400 cursor-pointer">
                 </div>
 
                 <div id="edit-spec-container" class="bg-gray-950/40 p-6 rounded-2xl border border-gray-900 space-y-4 hidden">
@@ -343,8 +335,8 @@
         </div>
     </div>
 
-
     <script>
+        // --- Логика модального окна СОЗДАНИЯ ---
         const createModal = document.getElementById('create-product-modal');
         const openCreateBtn = document.getElementById('open-create-modal-btn');
         const closeCreateBtn = document.getElementById('close-create-modal-btn');
@@ -372,6 +364,7 @@
             }
         });
 
+        // --- Логика модального окна РЕДАКТИРОВАНИЯ ---
         const editModal = document.getElementById('edit-product-modal');
         const editForm = document.getElementById('edit-product-form');
         const closeEditBtn = document.getElementById('close-edit-modal-btn');

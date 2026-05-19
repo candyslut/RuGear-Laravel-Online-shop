@@ -14,6 +14,9 @@ class AdminController extends Controller
         protected ProductService $productService
     ) {}
 
+    /**
+     * Список всех пользователей в админ-панели
+     */
     public function index()
     {
         $users = User::withCount('tickets')->latest()->paginate(12);
@@ -21,6 +24,9 @@ class AdminController extends Controller
         return view('admin.users', compact('users'));
     }
 
+    /**
+     * Список всех товаров с возможностью поиска
+     */
     public function productsIndex(Request $request)
     {
         $search = $request->get('search');
@@ -42,21 +48,29 @@ class AdminController extends Controller
         ));
     }
 
+    /**
+     * Форма создания товара (если используется отдельная страница)
+     */
     public function create()
     {
         return view('admin.products.create');
     }
 
+    /**
+     * Создание нового товара и его характеристик
+     */
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
-            'quantity' => 'required|integer|min:0', 
+            'quantity' => 'required|integer|min:0',
             'description' => 'nullable|string',
-            'category_type' => 'required|string|in:mouse,keyboard,headphone,pad', 
+            'category_type' => 'required|string|in:mouse,keyboard,headphone,pad',
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048', // Фото обязательно при создании
         ]);
 
+        // Передаем сырой $request, так как сервису нужен доступ к файлу и методу hasFile()
         $this->productService->store($request);
 
         return redirect()
@@ -64,24 +78,32 @@ class AdminController extends Controller
             ->with('success', 'Девайс успешно добавлен в систему.');
     }
 
+    /**
+     * Форма редактирования товара (если используется отдельная страница)
+     */
     public function edit(Product $product)
     {
         return view('admin.products.edit', compact('product'));
     }
 
+    /**
+     * Обновление товара, его характеристик и изображения
+     */
     public function update(Request $request, Product $product)
     {
-        $validated = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
             'quantity' => 'required|integer|min:0',
             'description' => 'nullable|string',
-
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', // Опционально при обновлении
+            
+            // Валидация полей характеристик под любые типы девайсов
             'sensor' => 'nullable|string',
             'max_dpi' => 'nullable|integer',
             'polling_rate' => 'nullable|integer',
             'switches' => 'nullable|string',
-            'connection' => 'nullable|string', 
+            'connection' => 'nullable|string',
             'battery_life' => 'nullable|integer',
             'weight' => 'nullable|integer',
 
@@ -103,16 +125,20 @@ class AdminController extends Controller
             'base_material' => 'nullable|string',
             'dimensions' => 'nullable|string',
             'thickness' => 'nullable|string',
-            'edges' => 'nullable|string',
+            'edges' => 'nullable|string'
         ]);
 
-        $this->productService->update($product, $validated);
+        // Передаем $request, чтобы внутри сервиса вытащить загруженный файл
+        $this->productService->update($product, $request);
 
         return redirect()
             ->route('admin.products.index')
             ->with('success', 'Данные девайса успешно обновлены.');
     }
 
+    /**
+     * Полное удаление девайса и связанных спецификаций
+     */
     public function destroy(Product $product)
     {
         $this->productService->destroy($product);
@@ -122,6 +148,9 @@ class AdminController extends Controller
             ->with('success', 'Девайс удален из каталога.');
     }
 
+    /**
+     * Удаление пользователя админом
+     */
     public function deleteUser(User $user)
     {
         if (auth()->id() === $user->id) {
