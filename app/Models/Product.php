@@ -3,9 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Product extends Model
 {
+    protected $fillable = [
+        'name',
+        'description',
+        'price',
+        'category_id'
+        ]; 
+
     public function category()
     {
         return $this->belongsTo(Category::class);
@@ -40,5 +48,9 @@ class Product extends Model
         $query->when($filters['max_price'] ?? null, function ($query, $max) {
             $query->where('price', '<=', $max);
         });
+    }
+
+    public function specification(): MorphTo {
+        return $this->morphTo();
     }
 }

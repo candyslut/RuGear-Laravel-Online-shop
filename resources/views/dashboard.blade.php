@@ -1,6 +1,113 @@
 <x-shop-layout>
     <x-slot name="title">Личный кабинет | RuGear</x-slot>
 
+    <style>
+        /* Центрирование и фикс позиции для нативного dialog */
+        dialog[open] {
+            position: fixed;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            margin: 0 !important;
+        }
+
+        /* Кастомный скроллбар для длинных ответов техподдержки */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #f97316;
+        }
+
+        /* Полная кастомизация пагинации Laravel под темную тему RuGear */
+        .custom-pagination nav {
+            background: transparent !important;
+            box-shadow: none !important;
+            border: none !important;
+            padding: 0 !important;
+            display: flex !important;
+            justify-content: flex-end !important;
+            /* Сдвигаем строго вправо */
+        }
+
+        /* Скрываем текстовое сопровождение "Showing 1 to 2..." и мобильные дубли кнопок */
+        .custom-pagination nav>div:first-child,
+        .custom-pagination nav flex[span],
+        .custom-pagination nav p {
+            display: none !important;
+        }
+
+        /* Оставляем только контейнер с цифрами и стрелочками */
+        .custom-pagination nav>div:last-child {
+            display: flex !important;
+            box-shadow: none !important;
+            background: transparent !important;
+        }
+
+        .custom-pagination nav>div:last-child span[span] {
+            display: none !important;
+            /* Убираем лишние обертки */
+        }
+
+        /* Стилизация КНОПОК-ССЫЛОК (активные стрелки и другие страницы) */
+        .custom-pagination a,
+        .custom-pagination span[aria-current="page"] span {
+            background-color: #161920 !important;
+            color: #9ca3af !important;
+            border: 1px solid #1f2937 !important;
+            font-weight: 700 !important;
+            font-size: 11px !important;
+            font-family: monospace !important;
+            padding: 8px 14px !important;
+            margin: 0 3px !important;
+            border-radius: 12px !important;
+            /* Скругление как у карточек */
+            transition: all 0.2s ease !important;
+        }
+
+        /* Стилизация НЕАКТИВНЫХ СТРЕЛОК (Назад на 1-й странице, Вперед на последней) */
+        .custom-pagination span[aria-disabled="true"] span {
+            background-color: #161920 !important;
+            color: #ffffff !important;
+            /* Белый цвет для заблокированных стрелок */
+            border: 1px solid #1f2937 !important;
+            font-weight: 700 !important;
+            font-size: 11px !important;
+            font-family: monospace !important;
+            padding: 8px 14px !important;
+            margin: 0 3px !important;
+            border-radius: 12px !important;
+            cursor: not-allowed !important;
+            /* Меняем курсор, чтобы показать, что нажать нельзя */
+            opacity: 0.9 !important;
+        }
+
+        /* Активная страница (яркая оранжевая кнопка) */
+        .custom-pagination span[aria-current="page"] span {
+            background-color: #f97316 !important;
+            color: #000000 !important;
+            border-color: #f97316 !important;
+            font-weight: 900 !important;
+        }
+
+        /* Эффект наведения только на кликабельные страницы и стрелки */
+        .custom-pagination a:hover {
+            background-color: #1f2937 !important;
+            color: #ffffff !important;
+            border-color: #374151 !important;
+        }
+    </style>
+
     <div class="space-y-8">
         <div>
             <h1 class="text-4xl font-black uppercase tracking-tight">
@@ -37,7 +144,6 @@
             <div class="space-y-4">
                 @foreach($cartItems as $item)
                 <div class="flex items-center justify-between px-5 py-4 bg-gray-900/40 border border-gray-800 rounded-2xl">
-
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 bg-gray-800 rounded-xl flex items-center justify-center text-orange-500">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,10 +162,8 @@
                     </div>
 
                     <div class="flex items-center gap-10">
-
                         <div class="w-[140px] flex justify-center">
                             <div class="flex items-center bg-black/30 border border-gray-800 rounded-xl overflow-hidden">
-
                                 <form action="{{ route('cart.remove', $item->product) }}" method="POST">
                                     @csrf
                                     <button class="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/5 transition">
@@ -77,7 +181,6 @@
                                         +
                                     </button>
                                 </form>
-
                             </div>
                         </div>
 
@@ -86,7 +189,6 @@
                                 {{ number_format($item->product->price * $item->quantity, 0, '.', ' ') }} ₽
                             </p>
                         </div>
-
                     </div>
                 </div>
                 @endforeach
@@ -105,7 +207,137 @@
                     Оформить заказ
                 </button>
             </div>
+            @endif
+        </div>
 
+        <div class="bg-[#111318] border border-gray-900 rounded-3xl p-6 space-y-6 mt-8">
+            <div class="flex justify-between items-center border-b border-gray-900 pb-4">
+                <div>
+                    <h4 class="text-sm font-black uppercase tracking-wider text-white">Техническая поддержка</h4>
+                    <p class="text-[11px] text-gray-500">Статусы ваших недавних запросов и ответы инженеров RuGear.</p>
+                </div>
+                <a href="{{ route('support') }}" class="text-[11px] font-bold text-orange-500 hover:underline">
+                    Создать новый тикет +
+                </a>
+            </div>
+
+            @if($userTickets->isEmpty())
+            <div class="py-4 text-center">
+                <p class="text-xs text-gray-600 font-mono">Вы еще не создавали обращений в поддержку.</p>
+            </div>
+            @else
+            <div class="space-y-4">
+                @foreach($userTickets as $ticket)
+                <div class="bg-[#161920] border border-gray-800/60 rounded-2xl p-4 space-y-3">
+                    <div class="flex items-center justify-between gap-4 flex-wrap">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-mono text-gray-600">#TC-{{ str_pad($ticket->id, 4, '0', STR_PAD_LEFT) }}</span>
+                            <h5 class="text-xs font-bold text-white">{{ $ticket->name }}</h5>
+                        </div>
+
+                        @php
+                        $userStatusStyles = match($ticket->status) {
+                        'pending' => 'bg-blue-500/10 text-blue-400 border-blue-500/10',
+                        'replied' => 'bg-orange-500/10 text-orange-400 border-orange-500/20 animate-pulse',
+                        'closed' => 'bg-gray-950 text-gray-500 border-gray-900',
+                        default => 'bg-gray-900 text-gray-400'
+                        };
+                        $userStatusNames = match($ticket->status) {
+                        'pending' => 'На рассмотрении',
+                        'replied' => 'Получен ответ',
+                        'closed' => 'Решено / Закрыто',
+                        default => $ticket->status
+                        };
+                        @endphp
+                        <span class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded border {{ $userStatusStyles }}">
+                            {{ $userStatusNames }}
+                        </span>
+                    </div>
+
+                    <p class="text-xs text-gray-400 font-mono bg-gray-950/30 p-2 rounded-lg border border-gray-900/40 line-clamp-2">
+                        {{ $ticket->content }}
+                    </p>
+
+                    <div class="flex justify-between items-center pt-2 border-t border-gray-900/40">
+                        <div class="flex items-center gap-4">
+                            <span class="text-[10px] text-gray-600 italic">
+                                {{ $ticket->created_at->diffForHumans() }}
+                            </span>
+
+                            <form action="{{ route('ticket.destroy', $ticket) }}" method="POST" onsubmit="return confirm('Вы уверены, что хотите безвозвратно удалить данный тикет из базы данных?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-gray-600 hover:text-red-400 p-1 rounded-md hover:bg-red-500/10 border border-transparent hover:border-red-500/10 transition-all active:scale-95" title="Удалить тикет навсегда">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+
+                        <button type="button" onclick="document.getElementById('ticket-modal-{{ $ticket->id }}').showModal()" class="text-[11px] font-bold text-orange-500 hover:text-orange-400 transition-colors">
+                            Подробнее &rarr;
+                        </button>
+                    </div>
+                </div>
+
+                <dialog id="ticket-modal-{{ $ticket->id }}" class="user-ticket-dialog backdrop:bg-black/80 bg-[#111318] border border-gray-900 p-6 rounded-3xl w-full max-w-lg text-gray-200 shadow-2xl focus:outline-none">
+                    <div class="space-y-5">
+                        <div class="flex justify-between items-center border-b border-gray-900 pb-4">
+                            <div>
+                                <span class="text-[9px] font-mono text-gray-600 block mb-0.5">ID ТИКЕТА: #TC-{{ str_pad($ticket->id, 4, '0', STR_PAD_LEFT) }}</span>
+                                <h3 class="text-sm font-black uppercase tracking-wider text-white">Просмотр обращения</h3>
+                            </div>
+                            <button type="button" onclick="document.getElementById('ticket-modal-{{ $ticket->id }}').close()" class="text-gray-500 hover:text-white transition-colors p-1 flex items-center justify-center">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="space-y-1">
+                            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider block">Имя:</span>
+                            <p class="text-xs text-white font-bold pl-0.5">{{ $ticket->name }}</p>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider block">Категория:</span>
+                            <span class="inline-block text-[10px] text-gray-400 bg-gray-950 px-3 py-1.5 border border-gray-900 rounded-md font-mono uppercase">{{ $ticket->category ?? 'Общие вопросы' }}</span>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider block">Ваше сообщение:</span>
+                            <div class="text-xs bg-gray-950 p-3.5 rounded-xl border border-gray-900 font-mono text-gray-400 min-h-[50px] max-h-32 overflow-y-auto custom-scrollbar whitespace-pre-line leading-relaxed flex items-center">
+                                <div class="w-full">{{ $ticket->content }}</div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 pt-1 border-t border-gray-900">
+                            <span class="text-[10px] text-orange-500 font-bold uppercase tracking-wider block">Ответ поддержки:</span>
+                            @if($ticket->reply)
+                            <div class="bg-orange-500/5 border border-orange-500/20 rounded-xl p-3.5 font-mono text-xs text-gray-300 whitespace-pre-line leading-relaxed min-h-[50px] max-h-40 overflow-y-auto custom-scrollbar flex items-center">
+                                <div class="w-full">{{ $ticket->reply }}</div>
+                            </div>
+                            @else
+                            <div class="bg-gray-950 p-3.5 rounded-xl border border-gray-900 min-h-[50px] flex items-center justify-center text-center">
+                                <p class="text-xs text-gray-600 font-mono italic leading-relaxed">Инженеры уже изучают вашу проблему. Пожалуйста, ожидайте обновления статуса.</p>
+                            </div>
+                            @endif
+                        </div>
+
+                        <div class="pt-2">
+                            <button type="button" onclick="document.getElementById('ticket-modal-{{ $ticket->id }}').close()" class="w-full h-11 flex items-center justify-center bg-gray-900 hover:bg-gray-850 text-xs font-bold rounded-xl border border-gray-850 text-gray-400 transition-colors">
+                                Закрыть окно
+                            </button>
+                        </div>
+                    </div>
+                </dialog>
+                @endforeach
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-gray-900/60 custom-pagination">
+                {{ $userTickets->onEachSide(1)->links() }}
+            </div>
             @endif
         </div>
 
@@ -152,9 +384,23 @@
     }
 
     window.onclick = function(event) {
-        const modal = document.getElementById('logout-modal');
-        if (event.target == modal) {
+        const logoutModal = document.getElementById('logout-modal');
+        if (event.target == logoutModal) {
             toggleModal('logout-modal', false);
         }
     }
+
+    document.querySelectorAll('.user-ticket-dialog').forEach(dialog => {
+        dialog.addEventListener('click', (e) => {
+            const dialogDimensions = dialog.getBoundingClientRect();
+            if (
+                e.clientX < dialogDimensions.left ||
+                e.clientX > dialogDimensions.right ||
+                e.clientY < dialogDimensions.top ||
+                e.clientY > dialogDimensions.bottom
+            ) {
+                dialog.close();
+            }
+        });
+    });
 </script>

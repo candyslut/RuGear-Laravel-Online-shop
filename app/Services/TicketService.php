@@ -6,6 +6,7 @@ use App\Http\Requests\TicketRequest;
 use Illuminate\Support\Facades\Auth;
 
 use App\Models\Ticket;
+use GuzzleHttp\Psr7\Request;
 
 class TicketService
 {
@@ -20,4 +21,5 @@ class TicketService
     public function removeTicket(Ticket $ticket) {
         return $ticket->delete();
     }
+
 }

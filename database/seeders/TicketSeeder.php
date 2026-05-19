@@ -43,22 +43,51 @@ class TicketSeeder extends Seeder
             'Хотел бы уточнить сроки поставки.',
         ];
 
+        $adminReplies = [
+            'replied' => [
+                'Принято в работу. Передали информацию инженерам сервисного центра, сообщим по результатам диагностики.',
+                'Здравствуйте! Пожалуйста, попробуйте переподключить устройство в порт USB 3.0 напрямую к материнской плате.',
+                'Уточнили на складе. Задержка связана с логистикой, ваш заказ будет отправлен завтра в первой половине дня.',
+                'Мы проверили транзакцию, со стороны нашего банка шлюз работает стабильно. Обратитесь, пожалуйста, в поддержку вашего банка.',
+            ],
+            'closed' => [
+                'Вопрос решен в ходе телефонного разговора. Замена товара оформлена.',
+                'Драйверы успешно откатили, оборудование работает в штатном режиме. Тикет закрыт.',
+                'Спасибо за крутую идею! Передали в отдел разработки аксессуаров RuGear.',
+                'Проблема устранена на стороне сервера. Обновите страницу через Ctrl+F5.',
+            ]
+        ];
+
         $users = User::all();
 
         if ($users->isEmpty()) {
             return;
         }
 
-        for ($i = 0; $i < 27; $i++) {
+        for ($i = 0; $i < 55; $i++) {
 
             $user = $users->random();
+            
+            $statusChance = rand(1, 10);
+            if ($statusChance <= 4) {
+                $status = 'pending';
+                $reply = null;
+            } elseif ($statusChance <= 8) {
+                $status = 'replied';
+                $reply = $adminReplies['replied'][array_rand($adminReplies['replied'])];
+            } else {
+                $status = 'closed';
+                $reply = $adminReplies['closed'][array_rand($adminReplies['closed'])];
+            }
 
             Ticket::create([
                 'name' => $user->name,
                 'category' => $categories[array_rand($categories)],
                 'content' => $messages[array_rand($messages)],
                 'user_id' => $user->id,
-                'created_at' => now()->subDays(rand(0, 30)),
+                'status' => $status,
+                'reply' => $reply,
+                'created_at' => now()->subMinutes(rand(1, 43200)), 
                 'updated_at' => now(),
             ]);
         }

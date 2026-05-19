@@ -14,6 +14,9 @@ class DashboardController extends Controller
     public function index()
     {
         $cartItems = $this->cartService->getUserCart(Auth::user());
-        return view('dashboard', compact('cartItems'));
+        $userTickets = auth()->user()->tickets()->latest()->paginate(2);
+
+        return view('dashboard', compact('cartItems', 'userTickets'));
     }
+
 }

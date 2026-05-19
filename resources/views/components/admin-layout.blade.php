@@ -23,16 +23,16 @@
 
                 <nav class="space-y-2">
 
-                    <a href="#"
+                    <a href="{{ route('admin.products.index') }}"
                         class="flex items-center gap-4 px-4 py-3
-       {{ request()->is('turnover*')
-            ? 'bg-gradient-to-r from-orange-500/10 to-transparent border-l-2 border-orange-500 text-white font-black uppercase tracking-wider'
-            : 'text-gray-500 hover:text-white font-semibold'
-       }}
-       rounded-r-xl transition-all text-sm">
+   {{ request()->routeIs('admin.products.*')
+        ? 'bg-gradient-to-r from-orange-500/10 to-transparent border-l-2 border-orange-500 text-white font-black uppercase tracking-wider'
+        : 'text-gray-500 hover:text-white font-semibold'
+   }}
+   rounded-r-xl transition-all text-sm">
 
                         <i class="fa-solid fa-cubes text-lg
-        {{ request()->is('turnover*') ? 'text-orange-500' : '' }}"></i>
+    {{ request()->routeIs('admin.products.*') ? 'text-orange-500' : '' }}"></i>
 
                         Товарооборот
                     </a>
@@ -53,7 +53,7 @@
                     </a>
 
 
-                    <a href="{{ route('admin.users.index') }}"
+                    <a href="{{ route('admin.users') }}"
                         class="flex items-center gap-4 px-4 py-3
        {{ request()->routeIs('admin.users.*')
             ? 'bg-gradient-to-r from-orange-500/10 to-transparent border-l-2 border-orange-500 text-white font-black uppercase tracking-wider'

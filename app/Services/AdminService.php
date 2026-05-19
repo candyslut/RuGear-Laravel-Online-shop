@@ -5,6 +5,9 @@ namespace App\Services;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Exception;
+use GuzzleHttp\Psr7\Request;
+
+use App\Models\Ticket;
 
 class AdminService
 {
@@ -14,7 +17,6 @@ class AdminService
     }
 
     /**
-     * Удалить пользователя из системы с проверкой прав.
      * * @throws Exception
      */
     public function removeUser(User $user, int $currentAdminId): bool
@@ -24,5 +26,12 @@ class AdminService
         }
 
         return $user->delete();
+    }
+
+    public function reply(Ticket $ticket, array $data) {
+        return $ticket->update([
+            'reply' => $data['reply'],
+            'status' => $data['status']
+        ]);
     }
 }

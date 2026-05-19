@@ -41,17 +41,32 @@
         color: #f97316 !important;
         border-color: #f97316 !important;
     }
+
+    /* Идеальное центрирование и фикс позиции для нативного dialog */
+    dialog[open] {
+        position: fixed;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        margin: 0 !important;
+    }
 </style>
 
 <x-admin-layout>
     <x-slot:title>RuGear Admin | Заявки</x-slot:title>
+
+    <div class="mb-4">
+        <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-orange-500 transition-colors group">
+            <i class="fa-solid fa-arrow-left transition-transform group-hover:-translate-x-1"></i>
+            <span>Вернуться в личный кабинет</span>
+        </a>
+    </div>
 
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2">
         <div class="space-y-1">
             <h1 class="text-2xl md:text-3xl font-black uppercase tracking-wider text-white">
                 Входящие обращения
             </h1>
-            <p class="text-xs text-gray-500 leading-tight">Менеджмент внутренних заявок, тикетов и рекламаций от клиентов платформы.</p>
         </div>
 
         <div class="bg-[#161920] border border-gray-800 px-6 py-3 rounded-2xl flex items-center gap-4">
@@ -66,7 +81,7 @@
     </div>
 
     @if(session('success'))
-        <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-6 py-4 rounded-2xl text-sm flex items-center gap-3 shadow-xl">
+        <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-6 py-4 rounded-2xl text-sm flex items-center gap-3 shadow-xl my-4">
             <i class="fa-solid fa-circle-check text-lg"></i>
             <span class="font-medium">{{ session('success') }}</span>
         </div>
@@ -90,10 +105,30 @@
                     <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-orange-500/30 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
 
                     <div class="space-y-4">
-                        <div class="flex items-center justify-between gap-2 border-b border-gray-900 pb-3">
-                            <span class="text-xs font-mono text-orange-500/70 font-bold">
-                                #TC-{{ str_pad($ticket->id, 4, '0', STR_PAD_LEFT) }}
-                            </span>
+                        <div class="flex items-center justify-between gap-2 border-b border-gray-900 pb-3 flex-wrap">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-mono text-orange-500/70 font-bold">
+                                    #TC-{{ str_pad($ticket->id, 4, '0', STR_PAD_LEFT) }}
+                                </span>
+                                
+                                @php
+                                    $statusStyles = match($ticket->status) {
+                                        'pending' => 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+                                        'replied' => 'bg-orange-500/10 text-orange-500 border-orange-500/20',
+                                        'closed' => 'bg-gray-900 text-gray-600 border-gray-800',
+                                        default => 'bg-gray-850 text-gray-400 border-gray-700'
+                                    };
+                                    $statusNames = match($ticket->status) {
+                                        'pending' => 'Ожидает',
+                                        'replied' => 'Отвечен',
+                                        'closed' => 'Закрыт',
+                                        default => $ticket->status
+                                    };
+                                @endphp
+                                <span class="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded border {{ $statusStyles }}">
+                                    {{ $statusNames }}
+                                </span>
+                            </div>
                             
                             @php
                                 $categoryStyles = match(mb_strtolower($ticket->category)) {
@@ -136,18 +171,12 @@
                     </div>
 
                     <div class="flex items-center gap-2 mt-4 pt-3 border-t border-gray-900">
-                        <button class="flex-grow flex items-center justify-center gap-2 py-2.5 bg-gray-950 hover:bg-orange-500 hover:text-black text-gray-400 text-xs font-bold rounded-xl border border-gray-900 hover:border-transparent transition-all active:scale-[0.98]" title="Взять в работу и ответить">
+                        <button onclick="document.getElementById('reply-modal-{{ $ticket->id }}').showModal()" 
+                                class="flex-grow flex items-center justify-center gap-2 py-2.5 bg-gray-950 hover:bg-orange-500 hover:text-black text-gray-400 text-xs font-bold rounded-xl border border-gray-900 hover:border-transparent transition-all active:scale-[0.98]" 
+                                title="Изменить ответ или статус">
                             <i class="fa-solid fa-reply text-[10px]"></i>
-                            <span>Ответить</span>
+                            <span>{{ $ticket->reply ? 'Редактировать ответ' : 'Ответить' }}</span>
                         </button>
-
-                        <form action="{{ route('admin.ticket.destroy', $ticket) }}" method="POST" onsubmit="return confirm('Вы уверены, что хотите закрыть и перенести в архив данный тикет?')" class="inline-block">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="p-2.5 bg-gray-950 hover:bg-red-500/10 text-gray-500 hover:text-red-400 rounded-xl transition-all border border-gray-900 hover:border-red-500/20 active:scale-[0.98]" title="Закрыть заявку">
-                                <i class="fa-solid fa-trash-can text-xs"></i>
-                            </button>
-                        </form>
                     </div>
 
                 </div>
@@ -157,5 +186,68 @@
         <div class="mt-8 bg-[#161920] border border-gray-800 rounded-3xl p-4 custom-pagination">
             {{ $tickets->onEachSide(1)->links() }}
         </div>
+
+        @foreach($tickets as $ticket)
+            <dialog id="reply-modal-{{ $ticket->id }}" 
+                    class="ticket-dialog backdrop:bg-black/80 bg-[#111318] border border-gray-900 p-6 rounded-3xl w-full max-w-lg text-gray-200 shadow-2xl focus:outline-none">
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center border-b border-gray-900 pb-3">
+                        <h3 class="text-sm font-black uppercase tracking-wider text-white">Ответ на тикет #TC-{{ str_pad($ticket->id, 4, '0', STR_PAD_LEFT) }}</h3>
+                        <button type="button" onclick="document.getElementById('reply-modal-{{ $ticket->id }}').close()" class="text-gray-500 hover:text-white transition-colors text-sm">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+
+                    <div class="space-y-1">
+                        <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Описание проблемы:</span>
+                        <div class="text-xs bg-gray-950 p-3 rounded-xl border border-gray-900 font-mono text-gray-400 max-h-32 overflow-y-auto custom-scrollbar">
+                            {{ $ticket->content }}
+                        </div>
+                    </div>
+
+                    <form action="{{ route('admin.tickets.reply', $ticket) }}" method="POST" class="space-y-4">
+                        @csrf
+                        <div class="space-y-1">
+                            <label class="text-[10px] text-gray-500 font-bold uppercase tracking-wider block">Ответ:</label>
+                            <textarea name="reply" rows="4" required class="w-full bg-gray-950 border border-gray-900 rounded-xl p-3 text-xs font-mono text-white focus:outline-none focus:border-orange-500/50 transition-colors placeholder:text-gray-700" placeholder="Опишите решение технической неисправности...">{{ $ticket->reply }}</textarea>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="text-[10px] text-gray-500 font-bold uppercase tracking-wider block">Текущий статус дела:</label>
+                            <select name="status" class="w-full bg-gray-950 border border-gray-900 rounded-xl p-3 text-xs font-mono text-gray-300 focus:outline-none focus:border-orange-500/50 cursor-pointer">
+                                <option value="pending" {{ $ticket->status === 'pending' ? 'selected' : '' }}>Pending (В обработке)</option>
+                                <option value="replied" {{ $ticket->status === 'replied' ? 'selected' : '' }}>Replied (Дан ответ)</option>
+                                <option value="closed" {{ $ticket->status === 'closed' ? 'selected' : '' }}>Closed (Вопрос закрыт)</option>
+                            </select>
+                        </div>
+
+                        <div class="flex gap-2 pt-2 border-t border-gray-900">
+                            <button type="button" onclick="document.getElementById('reply-modal-{{ $ticket->id }}').close()" class="w-1/3 py-2.5 bg-gray-900 hover:bg-gray-850 text-xs font-bold rounded-xl border border-gray-850 text-gray-400 transition-colors">
+                                Отмена
+                            </button>
+                            <button type="submit" class="w-2/3 py-2.5 bg-orange-500 hover:bg-orange-600 text-black text-xs font-black uppercase tracking-wider rounded-xl transition-colors shadow-[0_0_15px_rgba(249,115,22,0.2)]">
+                                Применить
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </dialog>
+        @endforeach
     @endif
+
+    <script>
+        document.querySelectorAll('.ticket-dialog').forEach(dialog => {
+            dialog.addEventListener('click', (e) => {
+                const dialogDimensions = dialog.getBoundingClientRect();
+                if (
+                    e.clientX < dialogDimensions.left ||
+                    e.clientX > dialogDimensions.right ||
+                    e.clientY < dialogDimensions.top ||
+                    e.clientY > dialogDimensions.bottom
+                ) {
+                    dialog.close();
+                }
+            });
+        });
+    </script>
 </x-admin-layout>

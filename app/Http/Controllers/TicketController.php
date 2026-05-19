@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\TicketRequest;
 use Illuminate\Http\Request;
 
+use App\Services\AdminService;
+
 use App\Models\Ticket;
 
 use App\Services\TicketService;
@@ -14,15 +16,19 @@ use function Livewire\Volt\protect;
 
 class TicketController extends Controller
 {
+    protected $adminService;
+
     public function __construct(
-        protected TicketService $ticketService
-    ) {}
+        protected TicketService $ticketService, AdminService $adminService
+    ) {
+         $this->adminService = $adminService;
+    }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $tickets = Ticket::with('user')->latest()->paginate(10);    
+        $tickets = Ticket::with('user')->latest()->paginate(15);    
         return view('admin.tickets', compact('tickets'));
     }
 
@@ -74,5 +80,14 @@ class TicketController extends Controller
     {
         $this->ticketService->removeTicket($ticket);
         return redirect()->back()->with('succsess', 'Заявка успешно удалена и закрыта!');
+    }
+
+    public function reply(Ticket $ticket, Request $request) {
+        $this->adminService->reply($ticket, $request->validate([
+            'reply' => 'required|string|max:5000',
+            'status' => 'required|string|in:pending,replied,closed',
+        ]));
+
+        return redirect()->back()->with('success', 'Ответ успешно отправлен!');
     }
 }

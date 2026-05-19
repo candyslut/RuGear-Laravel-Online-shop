@@ -11,7 +11,9 @@ class Ticket extends Model
     protected $fillable = [
         'name',
         'category',
-        'content'
+        'content',
+        'status',
+        'reply'
     ];
 
     public function user() {

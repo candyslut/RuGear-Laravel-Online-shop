@@ -31,12 +31,18 @@
 <x-admin-layout>
     <x-slot:title>RuGear Admin | Пользователи</x-slot:title>
 
+    <div class="mb-4">
+        <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-orange-500 transition-colors group">
+            <i class="fa-solid fa-arrow-left transition-transform group-hover:-translate-x-1"></i>
+            <span>Вернуться в личный кабинет</span>
+        </a>
+    </div>
+
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div class="space-y-1">
             <h1 class="text-2xl md:text-3xl font-black uppercase tracking-wider text-white">
                 Управление пользователями
             </h1>
-            <p class="text-xs text-gray-500 leading-tight">Просмотр клиентской базы, анализ активности и менеджмент учетных записей.</p>
         </div>
 
         <div class="bg-[#161920] border border-gray-800 px-6 py-3 rounded-2xl flex items-center gap-4">
