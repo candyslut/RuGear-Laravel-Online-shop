@@ -2,11 +2,13 @@
 <html lang="ru">
 
 <head>
+    <script>
+        window.livewire_app_url = "{{ config('app.env') === 'production' ? config('app.url') : '' }}";
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? 'RuGear | Hardware Store' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @livewireStyles
 </head>
 
 <body class="bg-[#0f1115] text-gray-100 flex flex-col min-h-screen antialiased">
@@ -66,7 +68,6 @@
             <p class="text-gray-700 text-xs mt-4 uppercase tracking-widest">&copy; 2026 RUGEAR Ecosystem</p>
         </div>
     </footer>
-    @livewireScripts
 
 </body>
 
