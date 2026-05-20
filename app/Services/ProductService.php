@@ -63,8 +63,18 @@ class ProductService
         $productData = $request->only(['name', 'price', 'quantity', 'description']);
 
         if ($request->hasFile('image')) {
-            if ($product->image && $product->image !== 'images/products/default.png' && file_exists(public_path($product->image))) {
-                @unlink(public_path($product->image));
+            // Проверяем, что картинка не дефолтная и путь вообще заполнен
+            if ($product->image && $product->image !== 'images/products/default.png') {
+
+                // ВНИМАНИЕ: Проверяем, есть ли ДРУГИЕ товары с точно такой же картинкой
+                $isShared = Product::where('id', '!=', $product->id)
+                    ->where('image', $product->image)
+                    ->exists();
+
+                // Удаляем файл физически только если он больше никому не нужен
+                if (!$isShared && file_exists(public_path($product->image))) {
+                    @unlink(public_path($product->image));
+                }
             }
 
             $file = $request->file('image');
@@ -119,17 +129,21 @@ class ProductService
      */
     public function destroy(Product $product): void
     {
-        // Зачищаем файл изображения девайса с сервера
-        if ($product->image && $product->image !== 'images/products/default.png' && file_exists(public_path($product->image))) {
-            @unlink(public_path($product->image));
+        // Зачищаем файл изображения девайса только если он уникален
+        if ($product->image && $product->image !== 'images/products/default.png') {
+            $isShared = Product::where('id', '!=', $product->id)
+                ->where('image', $product->image)
+                ->exists();
+
+            if (!$isShared && file_exists(public_path($product->image))) {
+                @unlink(public_path($product->image));
+            }
         }
 
-        // Удаляем запись из дочерней таблицы характеристик
         if ($product->specification) {
             $product->specification()->delete();
         }
 
-        // Удаляем сам продукт
         $product->delete();
     }
 

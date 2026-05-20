@@ -8,4 +8,11 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    server: {
+        // Заставляем Vite генерировать правильные ссылки для внешних устройств
+        hmr: {
+            host: 'thread-print-thirty.ngrok-free.dev',
+            protocol: 'wss', // Используем защищенные веб-сокеты
+        },
+    },
 });

@@ -21,10 +21,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if (config('app.env') === 'production') {
+        // Если в запросе присутствует ngrok-free.dev, включаем HTTPS принудительно
+        if (str_contains(request()->url(), 'ngrok-free.dev')) {
             URL::forceScheme('https');
         }
-        
-        \Illuminate\Pagination\Paginator::useTailwind();
     }
 }
