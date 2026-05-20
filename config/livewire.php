@@ -205,7 +205,7 @@ return [
     |
     */
 
-    'asset_url' => env('APP_ENV') === 'production' ? env('APP_URL') : null,
+    'asset_url' => null,
 
     'navigate' => [
         'show_progress_bar' => true,
