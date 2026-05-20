@@ -18,8 +18,6 @@ return [
         resource_path('views/livewire'),
     ],
 
-    'asset_url' => env('APP_URL'),
-
     /*
     |---------------------------------------------------------------------------
     | Component Namespaces
@@ -193,6 +191,8 @@ return [
     | via AJAX, creating an SPA-like effect. Configure this behavior here.
     |
     */
+
+    'asset_url' => env('APP_URL'),
 
     'navigate' => [
         'show_progress_bar' => true,
