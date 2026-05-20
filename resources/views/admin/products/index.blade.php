@@ -64,7 +64,7 @@
     </div>
 
     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
-        <div class="space-y">
+        <div class="space-y-1">
             <h1 class="text-2xl md:text-3xl font-black uppercase tracking-wider text-white">
                 Управление каталогом
             </h1>
