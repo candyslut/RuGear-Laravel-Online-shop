@@ -84,9 +84,12 @@
             </p>
         </div>
 
-        <button class="bg-orange-500 hover:bg-orange-600 text-black font-black px-10 py-4 rounded-2xl transition shadow-lg uppercase tracking-widest cursor-pointer">
-            Оформить заказ
-        </button>
+        <form action="{{ route('orders.store') }}" method="POST">
+            @csrf
+            <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-black font-black px-10 py-4 rounded-2xl transition shadow-lg uppercase tracking-widest cursor-pointer">
+                Оформить заказ
+            </button>
+        </form>
     </div>
     @endif
 </div>

@@ -245,6 +245,44 @@
             </script>
         @endif
 
+        @if(session('success'))
+            <div id="success-toast" class="fixed bottom-6 right-6 z-50 w-full max-w-sm rounded-3xl border border-green-500/20 bg-[#111318] p-5 shadow-2xl shadow-green-500/10 text-white ring-1 ring-green-500/20 achievement-toast pointer-events-auto">
+                <div class="flex items-start gap-4">
+                    <div class="rounded-2xl bg-green-500/10 text-green-300 p-3 flex-shrink-0">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
+                        </svg>
+                    </div>
+                    <div class="space-y-2 flex-1 min-w-0">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="min-w-0">
+                                <p class="text-xs uppercase tracking-[0.24em] text-green-400 font-bold">✓ Успешно!</p>
+                                <h3 class="text-sm font-black text-white line-clamp-1">Заказ создан</h3>
+                            </div>
+                            <button type="button" onclick="closeSuccessToast()" class="text-gray-400 hover:text-white transition-colors flex-shrink-0 text-xl leading-none">
+                                ×
+                            </button>
+                        </div>
+                        <p class="text-xs text-gray-400 line-clamp-2">{{ session('success') }}</p>
+                    </div>
+                </div>
+            </div>
+            <script>
+                function closeSuccessToast() {
+                    const toast = document.getElementById('success-toast');
+                    if (toast) {
+                        toast.classList.add('hide');
+                        setTimeout(() => toast.remove(), 400);
+                    }
+                }
+
+                const successToast = document.getElementById('success-toast');
+                if (successToast) {
+                    setTimeout(() => closeSuccessToast(), 4000);
+                }
+            </script>
+        @endif
+
         <div>
             <h1 class="text-4xl font-black uppercase tracking-tight">
                 Личный <span class="text-orange-500">кабинет</span>
@@ -400,6 +438,84 @@
             </style>
         </dialog>
         </div>
+
+        <!-- Orders Section -->
+        <div class="bg-[#111318] border border-gray-900 rounded-3xl p-6 space-y-6 mt-8">
+            <div class="flex justify-between items-center border-b border-gray-900 pb-4">
+                <div>
+                    <h4 class="text-sm font-black uppercase tracking-wider text-white">Мои заказы</h4>
+                    <p class="text-[11px] text-gray-500">История ваших заказов и их статусы.</p>
+                </div>
+            </div>
+
+            @if($userOrders->isEmpty())
+                <div class="py-8 text-center">
+                    <p class="text-xs text-gray-600 font-mono mb-4">У вас пока нет заказов</p>
+                    <a href="/" class="text-orange-500 hover:text-orange-400 text-sm font-bold transition">Начните покупать →</a>
+                </div>
+            @else
+                <div class="space-y-4">
+                    @foreach($userOrders as $order)
+                        <div class="bg-[#161920] border border-gray-800/60 rounded-2xl p-4 space-y-3">
+                            <div class="flex items-center justify-between gap-4 flex-wrap">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[10px] font-mono text-gray-600 bg-gray-800 px-2 py-1 rounded">ORD-{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }}</span>
+                                    <div>
+                                        <p class="text-xs font-bold text-white">{{ $order->items->count() }} товар{{ $order->items->count() !== 1 ? 'ов' : '' }}</p>
+                                        <p class="text-[10px] text-gray-500 mt-0.5">{{ $order->created_at->format('d.m.Y H:i') }}</p>
+                                    </div>
+                                </div>
+
+                                <span class="px-3 py-1 rounded-full text-xs font-bold uppercase
+                                    @switch($order->status)
+                                        @case('pending')
+                                            bg-gray-700 text-gray-200
+                                            @break
+                                        @case('processing')
+                                            bg-blue-500/20 text-blue-300 border border-blue-500/40
+                                            @break
+                                        @case('completed')
+                                            bg-green-500/20 text-green-300 border border-green-500/40
+                                            @break
+                                        @case('cancelled')
+                                            bg-red-500/20 text-red-300 border border-red-500/40
+                                            @break
+                                    @endswitch
+                                ">
+                                    {{ $order->status_label }}
+                                </span>
+                            </div>
+
+                            <div class="pt-2 border-t border-gray-800/40 flex items-center justify-between">
+                                <div class="text-sm font-black text-white">
+                                    {{ number_format($order->total_price, 0, '.', ' ') }} ₽
+                                </div>
+                                <button onclick="toggleOrderDetails({{ $order->id }})" class="text-xs font-bold text-orange-500 hover:text-orange-400 transition">
+                                    Детали ↓
+                                </button>
+                            </div>
+
+                            <!-- Order Details (Hidden) -->
+                            <div id="order-details-{{ $order->id }}" class="hidden pt-3 border-t border-gray-800/40 space-y-2">
+                                @foreach($order->items as $item)
+                                    <div class="text-xs flex items-center justify-between">
+                                        <span class="text-gray-400">{{ $item->product->name }}</span>
+                                        <span class="text-white font-bold">{{ $item->quantity }}x {{ number_format($item->price, 0, '.', ' ') }} ₽</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                @if($userOrders->hasPages())
+                    <div class="pt-4 border-t border-gray-800/40">
+                        {{ $userOrders->links() }}
+                    </div>
+                @endif
+            @endif
+        </div>
+
         <div class="bg-[#111318] border border-gray-900 rounded-3xl p-6 space-y-6 mt-8">
             <div class="flex justify-between items-center border-b border-gray-900 pb-4">
                 <div>
@@ -599,4 +715,11 @@
             }
         });
     });
+
+    function toggleOrderDetails(orderId) {
+        const detailsElement = document.getElementById(`order-details-${orderId}`);
+        if (detailsElement) {
+            detailsElement.classList.toggle('hidden');
+        }
+    }
 </script>

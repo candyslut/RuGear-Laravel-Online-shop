@@ -37,6 +37,19 @@
                         Товарооборот
                     </a>
 
+                    <a href="{{ route('admin.orders.index') }}"
+                        class="flex items-center gap-4 px-4 py-3
+   {{ request()->routeIs('admin.orders.*')
+        ? 'bg-gradient-to-r from-orange-500/10 to-transparent border-l-2 border-orange-500 text-white font-black uppercase tracking-wider'
+        : 'text-gray-500 hover:text-white font-semibold'
+   }}
+   rounded-r-xl transition-all text-sm">
+
+                        <i class="fa-solid fa-box text-lg
+    {{ request()->routeIs('admin.orders.*') ? 'text-orange-500' : '' }}"></i>
+
+                        Заказы
+                    </a>
 
                     <a href="{{ route('admin.tickets.index') }}"
                         class="flex items-center gap-4 px-4 py-3

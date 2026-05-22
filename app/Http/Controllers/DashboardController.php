@@ -20,11 +20,14 @@ class DashboardController extends Controller
         $cartItems = $this->cartService->getUserCart($user);
         $userTickets = $user->tickets()->latest()->paginate(2);
         
+        // Get user's orders
+        $userOrders = $user->orders()->with('items.product')->latest()->paginate(5);
+        
         // Get all achievements for the modal
         $allAchievements = Achievement::all();
         $userAchievementIds = $user->achievements->pluck('id')->toArray();
 
-        return view('dashboard', compact('cartItems', 'userTickets', 'allAchievements', 'userAchievementIds'));
+        return view('dashboard', compact('cartItems', 'userTickets', 'userOrders', 'allAchievements', 'userAchievementIds'));
     }
 
 }
