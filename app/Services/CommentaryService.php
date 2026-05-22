@@ -12,7 +12,6 @@ use App\Http\Requests\CommentaryRequest;
 class CommentaryService
 {
     public function addComment($contentOrRequest, Product $product, User $user) {
-        // Support both string content and CommentaryRequest
         $content = is_string($contentOrRequest) 
             ? $contentOrRequest 
             : $contentOrRequest->content;
@@ -32,18 +31,22 @@ class CommentaryService
             5 => 'comment_5',
         ];
 
+        $awardedAchievement = null;
         if (isset($slugMap[$count])) {
             $achievement = Achievement::where('slug', $slugMap[$count])->first();
             if ($achievement) {
                 $awarded = $user->awardAchievement($achievement);
                 if ($awarded) {
-                    session()->flash('achievement_awarded', [
+                    $awardedAchievement = [
                         'title' => $achievement->title,
                         'description' => $achievement->description,
                         'experience' => $achievement->experience,
-                    ]);
+                    ];
+                    session()->flash('achievement_awarded', $awardedAchievement);
                 }
             }
         }
+
+        return $awardedAchievement;
     }
 }

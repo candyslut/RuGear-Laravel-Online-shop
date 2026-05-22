@@ -10,9 +10,13 @@ class CommentsList extends Component
     public Product $product;
     public $comments = [];
 
+    #[\Livewire\Attributes\Locked]
+    public $listId;
+
     public function mount(Product $product)
     {
         $this->product = $product;
+        $this->listId = 'comments-list-' . $product->id;
         $this->loadComments();
     }
 
@@ -20,6 +24,7 @@ class CommentsList extends Component
     {
         $this->product->refresh();
         $this->comments = $this->product->commentaries()
+            ->with('user')
             ->orderByDesc('created_at')
             ->get()
             ->toArray();

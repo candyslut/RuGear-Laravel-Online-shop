@@ -24,23 +24,6 @@
 </div>
 
 <script>
-    document.addEventListener('livewire:navigated', () => {
-        Livewire.on('show-achievement-toast', (event) => {
-            const achievement = event.detail[0]?.achievement || event.detail.achievement;
-            if (achievement) {
-                showAchievementToast(achievement);
-            }
-        });
-    });
-
-    // Initial listener setup
-    Livewire.on('show-achievement-toast', (event) => {
-        const achievement = event.detail?.[0]?.achievement || event.detail?.achievement;
-        if (achievement) {
-            showAchievementToast(achievement);
-        }
-    });
-
     function showAchievementToast(achievement) {
         const toastContainer = document.createElement('div');
         toastContainer.innerHTML = `
@@ -57,7 +40,7 @@
                                 <p class="text-xs uppercase tracking-[0.24em] text-orange-400 font-bold">🎉 Достижение разблокировано!</p>
                                 <h3 class="text-sm font-black text-white line-clamp-1">${achievement.title}</h3>
                             </div>
-                            <button type="button" onclick="this.closest('[style*=animation]').parentElement.remove()" class="text-gray-400 hover:text-white transition-colors flex-shrink-0 text-xl leading-none">
+                            <button type="button" onclick="this.closest('.achievement-toast').parentElement.remove()" class="text-gray-400 hover:text-white transition-colors flex-shrink-0 text-xl leading-none">
                                 ×
                             </button>
                         </div>
@@ -71,11 +54,29 @@
         `;
         document.body.appendChild(toastContainer);
 
-        const toast = toastContainer.querySelector('[style*=animation]');
         setTimeout(() => {
             toastContainer.remove();
         }, 5000);
     }
+
+    // Wait for Livewire to be ready
+    function registerAchievementToastListener() {
+        if (typeof Livewire !== 'undefined') {
+            Livewire.on('show-toast', (data) => {
+                console.log('Toast event received:', data);
+                // Data comes as an array, get the first element
+                const achievement = Array.isArray(data) ? data[0] : data;
+                if (achievement && achievement.title) {
+                    showAchievementToast(achievement);
+                }
+            });
+        } else {
+            // Retry after 100ms if Livewire not ready
+            setTimeout(registerAchievementToastListener, 100);
+        }
+    }
+
+    registerAchievementToastListener();
 </script>
 
 <style>

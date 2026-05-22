@@ -181,6 +181,26 @@
                 display: flex;
             }
         }
+
+        /* Новые стили для сетки достижений */
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .achievements-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .achievements-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 
     <div class="space-y-8">
@@ -254,7 +274,7 @@
             </div>
 
             @if(auth()->user()->achievements->count() > 0)
-                <div class="achievements-slider">
+                <div class="achievements-grid">
                     @foreach(auth()->user()->achievements->sortByDesc('pivot.awarded_at') as $achievement)
                         <div class="achievement-card bg-[#161920] border border-gray-800 rounded-3xl p-4 space-y-3 hover:border-orange-500/30 hover:shadow-lg hover:shadow-orange-500/10 transition-all">
                             <div class="flex items-start gap-3">
@@ -277,16 +297,6 @@
                         </div>
                     @endforeach
                 </div>
-                @if(auth()->user()->achievements->count() > 3)
-                    <div class="achievements-slider-nav flex justify-center gap-2">
-                        <button onclick="document.querySelector('.achievements-slider').scrollBy({left: -300, behavior: 'smooth'})" class="px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-all text-sm font-semibold">
-                            ← Назад
-                        </button>
-                        <button onclick="document.querySelector('.achievements-slider').scrollBy({left: 300, behavior: 'smooth'})" class="px-3 py-2 bg-orange-500 hover:bg-orange-400 text-black rounded-lg transition-all text-sm font-semibold">
-                            Вперед →
-                        </button>
-                    </div>
-                @endif
             @else
                 <div class="rounded-3xl border border-dashed border-gray-800 bg-[#161920] p-8 text-center text-gray-500 space-y-2">
                     <p class="text-sm font-semibold">🏆 Пока нет достижений</p>

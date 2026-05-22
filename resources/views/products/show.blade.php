@@ -279,26 +279,7 @@
         @endauth
 
         <div class="space-y-4">
-            @forelse($product->commentaries->sortByDesc('created_at') as $comment)
-                <div class="bg-[#161920]/40 border border-gray-800 rounded-xl p-5 shadow-sm">
-                    <div class="flex items-center gap-3 mb-3">
-                        <div class="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center text-black font-black text-xs">
-                            {{ strtoupper(substr($comment->user->name, 0, 2)) }}
-                        </div>
-                        <div>
-                            <h4 class="text-white text-sm font-semibold">{{ $comment->user->name }}</h4>
-                            <span class="text-[10px] text-gray-600 font-mono">{{ $comment->created_at->diffForHumans() }}</span>
-                        </div>
-                    </div>
-                    <p class="text-gray-400 font-light text-sm italic pl-11">
-                        « {{ $comment->content }} »
-                    </p>
-                </div>
-            @empty
-                <div class="text-center py-8 text-gray-600 font-mono text-xs uppercase tracking-wider opacity-50">
-                    Отзывов пока нет.
-                </div>
-            @endforelse
+            @livewire('comments-list', ['product' => $product])
         </div>
     </div>
 </x-shop-layout>

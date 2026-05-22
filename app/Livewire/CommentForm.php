@@ -4,7 +4,6 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Product;
-use App\Models\Achievement;
 use App\Services\CommentaryService;
 use Illuminate\Support\Facades\Auth;
 
@@ -30,31 +29,16 @@ class CommentForm extends Component
         ]);
 
         $user = Auth::user();
-        $user->load('commentaries');
-        $countBefore = $user->commentaries()->count();
-
         $commentaryService = app(CommentaryService::class);
-        $commentaryService->addComment($this->content, $this->product, $user);
-
-        // Refresh user data
-        $user->refresh();
-        $countAfter = $user->commentaries()->count();
-
-        // Check if achievement was awarded in this request
-        $slugMap = [1 => 'comment_1', 3 => 'comment_3', 5 => 'comment_5'];
-        if (isset($slugMap[$countAfter]) && $countAfter > $countBefore) {
-            $achievement = Achievement::where('slug', $slugMap[$countAfter])->first();
-            if ($achievement) {
-                $this->dispatch('show-achievement-toast', achievement: [
-                    'title' => $achievement->title,
-                    'description' => $achievement->description,
-                    'experience' => $achievement->experience,
-                ]);
-            }
-        }
+        $awardedAchievement = $commentaryService->addComment($this->content, $this->product, $user);
 
         $this->content = '';
-        $this->dispatch('comment-added');
+        $this->dispatch('comment-added')->to('comments-list');
+
+        if ($awardedAchievement) {
+            // Dispatch as array that will be converted to object
+            $this->dispatch('show-toast', $awardedAchievement);
+        }
     }
 
     public function render()
