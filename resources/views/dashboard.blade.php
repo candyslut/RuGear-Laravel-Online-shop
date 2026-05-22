@@ -303,6 +303,102 @@
                     <p class="text-xs">Первое достижение вы получите после регистрации. Затем можете получать их за комментарии!</p>
                 </div>
             @endif
+
+            <button onclick="document.getElementById('achievements-modal').showModal()" class="w-full py-3 bg-orange-500 hover:bg-orange-600 text-black text-sm font-bold uppercase tracking-wider rounded-xl transition-all">
+                🎯 Все достижения
+            </button>
+        </div>
+
+        <!-- Achievements Modal -->
+        <dialog id="achievements-modal" class="fixed inset-0 w-full max-w-3xl max-h-[90vh] rounded-3xl bg-[#111318] border border-gray-800 p-0 shadow-2xl">
+            <div class="flex flex-col h-full">
+                <!-- Modal Header -->
+                <div class="flex items-center justify-between border-b border-gray-800 p-6">
+                    <h2 class="text-2xl font-black text-white">🏆 Все достижения</h2>
+                    <button onclick="document.getElementById('achievements-modal').close()" class="text-gray-400 hover:text-white text-2xl leading-none transition-colors">
+                        ×
+                    </button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="flex-1 overflow-y-auto p-6 custom-scrollbar space-y-3">
+                    @forelse($allAchievements->sortBy('experience') as $achievement)
+                        @php
+                            $isUnlocked = in_array($achievement->id, $userAchievementIds);
+                            $userAchievement = auth()->user()->achievements()->where('achievement_id', $achievement->id)->first();
+                        @endphp
+                        <div class="achievement-modal-card bg-[#161920] border {{ $isUnlocked ? 'border-orange-500/40' : 'border-gray-800' }} rounded-2xl p-4 flex items-start gap-4 hover:border-orange-500/60 transition-all {{ !$isUnlocked ? 'opacity-60' : '' }}">
+                            <div class="flex h-16 w-16 items-center justify-center rounded-2xl {{ $isUnlocked ? 'bg-gradient-to-br from-orange-500/20 to-orange-500/10 text-orange-300' : 'bg-gray-800 text-gray-600' }} flex-shrink-0">
+                                @if($isUnlocked)
+                                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                                    </svg>
+                                @else
+                                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                                    </svg>
+                                @endif
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-start gap-2 justify-between">
+                                    <div>
+                                        <h4 class="text-sm font-black text-white">{{ $achievement->title }}</h4>
+                                        <p class="text-xs {{ $isUnlocked ? 'text-orange-400' : 'text-gray-500' }} font-semibold">+{{ $achievement->experience }} XP</p>
+                                    </div>
+                                    @if($isUnlocked)
+                                        <div class="flex-shrink-0 px-3 py-1 bg-orange-500/20 border border-orange-500/40 rounded-full">
+                                            <p class="text-[10px] uppercase tracking-[0.2em] text-orange-300 font-bold">✓ Получено</p>
+                                        </div>
+                                    @else
+                                        <div class="flex-shrink-0 px-3 py-1 bg-gray-800/40 border border-gray-700 rounded-full">
+                                            <p class="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-bold">Заблокировано</p>
+                                        </div>
+                                    @endif
+                                </div>
+                                <p class="text-xs text-gray-400 leading-relaxed mt-2">{{ $achievement->description }}</p>
+                                @if($isUnlocked && $userAchievement)
+                                    <p class="text-[10px] uppercase tracking-[0.2em] text-gray-500 mt-2">
+                                        Получено {{ \Carbon\Carbon::parse($userAchievement->pivot->awarded_at)->diffForHumans() }}
+                                    </p>
+                                @endif
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-center py-8 text-gray-500">
+                            <p class="text-sm">Достижения еще не добавлены</p>
+                        </div>
+                    @endforelse
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="border-t border-gray-800 p-6">
+                    <button onclick="document.getElementById('achievements-modal').close()" class="w-full py-3 bg-gray-800 hover:bg-gray-700 text-white text-sm font-bold uppercase tracking-wider rounded-xl transition-all">
+                        Закрыть
+                    </button>
+                </div>
+            </div>
+
+            <style>
+                dialog::backdrop {
+                    background-color: rgba(0, 0, 0, 0.7);
+                }
+
+                dialog {
+                    animation: dialogSlideIn 0.3s ease-out;
+                }
+
+                @keyframes dialogSlideIn {
+                    from {
+                        opacity: 0;
+                        transform: scale(0.95);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: scale(1);
+                    }
+                }
+            </style>
+        </dialog>
         </div>
         <div class="bg-[#111318] border border-gray-900 rounded-3xl p-6 space-y-6 mt-8">
             <div class="flex justify-between items-center border-b border-gray-900 pb-4">

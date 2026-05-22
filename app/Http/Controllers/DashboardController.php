@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\CartService;
+use App\Models\Achievement;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
@@ -18,8 +19,12 @@ class DashboardController extends Controller
 
         $cartItems = $this->cartService->getUserCart($user);
         $userTickets = $user->tickets()->latest()->paginate(2);
+        
+        // Get all achievements for the modal
+        $allAchievements = Achievement::all();
+        $userAchievementIds = $user->achievements->pluck('id')->toArray();
 
-        return view('dashboard', compact('cartItems', 'userTickets'));
+        return view('dashboard', compact('cartItems', 'userTickets', 'allAchievements', 'userAchievementIds'));
     }
 
 }
