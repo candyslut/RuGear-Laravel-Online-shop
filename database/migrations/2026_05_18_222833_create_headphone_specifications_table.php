@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('headphones_specifications');
+        Schema::dropIfExists('headphone_specifications');
     }
 };

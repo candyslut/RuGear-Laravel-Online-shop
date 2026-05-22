@@ -106,9 +106,125 @@
             color: #ffffff !important;
             border-color: #374151 !important;
         }
+
+        @keyframes toast-in {
+            from {
+                opacity: 0;
+                transform: translateX(420px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes toast-out {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(420px);
+            }
+        }
+
+        .achievement-toast {
+            animation: toast-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .achievement-toast.hide {
+            animation: toast-out 0.4s ease-in forwards;
+        }
+
+        .achievements-slider {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding-right: 1rem;
+        }
+
+        .achievements-slider::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .achievements-slider::-webkit-scrollbar-track {
+            background: #1f2937;
+            border-radius: 10px;
+        }
+
+        .achievements-slider::-webkit-scrollbar-thumb {
+            background: #f97316;
+            border-radius: 10px;
+        }
+
+        .achievement-card {
+            flex: 0 0 calc(50% - 0.5rem);
+            min-width: 280px;
+        }
+
+        @media (min-width: 1024px) {
+            .achievement-card {
+                flex: 0 0 calc(33.333% - 0.667rem);
+            }
+        }
+
+        .achievements-slider-nav {
+            display: none;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .achievements-slider-nav {
+                display: flex;
+            }
+        }
     </style>
 
     <div class="space-y-8">
+        @if(session('achievement_awarded'))
+            <div id="achievement-toast" class="fixed bottom-6 right-6 z-50 w-full max-w-sm rounded-3xl border border-orange-500/20 bg-[#111318] p-5 shadow-2xl shadow-orange-500/10 text-white ring-1 ring-orange-500/20 achievement-toast pointer-events-auto">
+                <div class="flex items-start gap-4">
+                    <div class="rounded-2xl bg-orange-500/10 text-orange-300 p-3 flex-shrink-0">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                        </svg>
+                    </div>
+                    <div class="space-y-2 flex-1 min-w-0">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="min-w-0">
+                                <p class="text-xs uppercase tracking-[0.24em] text-orange-400 font-bold">🎉 Достижение разблокировано!</p>
+                                <h3 class="text-sm font-black text-white line-clamp-1">{{ session('achievement_awarded.title') }}</h3>
+                            </div>
+                            <button type="button" onclick="closeAchievementToast()" class="text-gray-400 hover:text-white transition-colors flex-shrink-0 text-xl leading-none">
+                                ×
+                            </button>
+                        </div>
+                        <p class="text-xs text-gray-400 line-clamp-2">{{ session('achievement_awarded.description') }}</p>
+                        <div class="text-xs text-orange-300 bg-orange-500/10 px-3 py-2 rounded-2xl border border-orange-500/20 font-semibold">
+                            ⭐ +{{ session('achievement_awarded.experience') }} опыта
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script>
+                function closeAchievementToast() {
+                    const toast = document.getElementById('achievement-toast');
+                    if (toast) {
+                        toast.classList.add('hide');
+                        setTimeout(() => toast.remove(), 400);
+                    }
+                }
+
+                const achievementToast = document.getElementById('achievement-toast');
+                if (achievementToast) {
+                    setTimeout(() => closeAchievementToast(), 5000);
+                }
+            </script>
+        @endif
+
         <div>
             <h1 class="text-4xl font-black uppercase tracking-tight">
                 Личный <span class="text-orange-500">кабинет</span>
@@ -120,6 +236,64 @@
 
         <livewire:profile-cart />
 
+        <div class="bg-[#111318] border border-gray-900 rounded-3xl p-6 space-y-6 mt-8">
+            <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between border-b border-gray-900 pb-4">
+                <div>
+                    <h4 class="text-sm font-black uppercase tracking-wider text-white">Прогресс и достижения</h4>
+                    <p class="text-[11px] text-gray-500">Уровень и опыт начисляются за выполненные достижения.</p>
+                </div>
+                <div class="space-y-2 text-right">
+                    <div class="text-xs uppercase tracking-[0.24em] text-gray-400 font-bold">Уровень {{ auth()->user()->level }}</div>
+                    <div class="text-lg font-black text-white">{{ auth()->user()->experience }} XP</div>
+                    <div class="text-[11px] text-gray-500">До следующего уровня: {{ auth()->user()->next_level_experience - auth()->user()->experienceProgress }} XP</div>
+                </div>
+            </div>
+
+            <div class="rounded-full bg-gray-900 h-3 overflow-hidden">
+                <div class="h-full bg-orange-500 transition-all duration-500" style="width: {{ min(100, auth()->user()->experience > 0 ? (int) round(auth()->user()->experience / auth()->user()->next_level_experience * 100) : 0) }}%"></div>
+            </div>
+
+            @if(auth()->user()->achievements->count() > 0)
+                <div class="achievements-slider">
+                    @foreach(auth()->user()->achievements->sortByDesc('pivot.awarded_at') as $achievement)
+                        <div class="achievement-card bg-[#161920] border border-gray-800 rounded-3xl p-4 space-y-3 hover:border-orange-500/30 hover:shadow-lg hover:shadow-orange-500/10 transition-all">
+                            <div class="flex items-start gap-3">
+                                <div class="flex h-14 w-14 items-center justify-center rounded-3xl bg-gradient-to-br from-orange-500/20 to-orange-500/10 text-orange-300 flex-shrink-0">
+                                    <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                                    </svg>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <h5 class="text-sm font-black text-white line-clamp-2">{{ $achievement->title }}</h5>
+                                    <p class="text-xs text-orange-400 font-semibold">+{{ $achievement->experience }} XP</p>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-400 leading-relaxed line-clamp-3">{{ $achievement->description }}</p>
+                            <div class="pt-2 border-t border-gray-800/40">
+                                <p class="text-[10px] uppercase tracking-[0.2em] text-gray-500">
+                                    {{ $achievement->pivot->awarded_at ? \Carbon\Carbon::parse($achievement->pivot->awarded_at)->diffForHumans() : 'недавно' }}
+                                </p>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+                @if(auth()->user()->achievements->count() > 3)
+                    <div class="achievements-slider-nav flex justify-center gap-2">
+                        <button onclick="document.querySelector('.achievements-slider').scrollBy({left: -300, behavior: 'smooth'})" class="px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-all text-sm font-semibold">
+                            ← Назад
+                        </button>
+                        <button onclick="document.querySelector('.achievements-slider').scrollBy({left: 300, behavior: 'smooth'})" class="px-3 py-2 bg-orange-500 hover:bg-orange-400 text-black rounded-lg transition-all text-sm font-semibold">
+                            Вперед →
+                        </button>
+                    </div>
+                @endif
+            @else
+                <div class="rounded-3xl border border-dashed border-gray-800 bg-[#161920] p-8 text-center text-gray-500 space-y-2">
+                    <p class="text-sm font-semibold">🏆 Пока нет достижений</p>
+                    <p class="text-xs">Первое достижение вы получите после регистрации. Затем можете получать их за комментарии!</p>
+                </div>
+            @endif
+        </div>
         <div class="bg-[#111318] border border-gray-900 rounded-3xl p-6 space-y-6 mt-8">
             <div class="flex justify-between items-center border-b border-gray-900 pb-4">
                 <div>
@@ -277,6 +451,12 @@
             </div>
         </div>
     </div>
+
+    <style>
+        .achievement-toast {
+            pointer-events: auto;
+        }
+    </style>
 </x-shop-layout>
 
 <script>

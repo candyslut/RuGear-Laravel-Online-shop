@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Achievement;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -46,6 +47,22 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        $registrationAchievement = Achievement::firstOrCreate(
+            ['slug' => 'registered'],
+            [
+                'title' => 'Первое достижение',
+                'description' => 'Вы получили достижение за регистрацию на RuGear.',
+                'experience' => 50,
+            ]
+        );
+
+        $user->awardAchievement($registrationAchievement);
+
+        return redirect(route('dashboard', absolute: false))
+            ->with('achievement_awarded', [
+                'title' => $registrationAchievement->title,
+                'description' => $registrationAchievement->description,
+                'experience' => $registrationAchievement->experience,
+            ]);
     }
 }

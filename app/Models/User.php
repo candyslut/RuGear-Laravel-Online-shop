@@ -7,10 +7,11 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'role'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -40,5 +41,40 @@ class User extends Authenticatable
 
     public function tickets() {
         return $this->hasMany(Ticket::class);
+    }
+
+    public function achievements(): BelongsToMany
+    {
+        return $this->belongsToMany(Achievement::class)
+            ->withPivot('awarded_at');
+    }
+
+    public function addExperience(int $amount): void
+    {
+        $this->experience = $this->experience + $amount;
+        $this->level = max(1, intdiv($this->experience, 100) + 1);
+        $this->save();
+    }
+
+    public function awardAchievement(Achievement $achievement): bool
+    {
+        if ($this->achievements()->where('achievement_id', $achievement->id)->exists()) {
+            return false;
+        }
+
+        $this->achievements()->attach($achievement->id, ['awarded_at' => now()]);
+        $this->addExperience($achievement->experience);
+
+        return true;
+    }
+
+    public function getNextLevelExperienceAttribute(): int
+    {
+        return $this->level * 100;
+    }
+
+    public function getExperienceProgressAttribute(): int
+    {
+        return max(0, min($this->experience, $this->nextLevelExperience - 1) - ($this->level - 1) * 100);
     }
 }

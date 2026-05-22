@@ -264,3 +264,4 @@
         });
     </script>
 </x-shop-layout>
+

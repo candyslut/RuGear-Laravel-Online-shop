@@ -25,17 +25,18 @@
         @foreach($cartItems as $item)
         <div class="flex items-center justify-between px-5 py-4 bg-gray-900/40 border border-gray-800 rounded-2xl" wire:key="profile-cart-item-{{ $item->id }}">
             <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-gray-800 rounded-xl flex items-center justify-center text-orange-500">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                    </svg>
+                {{-- Блок картинки товара --}}
+                <div class="w-12 h-12 bg-gray-950 border border-gray-800 rounded-xl overflow-hidden flex items-center justify-center shrink-0">
+                    <img src="{{ asset($item->product->image) }}"
+                        alt="{{ $item->product->name }}"
+                        class="w-full h-full object-contain p-1">
                 </div>
 
                 <div>
-                    <h3 class="text-white font-bold">
+                    <h3 class="text-white font-bold line-clamp-1">
                         {{ $item->product->name }}
                     </h3>
-                    <p class="text-gray-500 text-xs uppercase">
+                    <p class="text-gray-500 text-[10px] uppercase tracking-wider mt-0.5">
                         {{ $item->product->category->name ?? 'Девайс' }}
                     </p>
                 </div>

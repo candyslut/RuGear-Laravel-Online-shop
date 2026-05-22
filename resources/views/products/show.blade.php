@@ -60,6 +60,8 @@
         @endif
     </div>
 
+    @livewire('comparison-manager', ['product' => $product])
+
     @auth
         @php 
             $itemInCart = auth()->user()->cartItems->where('product_id', $product->id)->first(); 
@@ -268,18 +270,7 @@
 
         @auth
             <div class="bg-[#161920] border border-gray-800 rounded-2xl p-6 shadow-md">
-                <form action="{{ route('product.commentary', $product) }}" method="POST" class="space-y-4">
-                    @csrf
-                    <textarea 
-                        name="content" 
-                        rows="3" 
-                        required
-                        class="w-full bg-[#0f1117] border border-gray-800 rounded-xl p-4 text-sm text-gray-200 placeholder-gray-600 focus:outline-none focus:border-orange-500 transition-colors resize-none"
-                        placeholder="Напишите отзыв..."></textarea>
-                    <button type="submit" class="w-full py-3 bg-white hover:bg-orange-500 hover:text-black text-black text-xs font-bold uppercase tracking-wider rounded-xl transition-all cursor-pointer">
-                        Отправить комментарий
-                    </button>
-                </form>
+                @livewire('comment-form', ['product' => $product])
             </div>
         @else
             <div class="border border-dashed border-gray-800 rounded-2xl p-6 text-center text-sm text-gray-500">

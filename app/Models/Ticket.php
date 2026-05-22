@@ -14,7 +14,7 @@ class Ticket extends Model
         'content',
         'status',
         'reply'
-    ];
+    ]; 
 
     public function user() {
         return $this->belongsTo(User::class);

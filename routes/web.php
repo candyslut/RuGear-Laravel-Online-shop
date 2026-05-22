@@ -7,12 +7,15 @@ use App\Http\Controllers\{
     CartController,
     DashboardController,
     CommentaryController,
-    TicketController
+    TicketController,
+    ComparisonController
 };
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [ProductsController::class, 'index'])->name('products.index');
 Route::get('/product/{product}', [ProductsController::class, 'show'])->name('products.show');
+Route::get('/compare', [ComparisonController::class, 'show'])->name('comparison.show');
+Route::post('/compare/clear', [ComparisonController::class, 'clear'])->name('comparison.clear');
 Route::get('/support', function () {
     return view('support');
 })->name('support');

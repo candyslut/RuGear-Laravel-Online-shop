@@ -96,9 +96,8 @@ class AdminController extends Controller
             'price' => 'required|numeric|min:0',
             'quantity' => 'required|integer|min:0',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', // Опционально при обновлении
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', 
             
-            // Валидация полей характеристик под любые типы девайсов
             'sensor' => 'nullable|string',
             'max_dpi' => 'nullable|integer',
             'polling_rate' => 'nullable|integer',
