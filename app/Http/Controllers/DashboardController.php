@@ -18,8 +18,8 @@ class DashboardController extends Controller
         $user->load('achievements');
 
         $cartItems = $this->cartService->getUserCart($user);
-        $userTickets = $user->tickets()->latest()->paginate(2);
-        
+        $userTickets = $user->tickets()->latest()->get();
+
         // Get user's orders
         $userOrders = $user->orders()->with('items.product')->latest()->paginate(5);
         

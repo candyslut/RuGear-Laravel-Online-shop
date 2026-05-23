@@ -1356,7 +1356,7 @@ if (typeof window.yodorada === 'undefined') {
 			}
 		};
 
-		$('#screens img').addClass('ready').fadeOut(0);
+		$('#screens .space-btn').addClass('ready').fadeOut(0);
 		$('#screens').fadeOut(0).addClass('ready').fadeIn();
 
 		var randBetween = function(min, max) {

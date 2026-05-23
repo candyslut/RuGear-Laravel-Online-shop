@@ -1,9 +1,9 @@
 <!doctype html>
-<html class="no-js" lang="de">
+<html class="no-js" lang="ru">
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>Buzzword Blast - Classic Shoot'em Up</title>
+        <title>RuGear — Мини-игра</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
         <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
@@ -13,19 +13,26 @@
     </head>
     <body>
         <!--[if lte IE 9]>
-            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+            <p class="browserupgrade">Вы используете <strong>устаревший</strong> браузер. Пожалуйста, <a href="https://browsehappy.com/">обновите браузер</a> для улучшения безопасности и удобства.</p>
         <![endif]-->
         <div id="wrapper">
             <div id="buzzwordBlast">
                 <div class="gameContainer">
                     <div id="screens">
-                        <img id="continue" src="images/space-to-continue.png" />
-                        <img id="restart" src="images/space-to-restart.png" />
+                        <div id="overlay-start" class="screen-overlay">
+                            <p>СТРЕЛКИ — УПРАВЛЕНИЕ</p>
+                            <p>ПРОБЕЛ — ОГОНЬ</p>
+                            <p>НАЖМИТЕ ЗДЕСЬ ДЛЯ СТАРТА</p>
+                        </div>
+                        <div id="overlay-win" class="screen-overlay">ВЫ СПРАВИЛИСЬ!</div>
+                        <div id="overlay-loss" class="screen-overlay">ЕЩЁ РАЗ!</div>
+                        <div id="continue" class="space-btn">ПРОБЕЛ — ПРОДОЛЖИТЬ</div>
+                        <div id="restart" class="space-btn">ПРОБЕЛ — СНОВА</div>
                     </div>
                     <canvas id="game" width="700" height="700"></canvas>
                     <div id="gameVars" class="endscreen">
-                        <div id="numships">Ships: <span></span></div>
-                        <div id="playerscore">Score: <span></span></div>
+                        <div id="numships">Корабли: <span></span></div>
+                        <div id="playerscore">Счёт: <span></span></div>
                         
                     </div>
                     <div id="soundcontrol">
