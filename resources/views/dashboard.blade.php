@@ -2,668 +2,279 @@
     <x-slot name="title">Личный кабинет | RuGear</x-slot>
 
     <style>
-        /* Центрирование и фикс позиции для нативного dialog */
         dialog[open] {
             position: fixed;
-            top: 50% !important;
-            left: 50% !important;
+            top: 50% !important; left: 50% !important;
             transform: translate(-50%, -50%) !important;
             margin: 0 !important;
         }
+        dialog::backdrop { background: rgba(0,0,0,0.8); }
+        dialog { animation: dlgIn 0.2s ease-out; }
+        @keyframes dlgIn { from { opacity:0; transform:translate(-50%,-48%) scale(.97); } to { opacity:1; transform:translate(-50%,-50%) scale(1); } }
 
-        /* Кастомный скроллбар для длинных ответов техподдержки */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
-        }
+        .cs::-webkit-scrollbar { width: 4px; }
+        .cs::-webkit-scrollbar-track { background: transparent; }
+        .cs::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
 
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
+        .custom-pagination nav { background:transparent!important; box-shadow:none!important; border:none!important; padding:0!important; display:flex!important; justify-content:flex-end!important; }
+        .custom-pagination nav>div:first-child,.custom-pagination nav p { display:none!important; }
+        .custom-pagination nav>div:last-child { display:flex!important; background:transparent!important; }
+        .custom-pagination a,.custom-pagination span[aria-current="page"] span { background:#161920!important; color:#9ca3af!important; border:1px solid #374151!important; font-size:12px!important; padding:7px 13px!important; margin:0 2px!important; border-radius:10px!important; transition:all .15s!important; }
+        .custom-pagination span[aria-disabled="true"] span { background:#161920!important; color:#4b5563!important; border:1px solid #374151!important; font-size:12px!important; padding:7px 13px!important; margin:0 2px!important; border-radius:10px!important; cursor:not-allowed!important; }
+        .custom-pagination span[aria-current="page"] span { background:#f97316!important; color:#000!important; border-color:#f97316!important; font-weight:900!important; }
+        .custom-pagination a:hover { background:#1f2937!important; color:#fff!important; }
 
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #1f2937;
-            border-radius: 10px;
-        }
+        @keyframes tin  { from{opacity:0;transform:translateX(380px)} to{opacity:1;transform:translateX(0)} }
+        @keyframes tout { from{opacity:1;transform:translateX(0)} to{opacity:0;transform:translateX(380px)} }
+        .toast { animation: tin .4s cubic-bezier(.34,1.56,.64,1); pointer-events:auto; }
+        .toast.out { animation: tout .3s ease-in forwards; }
 
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #f97316;
-        }
-
-        /* Полная кастомизация пагинации Laravel под темную тему RuGear */
-        .custom-pagination nav {
-            background: transparent !important;
-            box-shadow: none !important;
-            border: none !important;
-            padding: 0 !important;
-            display: flex !important;
-            justify-content: flex-end !important;
-            /* Сдвигаем строго вправо */
-        }
-
-        /* Скрываем текстовое сопровождение "Showing 1 to 2..." и мобильные дубли кнопок */
-        .custom-pagination nav>div:first-child,
-        .custom-pagination nav flex[span],
-        .custom-pagination nav p {
-            display: none !important;
-        }
-
-        /* Оставляем только контейнер с цифрами и стрелочками */
-        .custom-pagination nav>div:last-child {
-            display: flex !important;
-            box-shadow: none !important;
-            background: transparent !important;
-        }
-
-        .custom-pagination nav>div:last-child span[span] {
-            display: none !important;
-            /* Убираем лишние обертки */
-        }
-
-        /* Стилизация КНОПОК-ССЫЛОК (активные стрелки и другие страницы) */
-        .custom-pagination a,
-        .custom-pagination span[aria-current="page"] span {
-            background-color: #161920 !important;
-            color: #9ca3af !important;
-            border: 1px solid #1f2937 !important;
-            font-weight: 700 !important;
-            font-size: 11px !important;
-            font-family: monospace !important;
-            padding: 8px 14px !important;
-            margin: 0 3px !important;
-            border-radius: 12px !important;
-            /* Скругление как у карточек */
-            transition: all 0.2s ease !important;
-        }
-
-        /* Стилизация НЕАКТИВНЫХ СТРЕЛОК (Назад на 1-й странице, Вперед на последней) */
-        .custom-pagination span[aria-disabled="true"] span {
-            background-color: #161920 !important;
-            color: #ffffff !important;
-            /* Белый цвет для заблокированных стрелок */
-            border: 1px solid #1f2937 !important;
-            font-weight: 700 !important;
-            font-size: 11px !important;
-            font-family: monospace !important;
-            padding: 8px 14px !important;
-            margin: 0 3px !important;
-            border-radius: 12px !important;
-            cursor: not-allowed !important;
-            /* Меняем курсор, чтобы показать, что нажать нельзя */
-            opacity: 0.9 !important;
-        }
-
-        /* Активная страница (яркая оранжевая кнопка) */
-        .custom-pagination span[aria-current="page"] span {
-            background-color: #f97316 !important;
-            color: #000000 !important;
-            border-color: #f97316 !important;
-            font-weight: 900 !important;
-        }
-
-        /* Эффект наведения только на кликабельные страницы и стрелки */
-        .custom-pagination a:hover {
-            background-color: #1f2937 !important;
-            color: #ffffff !important;
-            border-color: #374151 !important;
-        }
-
-        @keyframes toast-in {
-            from {
-                opacity: 0;
-                transform: translateX(420px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        @keyframes toast-out {
-            from {
-                opacity: 1;
-                transform: translateX(0);
-            }
-
-            to {
-                opacity: 0;
-                transform: translateX(420px);
-            }
-        }
-
-        .achievement-toast {
-            animation: toast-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .achievement-toast.hide {
-            animation: toast-out 0.4s ease-in forwards;
-        }
-
-        .achievements-slider {
-            display: flex;
-            gap: 1rem;
-            overflow-x: auto;
-            scroll-behavior: smooth;
-            padding-right: 1rem;
-        }
-
-        .achievements-slider::-webkit-scrollbar {
-            height: 6px;
-        }
-
-        .achievements-slider::-webkit-scrollbar-track {
-            background: #1f2937;
-            border-radius: 10px;
-        }
-
-        .achievements-slider::-webkit-scrollbar-thumb {
-            background: #f97316;
-            border-radius: 10px;
-        }
-
-        .achievement-card {
-            flex: 0 0 calc(50% - 0.5rem);
-            min-width: 280px;
-        }
-
-        @media (min-width: 1024px) {
-            .achievement-card {
-                flex: 0 0 calc(33.333% - 0.667rem);
-            }
-        }
-
-        .achievements-slider-nav {
-            display: none;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-
-        @media (max-width: 768px) {
-            .achievements-slider-nav {
-                display: flex;
-            }
-        }
-
-        /* Новые стили для сетки достижений */
-        .achievements-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
-
-        @media (max-width: 768px) {
-            .achievements-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 1rem;
-            }
-        }
-
-        @media (max-width: 640px) {
-            .achievements-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        #ach-track { scrollbar-width:none; -ms-overflow-style:none; }
+        #ach-track::-webkit-scrollbar { display:none; }
     </style>
 
-    <div class="space-y-8">
-        @if(session('achievement_awarded'))
-        <div id="achievement-toast" class="fixed bottom-6 right-6 z-50 w-full max-w-sm rounded-3xl border border-orange-500/20 bg-[#111318] p-5 shadow-2xl shadow-orange-500/10 text-white ring-1 ring-orange-500/20 achievement-toast pointer-events-auto">
-            <div class="flex items-start gap-4">
-                <div class="rounded-2xl bg-orange-500/10 text-orange-300 p-3 flex-shrink-0">
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
+    {{-- TOASTS --}}
+    @if(session('achievement_awarded'))
+    <div id="t-ach" class="fixed bottom-6 right-6 z-50 w-80 bg-[#1a1d24] border border-orange-500/30 rounded-2xl p-4 shadow-2xl toast">
+        <div class="flex gap-3 items-start">
+            <div class="w-10 h-10 rounded-xl bg-orange-500/15 flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-orange-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-xs font-bold uppercase tracking-widest text-orange-400">Достижение разблокировано</p>
+                <p class="text-sm font-bold text-white mt-0.5">{{ session('achievement_awarded.title') }}</p>
+                <p class="text-xs text-gray-400 mt-1">+{{ session('achievement_awarded.experience') }} XP</p>
+            </div>
+            <button onclick="closeToast('t-ach')" class="text-gray-600 hover:text-white text-lg leading-none">×</button>
+        </div>
+    </div>
+    @endif
+
+    @if(session('success'))
+    <div id="t-ok" class="fixed bottom-6 right-6 z-50 w-80 bg-[#1a1d24] border border-green-500/30 rounded-2xl p-4 shadow-2xl toast">
+        <div class="flex gap-3 items-start">
+            <div class="w-10 h-10 rounded-xl bg-green-500/15 flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-xs font-bold uppercase tracking-widest text-green-400">Готово</p>
+                <p class="text-sm font-bold text-white mt-0.5">{{ session('success') }}</p>
+            </div>
+            <button onclick="closeToast('t-ok')" class="text-gray-600 hover:text-white text-lg leading-none">×</button>
+        </div>
+    </div>
+    @endif
+
+    <script>
+        function closeToast(id){const t=document.getElementById(id);if(t){t.classList.add('out');setTimeout(()=>t.remove(),300);}}
+        @if(session('achievement_awarded')) setTimeout(()=>closeToast('t-ach'),5000); @endif
+        @if(session('success')) setTimeout(()=>closeToast('t-ok'),4000); @endif
+    </script>
+
+    <div class="space-y-5">
+
+    {{-- ══════════════════════════════════════════════════ --}}
+    {{-- ПРОФИЛЬ                                           --}}
+    {{-- ══════════════════════════════════════════════════ --}}
+    <div class="bg-[#161920] border border-gray-800 rounded-2xl p-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-orange-500 flex items-center justify-center text-black text-2xl font-black flex-shrink-0">
+                    {{ strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}
                 </div>
-                <div class="space-y-2 flex-1 min-w-0">
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="min-w-0">
-                            <p class="text-xs uppercase tracking-[0.24em] text-orange-400 font-bold">🎉 Достижение разблокировано!</p>
-                            <h3 class="text-sm font-black text-white line-clamp-1">{{ session('achievement_awarded.title') }}</h3>
-                        </div>
-                        <button type="button" onclick="closeAchievementToast()" class="text-gray-400 hover:text-white transition-colors flex-shrink-0 text-xl leading-none">
-                            ×
-                        </button>
-                    </div>
-                    <p class="text-xs text-gray-400 line-clamp-2">{{ session('achievement_awarded.description') }}</p>
-                    <div class="text-xs text-orange-300 bg-orange-500/10 px-3 py-2 rounded-2xl border border-orange-500/20 font-semibold text-center w-full">
-                        ⭐ +{{ session('achievement_awarded.experience') }} опыта
-                    </div>
+                <div>
+                    <h1 class="text-2xl font-black text-white leading-tight">{{ auth()->user()->name }}</h1>
+                    <p class="text-sm text-gray-500 mt-0.5">{{ auth()->user()->email }}</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-6 flex-wrap">
+                <div class="text-center">
+                    <p class="text-3xl font-black text-orange-500 leading-none">{{ auth()->user()->level }}</p>
+                    <p class="text-xs text-gray-500 uppercase tracking-wider mt-1">Уровень</p>
+                </div>
+                <div class="w-px h-12 bg-gray-800"></div>
+                <div class="text-center">
+                    <p class="text-3xl font-black text-white leading-none">{{ auth()->user()->experience }}</p>
+                    <p class="text-xs text-gray-500 uppercase tracking-wider mt-1">Опыт (XP)</p>
+                </div>
+                <div class="w-px h-12 bg-gray-800"></div>
+                <div class="text-center">
+                    <p class="text-3xl font-black text-white leading-none">{{ auth()->user()->achievements->count() }}</p>
+                    <p class="text-xs text-gray-500 uppercase tracking-wider mt-1">Достижений</p>
                 </div>
             </div>
         </div>
-        <script>
-            function closeAchievementToast() {
-                const toast = document.getElementById('achievement-toast');
-                if (toast) {
-                    toast.classList.add('hide');
-                    setTimeout(() => toast.remove(), 400);
-                }
-            }
 
-            const achievementToast = document.getElementById('achievement-toast');
-            if (achievementToast) {
-                setTimeout(() => closeAchievementToast(), 5000);
-            }
-        </script>
-        @endif
-
-        @if(session('success'))
-        <div id="success-toast" class="fixed bottom-6 right-6 z-50 w-full max-w-sm rounded-3xl border border-green-500/20 bg-[#111318] p-5 shadow-2xl shadow-green-500/10 text-white ring-1 ring-green-500/20 achievement-toast pointer-events-auto">
-            <div class="flex items-start gap-4">
-                <div class="rounded-2xl bg-green-500/10 text-green-300 p-3 flex-shrink-0">
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
-                    </svg>
-                </div>
-                <div class="space-y-2 flex-1 min-w-0">
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="min-w-0">
-                            <p class="text-xs uppercase tracking-[0.24em] text-green-400 font-bold">✓ Успешно!</p>
-                            <h3 class="text-sm font-black text-white line-clamp-1">Заказ создан</h3>
-                        </div>
-                        <button type="button" onclick="closeSuccessToast()" class="text-gray-400 hover:text-white transition-colors flex-shrink-0 text-xl leading-none">
-                            ×
-                        </button>
-                    </div>
-                    <p class="text-xs text-gray-400 line-clamp-2">{{ session('success') }}</p>
+        <div class="mt-5 flex items-center gap-3">
+            <div class="flex-1 h-2 bg-gray-900 rounded-full overflow-hidden">
+                <div class="h-full bg-orange-500 rounded-full transition-all duration-700"
+                     style="width: {{ min(100, auth()->user()->experience > 0 ? (int) round(auth()->user()->experience / auth()->user()->next_level_experience * 100) : 0) }}%">
                 </div>
             </div>
-        </div>
-        <script>
-            function closeSuccessToast() {
-                const toast = document.getElementById('success-toast');
-                if (toast) {
-                    toast.classList.add('hide');
-                    setTimeout(() => toast.remove(), 400);
-                }
-            }
-
-            const successToast = document.getElementById('success-toast');
-            if (successToast) {
-                setTimeout(() => closeSuccessToast(), 4000);
-            }
-        </script>
-        @endif
-
-        <div>
-            <h1 class="text-4xl font-black uppercase tracking-tight">
-                Личный <span class="text-orange-500">кабинет</span>
-            </h1>
-            <p class="text-gray-500 mt-2 font-medium italic">
-                Вы авторизованы как: {{ auth()->user()->name }}
+            <p class="text-sm text-gray-500 flex-shrink-0 whitespace-nowrap">
+                {{ auth()->user()->next_level_experience - auth()->user()->experienceProgress }} XP до уровня {{ auth()->user()->level + 1 }}
             </p>
         </div>
-
-        <livewire:profile-cart />
-
-        <div class="bg-[#111318] border border-gray-900 rounded-3xl p-6 space-y-6 mt-8">
-            <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between border-b border-gray-900 pb-4">
-                <div>
-                    <h4 class="text-sm font-black uppercase tracking-wider text-white">Прогресс и достижения</h4>
-                    <p class="text-[11px] text-gray-500">Уровень и опыт начисляются за выполненные достижения.</p>
-                </div>
-                <div class="space-y-2 text-right">
-                    <div class="text-xs uppercase tracking-[0.24em] text-gray-400 font-bold">Уровень {{ auth()->user()->level }}</div>
-                    <div class="text-lg font-black text-white">{{ auth()->user()->experience }} XP</div>
-                    <div class="text-[11px] text-gray-500">До следующего уровня: {{ auth()->user()->next_level_experience - auth()->user()->experienceProgress }} XP</div>
-                </div>
-            </div>
-
-            <div class="rounded-full bg-gray-900 h-3 overflow-hidden">
-                <div class="h-full bg-orange-500 transition-all duration-500" style="width: {{ min(100, auth()->user()->experience > 0 ? (int) round(auth()->user()->experience / auth()->user()->next_level_experience * 100) : 0) }}%"></div>
-            </div>
-
-            @if(auth()->user()->achievements->count() > 0)
-            <div class="achievements-grid">
-                @foreach(auth()->user()->achievements->sortByDesc('pivot.awarded_at') as $achievement)
-                <div class="achievement-card bg-[#161920] border border-gray-800 rounded-3xl p-4 space-y-3 hover:border-orange-500/30 hover:shadow-lg hover:shadow-orange-500/10 transition-all">
-                    <div class="flex items-start gap-3">
-                        <div class="flex h-14 w-14 items-center justify-center rounded-3xl bg-gradient-to-br from-orange-500/20 to-orange-500/10 text-orange-300 flex-shrink-0">
-                            <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                            </svg>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <h5 class="text-sm font-black text-white line-clamp-2">{{ $achievement->title }}</h5>
-                            <p class="text-xs text-orange-400 font-semibold">+{{ $achievement->experience }} XP</p>
-                        </div>
-                    </div>
-                    <p class="text-xs text-gray-400 leading-relaxed line-clamp-3">{{ $achievement->description }}</p>
-                    <div class="pt-2 border-t border-gray-800/40">
-                        <p class="text-[10px] uppercase tracking-[0.2em] text-gray-500">
-                            {{ $achievement->pivot->awarded_at ? \Carbon\Carbon::parse($achievement->pivot->awarded_at)->diffForHumans() : 'недавно' }}
-                        </p>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-            @else
-            <div class="rounded-3xl border border-dashed border-gray-800 bg-[#161920] p-8 text-center text-gray-500 space-y-2">
-                <p class="text-sm font-semibold">🏆 Пока нет достижений</p>
-                <p class="text-xs">Первое достижение вы получите после регистрации. Затем можете получать их за комментарии!</p>
-            </div>
-            @endif
-
-            <button onclick="document.getElementById('achievements-modal').showModal()" class="w-full py-3 bg-orange-500 hover:bg-orange-600 text-black text-sm font-bold uppercase tracking-wider rounded-xl transition-all">
-                🎯 Все достижения
-            </button>
-        </div>
-
-        <!-- Achievements Modal -->
-        <dialog id="achievements-modal" class="fixed inset-0 w-full max-w-3xl max-h-[90vh] rounded-3xl bg-[#111318] border border-gray-800 p-0 shadow-2xl">
-            <div class="flex flex-col h-full">
-                <!-- Modal Header -->
-                <div class="flex items-center justify-between border-b border-gray-800 p-6">
-                    <h2 class="text-2xl font-black text-white">🏆 Все достижения</h2>
-                    <button onclick="document.getElementById('achievements-modal').close()" class="text-gray-400 hover:text-white text-2xl leading-none transition-colors">
-                        ×
-                    </button>
-                </div>
-
-                <!-- Modal Body -->
-                <div class="flex-1 overflow-y-auto p-6 custom-scrollbar space-y-3">
-                    @forelse($allAchievements->sortBy('experience') as $achievement)
-                    @php
-                    $isUnlocked = in_array($achievement->id, $userAchievementIds);
-                    $userAchievement = auth()->user()->achievements()->where('achievement_id', $achievement->id)->first();
-                    @endphp
-                    <div class="achievement-modal-card bg-[#161920] border {{ $isUnlocked ? 'border-orange-500/40' : 'border-gray-800' }} rounded-2xl p-4 flex items-start gap-4 hover:border-orange-500/60 transition-all {{ !$isUnlocked ? 'opacity-60' : '' }}">
-                        <div class="flex h-16 w-16 items-center justify-center rounded-2xl {{ $isUnlocked ? 'bg-gradient-to-br from-orange-500/20 to-orange-500/10 text-orange-300' : 'bg-gray-800 text-gray-600' }} flex-shrink-0">
-                            @if($isUnlocked)
-                            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                            </svg>
-                            @else
-                            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                            </svg>
-                            @endif
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-start gap-2 justify-between">
-                                <div>
-                                    <h4 class="text-sm font-black text-white">{{ $achievement->title }}</h4>
-                                    <p class="text-xs {{ $isUnlocked ? 'text-orange-400' : 'text-gray-500' }} font-semibold">+{{ $achievement->experience }} XP</p>
-                                </div>
-                                @if($isUnlocked)
-                                <div class="flex-shrink-0 px-3 py-1 bg-orange-500/20 border border-orange-500/40 rounded-full">
-                                    <p class="text-[10px] uppercase tracking-[0.2em] text-orange-300 font-bold">✓ Получено</p>
-                                </div>
-                                @else
-                                <div class="flex-shrink-0 px-3 py-1 bg-gray-800/40 border border-gray-700 rounded-full">
-                                    <p class="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-bold">Заблокировано</p>
-                                </div>
-                                @endif
-                            </div>
-                            <p class="text-xs text-gray-400 leading-relaxed mt-2">{{ $achievement->description }}</p>
-                            @if($isUnlocked && $userAchievement)
-                            <p class="text-[10px] uppercase tracking-[0.2em] text-gray-500 mt-2">
-                                Получено {{ \Carbon\Carbon::parse($userAchievement->pivot->awarded_at)->diffForHumans() }}
-                            </p>
-                            @endif
-                        </div>
-                    </div>
-                    @empty
-                    <div class="text-center py-8 text-gray-500">
-                        <p class="text-sm">Достижения еще не добавлены</p>
-                    </div>
-                    @endforelse
-                </div>
-
-                <!-- Modal Footer -->
-                <div class="border-t border-gray-800 p-6">
-                    <button onclick="document.getElementById('achievements-modal').close()" class="w-full py-3 bg-gray-800 hover:bg-gray-700 text-white text-sm font-bold uppercase tracking-wider rounded-xl transition-all">
-                        Закрыть
-                    </button>
-                </div>
-            </div>
-
-            <style>
-                dialog::backdrop {
-                    background-color: rgba(0, 0, 0, 0.7);
-                }
-
-                dialog {
-                    animation: dialogSlideIn 0.3s ease-out;
-                }
-
-                @keyframes dialogSlideIn {
-                    from {
-                        opacity: 0;
-                        transform: scale(0.95);
-                    }
-
-                    to {
-                        opacity: 1;
-                        transform: scale(1);
-                    }
-                }
-            </style>
-        </dialog>
     </div>
 
-    <div class="bg-[#111318] border border-gray-900 rounded-3xl p-6 space-y-4 mt-8">
-        <div class="flex justify-between items-center pb-2 border-b border-gray-900/60">
-            <div>
-                <h4 class="text-sm font-black uppercase tracking-wider text-white">Игровая зона RuGear</h4>
-                <p class="text-[11px] text-gray-500">Перерыв на сборку ПК? Расслабься в мини-игре.</p>
-            </div>
+    {{-- ══════════════════════════════════════════════════ --}}
+    {{-- КОРЗИНА                                           --}}
+    {{-- ══════════════════════════════════════════════════ --}}
+    <div class="bg-[#161920] border border-gray-800 rounded-2xl overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-800 flex items-center justify-between">
+            <h2 class="text-base font-bold text-white">Корзина</h2>
+            <span class="text-sm text-gray-500">{{ collect($cartItems)->sum('quantity') }} товаров</span>
         </div>
-
-        <button
-            onclick="document.getElementById('real-game-modal').showModal(); setTimeout(() => document.getElementById('game-iframe').focus(), 100);"
-            class="w-full py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-black text-sm font-bold uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-orange-500/10 active:scale-[0.98]">
-            🎮 Запустить мини-игру
-        </button>
+        <div class="p-6">
+            <livewire:profile-cart />
+        </div>
     </div>
 
-    <dialog id="real-game-modal" class="backdrop:bg-black/80 bg-[#111318] border border-gray-800 p-0 rounded-3xl w-[70vw] h-[98vh] shadow-2xl focus:outline-none">
-        <div class="flex flex-col h-full">
-
-            <div class="flex items-center justify-between border-b border-gray-800 p-5 flex-shrink-0">
-                <div>
-                    <h3 class="text-sm font-black uppercase tracking-wider text-white">Мини-игра RuGear</h3>
-                    <p class="text-[10px] text-gray-500 mt-0.5">Игра запущена из папки public</p>
-                </div>
-                <button type="button" onclick="document.getElementById('real-game-modal').close()" class="text-gray-400 hover:text-white transition-colors p-1 text-2xl leading-none">
-                    &times;
-                </button>
-            </div>
-
-            <div class="flex-1 bg-black overflow-hidden relative">
-                <iframe
-                    id="game-iframe"
-                    src="{{ asset('index.html') }}"
-                    class="absolute inset-0 w-full h-full border-0 m-0 p-0"
-                    allow="autoplay; keyboard; fullscreen"
-                    loading="lazy">
-                </iframe>
-            </div>
-
-            <div class="border-t border-gray-800 p-4 bg-[#111318] flex-shrink-0">
-                <button type="button" onclick="document.getElementById('real-game-modal').close()" class="w-full py-2.5 bg-gray-850 hover:bg-gray-800 text-xs font-bold rounded-xl border border-gray-800 text-gray-400 transition-colors uppercase tracking-wider">
-                    Закрыть игру
-                </button>
-            </div>
-        </div>
-    </dialog>
-
-    <!-- Orders Section -->
-    <div class="bg-[#111318] border border-gray-900 rounded-3xl p-6 space-y-5 mt-8">
-        <div class="flex items-center justify-between border-b border-gray-900 pb-4">
-            <div>
-                <h4 class="text-sm font-black uppercase tracking-wider text-white">Мои заказы</h4>
-                <p class="text-[11px] text-gray-500">История заказов, статусы и детали доставки.</p>
-            </div>
+    {{-- ══════════════════════════════════════════════════ --}}
+    {{-- ЗАКАЗЫ                                            --}}
+    {{-- ══════════════════════════════════════════════════ --}}
+    <div class="bg-[#161920] border border-gray-800 rounded-2xl overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-800 flex items-center justify-between">
+            <h2 class="text-base font-bold text-white">Мои заказы</h2>
             @if(!$userOrders->isEmpty())
-            <span class="text-[10px] font-mono text-gray-600 bg-gray-800/60 px-2.5 py-1 rounded-lg border border-gray-800">
-                {{ $userOrders->total() }} заказ(ов)
-            </span>
+            <span class="text-sm font-medium text-gray-500">{{ $userOrders->total() }} заказов</span>
             @endif
         </div>
 
         @if($userOrders->isEmpty())
-        <div class="py-10 text-center space-y-3">
-            <div class="w-14 h-14 rounded-2xl bg-gray-800/60 border border-gray-800 flex items-center justify-center mx-auto text-gray-600">
-                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="p-10 text-center">
+            <div class="w-14 h-14 rounded-2xl bg-gray-800 flex items-center justify-center mx-auto mb-4">
+                <svg class="w-7 h-7 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                 </svg>
             </div>
-            <p class="text-sm font-bold text-gray-500">Заказов пока нет</p>
-            <p class="text-xs text-gray-600">Добавьте товары в корзину и оформите первый заказ</p>
-            <a href="/" class="inline-block text-orange-500 hover:text-orange-400 text-sm font-bold transition">Перейти в каталог →</a>
+            <p class="text-base font-semibold text-gray-400">Заказов пока нет</p>
+            <p class="text-sm text-gray-600 mt-1">Добавьте товары в корзину и оформите первый заказ</p>
+            <a href="/" class="inline-block mt-4 bg-orange-500 hover:bg-orange-600 text-black font-bold text-sm px-6 py-2.5 rounded-xl transition">
+                В каталог
+            </a>
         </div>
         @else
-        <div class="space-y-3">
+        <div class="divide-y divide-gray-800">
             @foreach($userOrders as $order)
             @php
-                $deliveryLabels = ['courier' => '🚚 Курьер', 'pickup' => '🏪 Самовывоз', 'post' => '📦 Почта / ПВЗ'];
-                $paymentLabels  = ['card' => '💳 Карта', 'cash' => '💵 Наличные'];
-                $statusOrder    = ['pending' => 0, 'processing' => 1, 'completed' => 2];
-                $currentStep    = $statusOrder[$order->status] ?? 0;
-                $itemCnt        = $order->items->count();
-                $itemWord       = ($itemCnt % 10 === 1 && $itemCnt % 100 !== 11) ? 'позиция'
-                                : (in_array($itemCnt % 10, [2,3,4]) && !in_array($itemCnt % 100, [12,13,14]) ? 'позиции' : 'позиций');
-                $orderId        = str_pad($order->id, 4, '0', STR_PAD_LEFT);
+                $dlabel = ['courier'=>'Курьер','pickup'=>'Самовывоз','post'=>'Почта / ПВЗ'];
+                $plabel = ['card'=>'Банковская карта','cash'=>'Наличные'];
+                $steps  = ['pending'=>0,'processing'=>1,'completed'=>2];
+                $step   = $steps[$order->status] ?? 0;
+                $cnt    = $order->items->count();
+                $word   = ($cnt%10===1&&$cnt%100!==11)?'позиция':(in_array($cnt%10,[2,3,4])&&!in_array($cnt%100,[12,13,14])?'позиции':'позиций');
+                $oid    = str_pad($order->id,4,'0',STR_PAD_LEFT);
             @endphp
-            <div class="bg-[#161920] border border-gray-800/60 rounded-2xl overflow-hidden">
+            <div class="p-6 space-y-4">
 
-                {{-- ── Card body ──────────────────────────────────── --}}
-                <div class="p-4 space-y-3">
-
-                    {{-- Row 1: ID · Date · Status --}}
-                    <div class="flex items-center justify-between gap-3">
-                        <div class="flex items-center gap-2 min-w-0">
-                            <span class="text-[10px] font-mono text-gray-500 bg-gray-800/80 px-2 py-1 rounded flex-shrink-0">
-                                ORD-{{ $orderId }}
-                            </span>
-                            <span class="text-[10px] text-gray-600 truncate">{{ $order->created_at->format('d.m.Y · H:i') }}</span>
+                {{-- Header --}}
+                <div class="flex items-start justify-between gap-4 flex-wrap">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-3">
+                            <span class="font-mono text-sm font-bold text-white">ORD-{{ $oid }}</span>
+                            <span class="text-sm text-gray-500">{{ $order->created_at->format('d.m.Y, H:i') }}</span>
                         </div>
-                        <span class="flex-shrink-0 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider
-                            @switch($order->status)
-                                @case('pending')    bg-gray-700/80 text-gray-300 @break
-                                @case('processing') bg-blue-500/20 text-blue-300 border border-blue-500/30 @break
-                                @case('completed')  bg-green-500/20 text-green-300 border border-green-500/30 @break
-                                @case('cancelled')  bg-red-500/20 text-red-300 border border-red-500/30 @break
-                            @endswitch
-                        ">{{ $order->status_label }}</span>
-                    </div>
-
-                    {{-- Row 2: Contact info --}}
-                    @if($order->full_name || $order->phone)
-                    <div class="flex items-center gap-2 text-[11px] text-gray-400 min-w-0">
                         @if($order->full_name)
-                        <span class="font-semibold truncate">{{ $order->full_name }}</span>
+                        <p class="text-sm text-gray-400">
+                            {{ $order->full_name }}
+                            @if($order->phone) <span class="text-gray-600 mx-1">·</span> {{ $order->phone }} @endif
+                        </p>
                         @endif
-                        @if($order->phone)
-                        <span class="text-gray-700 flex-shrink-0">·</span>
-                        <span class="text-gray-500 flex-shrink-0">{{ $order->phone }}</span>
-                        @endif
-                    </div>
-                    @endif
-
-                    {{-- Row 3: Delivery + Payment badges --}}
-                    @if($order->delivery_type || $order->payment_method)
-                    <div class="flex items-center gap-2 flex-wrap">
-                        @if($order->delivery_type && isset($deliveryLabels[$order->delivery_type]))
-                        <span class="text-[10px] bg-gray-800/60 border border-gray-700/40 text-gray-400 px-2.5 py-1 rounded-lg">
-                            {{ $deliveryLabels[$order->delivery_type] }}
-                        </span>
-                        @endif
-                        @if($order->payment_method && isset($paymentLabels[$order->payment_method]))
-                        <span class="text-[10px] bg-gray-800/60 border border-gray-700/40 text-gray-400 px-2.5 py-1 rounded-lg">
-                            {{ $paymentLabels[$order->payment_method] }}
-                        </span>
+                        @if($order->delivery_type || $order->payment_method)
+                        <p class="text-sm text-gray-500">
+                            @if($order->delivery_type) {{ $dlabel[$order->delivery_type] ?? $order->delivery_type }} @endif
+                            @if($order->delivery_type && $order->payment_method) <span class="text-gray-700 mx-1">·</span> @endif
+                            @if($order->payment_method) {{ $plabel[$order->payment_method] ?? $order->payment_method }} @endif
+                        </p>
                         @endif
                     </div>
-                    @endif
+                    <span class="px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide flex-shrink-0
+                        @switch($order->status)
+                            @case('pending')    bg-gray-700 text-gray-300 @break
+                            @case('processing') bg-blue-500/20 text-blue-300 border border-blue-500/30 @break
+                            @case('completed')  bg-green-500/20 text-green-300 border border-green-500/30 @break
+                            @case('cancelled')  bg-red-500/20 text-red-300 border border-red-500/30 @break
+                        @endswitch">
+                        {{ $order->status_label }}
+                    </span>
+                </div>
 
-                    {{-- Status timeline (active orders only) --}}
-                    @if($order->status !== 'cancelled')
-                    <div class="space-y-1.5 pt-0.5">
-                        <div class="flex items-center">
-                            @for($s = 0; $s < 3; $s++)
-                            <div class="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center
-                                 {{ $currentStep > $s
-                                    ? 'bg-orange-500'
-                                    : ($currentStep === $s
-                                       ? 'ring-2 ring-orange-500 ring-offset-[2px] ring-offset-[#161920] bg-orange-500/10'
-                                       : 'bg-gray-800/80') }}">
-                                @if($currentStep > $s)
-                                <svg class="w-2.5 h-2.5 text-black" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                </svg>
-                                @elseif($currentStep === $s)
-                                <div class="w-1.5 h-1.5 rounded-full bg-orange-500"></div>
-                                @endif
-                            </div>
-                            @if($s < 2)
-                            <div class="flex-1 h-px {{ $currentStep > $s ? 'bg-orange-500' : 'bg-gray-800' }}"></div>
+                {{-- Status timeline --}}
+                @if($order->status !== 'cancelled')
+                <div class="space-y-1.5">
+                    <div class="flex items-center">
+                        @for($s = 0; $s < 3; $s++)
+                        <div class="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center border-2
+                             {{ $step > $s  ? 'bg-orange-500 border-orange-500'
+                                : ($step === $s ? 'border-orange-500 bg-transparent'
+                                   : 'border-gray-700 bg-transparent') }}">
+                            @if($step > $s)
+                            <svg class="w-2.5 h-2.5 text-black" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            @elseif($step === $s)
+                            <div class="w-2 h-2 rounded-full bg-orange-500"></div>
                             @endif
-                            @endfor
                         </div>
-                        <div class="flex justify-between">
-                            @foreach(['Ожидание', 'Обработка', 'Доставлен'] as $si => $sl)
-                            <span class="text-[8px] font-bold uppercase tracking-wider {{ $currentStep >= $si ? 'text-orange-400' : 'text-gray-700' }}">{{ $sl }}</span>
-                            @endforeach
-                        </div>
+                        @if($s < 2)
+                        <div class="flex-1 h-0.5 max-w-[80px] {{ $step > $s ? 'bg-orange-500' : 'bg-gray-700' }}"></div>
+                        @endif
+                        @endfor
                     </div>
-                    @endif
+                    <div class="flex gap-[60px] pl-0.5">
+                        @foreach(['Ожидание','Обработка','Доставлен'] as $si => $sl)
+                        <span class="text-xs font-medium {{ $step >= $si ? 'text-orange-400' : 'text-gray-600' }}">{{ $sl }}</span>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
 
-                    {{-- Row 4: Total + Actions --}}
-                    <div class="flex items-center justify-between pt-2 border-t border-gray-800/40 gap-3">
-                        <div class="min-w-0">
-                            <p class="text-[10px] text-gray-600 uppercase tracking-wider">{{ $itemCnt }} {{ $itemWord }}</p>
-                            <p class="text-base font-black text-white leading-tight">
-                                {{ number_format($order->total_price, 0, '.', ' ') }}&nbsp;<span class="text-orange-500">₽</span>
-                            </p>
-                        </div>
-                        <div class="flex items-center gap-2 flex-shrink-0">
-                            @if($order->status === 'pending')
-                            <form action="{{ route('orders.cancel', $order) }}" method="POST"
-                                  onsubmit="return confirm('Отменить заказ ORD-{{ $orderId }}? Товары вернутся в наличие.')"
-                                @csrf
-                                @method('PATCH')
-                                <button type="submit"
-                                        class="text-[11px] font-bold text-red-400 hover:text-red-300 border border-red-500/30 hover:border-red-500/50 bg-red-500/10 hover:bg-red-500/20 px-3 py-1.5 rounded-lg transition-all active:scale-95">
-                                    Отменить
-                                </button>
-                            </form>
-                            @endif
-                            <button onclick="toggleOrderDetails({{ $order->id }})"
-                                    id="details-btn-{{ $order->id }}"
-                                    class="text-[11px] font-bold text-orange-500 hover:text-orange-400 border border-orange-500/30 hover:border-orange-500/50 px-3 py-1.5 rounded-lg transition-all active:scale-95">
-                                Детали ↓
+                {{-- Footer: total + actions --}}
+                <div class="flex items-center justify-between gap-4 pt-1">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl font-black text-white">{{ number_format($order->total_price, 0, '.', ' ') }} ₽</span>
+                        <span class="text-sm text-gray-500">{{ $cnt }} {{ $word }}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        @if($order->status === 'pending')
+                        <form action="{{ route('orders.cancel', $order) }}" method="POST"
+                              onsubmit="return confirm('Отменить заказ ORD-{{ $oid }}?')">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="px-4 py-2 rounded-xl text-sm font-semibold text-red-400 border border-red-500/30 hover:bg-red-500/10 transition">
+                                Отменить
                             </button>
-                        </div>
+                        </form>
+                        @endif
+                        <button onclick="toggleDetails({{ $order->id }})"
+                                id="btn-{{ $order->id }}"
+                                class="px-4 py-2 rounded-xl text-sm font-semibold text-gray-400 border border-gray-700 hover:border-gray-600 hover:text-white transition">
+                            Детали
+                        </button>
                     </div>
                 </div>
 
-                {{-- ── Expandable details ──────────────────────────── --}}
-                <div id="order-details-{{ $order->id }}" class="hidden border-t border-gray-800/40 bg-black/20 p-4 space-y-2.5">
+                {{-- Details --}}
+                <div id="det-{{ $order->id }}" class="hidden pt-4 border-t border-gray-800 space-y-3">
                     @foreach($order->items as $item)
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 bg-gray-900 rounded-xl overflow-hidden flex-shrink-0 border border-gray-800/60 flex items-center justify-center">
-                            <img src="{{ asset($item->product->image) }}"
-                                 alt="{{ $item->product->name }}"
-                                 class="w-full h-full object-contain p-1">
+                        <div class="w-10 h-10 bg-gray-900 border border-gray-800 rounded-xl flex-shrink-0 overflow-hidden flex items-center justify-center">
+                            <img src="{{ asset($item->product->image) }}" alt="{{ $item->product->name }}" class="w-full h-full object-contain p-1">
                         </div>
-                        <span class="text-xs text-gray-300 flex-1 line-clamp-1">{{ $item->product->name }}</span>
-                        <span class="text-[11px] text-gray-600 flex-shrink-0">{{ $item->quantity }}×</span>
-                        <span class="text-xs font-bold text-white flex-shrink-0">{{ number_format($item->price * $item->quantity, 0, '.', ' ') }}&nbsp;₽</span>
+                        <span class="text-sm text-gray-300 flex-1 line-clamp-1">{{ $item->product->name }}</span>
+                        <span class="text-sm text-gray-500 flex-shrink-0">{{ $item->quantity }}×</span>
+                        <span class="text-sm font-bold text-white flex-shrink-0">{{ number_format($item->price * $item->quantity, 0, '.', ' ') }} ₽</span>
                     </div>
                     @endforeach
-
                     @if($order->address)
-                    <div class="pt-2.5 border-t border-gray-800/40 flex items-start gap-2">
-                        <svg class="w-3.5 h-3.5 text-gray-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="pt-2 border-t border-gray-800 flex items-start gap-2">
+                        <svg class="w-4 h-4 text-gray-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                         </svg>
-                        <div>
-                            <p class="text-[10px] text-gray-600 uppercase tracking-wider mb-0.5">Адрес доставки</p>
-                            <p class="text-xs text-gray-400">{{ $order->address }}</p>
-                        </div>
+                        <p class="text-sm text-gray-400">{{ $order->address }}</p>
                     </div>
                     @endif
                 </div>
@@ -672,220 +283,301 @@
         </div>
 
         @if($userOrders->hasPages())
-        <div class="pt-4 border-t border-gray-800/40 custom-pagination">
+        <div class="px-6 py-4 border-t border-gray-800 custom-pagination">
             {{ $userOrders->links() }}
         </div>
         @endif
         @endif
     </div>
 
-    <div class="bg-[#111318] border border-gray-900 rounded-3xl p-6 space-y-6 mt-8">
-        <div class="flex justify-between items-center border-b border-gray-900 pb-4">
-            <div>
-                <h4 class="text-sm font-black uppercase tracking-wider text-white">Техническая поддержка</h4>
-                <p class="text-[11px] text-gray-500">Статусы ваших недавних запросов и ответы инженеров RuGear.</p>
+    {{-- ══════════════════════════════════════════════════ --}}
+    {{-- ДОСТИЖЕНИЯ + ПОДДЕРЖКА                            --}}
+    {{-- ══════════════════════════════════════════════════ --}}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+        {{-- ДОСТИЖЕНИЯ --}}
+        <div class="bg-[#161920] border border-gray-800 rounded-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-800 flex items-center justify-between">
+                <h2 class="text-base font-bold text-white">Достижения</h2>
+                <button onclick="document.getElementById('modal-ach').showModal()"
+                        class="text-sm font-semibold text-orange-500 hover:text-orange-400 transition">
+                    Все →
+                </button>
             </div>
-            <a href="{{ route('support') }}" class="text-[11px] font-bold text-orange-500 hover:underline">
-                Создать новый тикет +
-            </a>
-        </div>
 
-        @if($userTickets->isEmpty())
-        <div class="py-4 text-center">
-            <p class="text-xs text-gray-600 font-mono">Вы еще не создавали обращений в поддержку.</p>
-        </div>
-        @else
-        <div class="space-y-4">
-            @foreach($userTickets as $ticket)
-            <div class="bg-[#161920] border border-gray-800/60 rounded-2xl p-4 space-y-3">
-                <div class="flex items-center justify-between gap-4 flex-wrap">
-                    <div class="flex items-center gap-2">
-                        <span class="text-[10px] font-mono text-gray-600">#TC-{{ str_pad($ticket->id, 4, '0', STR_PAD_LEFT) }}</span>
-                        <h5 class="text-xs font-bold text-white">{{ $ticket->name }}</h5>
+            <div class="p-6">
+            @php $achList = auth()->user()->achievements->sortByDesc('pivot.awarded_at'); @endphp
+            @if($achList->count() > 0)
+                <div id="ach-track" class="flex gap-3 overflow-x-scroll" style="scroll-snap-type:x mandatory;scroll-behavior:smooth;">
+                    @foreach($achList as $a)
+                    <div class="flex-shrink-0 bg-gray-900/60 border border-gray-700/60 rounded-xl p-4 space-y-3"
+                         style="width:calc(33.333% - 8px);min-width:140px;scroll-snap-align:start;">
+                        <div class="w-9 h-9 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-orange-400" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </div>
+                        <p class="text-sm font-bold text-white leading-snug line-clamp-2">{{ $a->title }}</p>
+                        <p class="text-xs font-bold text-orange-500">+{{ $a->experience }} XP</p>
                     </div>
-
-                    @php
-                    $userStatusStyles = match($ticket->status) {
-                    'pending' => 'bg-blue-500/10 text-blue-400 border-blue-500/10',
-                    'replied' => 'bg-orange-500/10 text-orange-400 border-orange-500/20 animate-pulse',
-                    'closed' => 'bg-gray-950 text-gray-500 border-gray-900',
-                    default => 'bg-gray-900 text-gray-400'
-                    };
-                    $userStatusNames = match($ticket->status) {
-                    'pending' => 'На рассмотрении',
-                    'replied' => 'Получен ответ',
-                    'closed' => 'Решено / Закрыто',
-                    default => $ticket->status
-                    };
-                    @endphp
-                    <span class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded border {{ $userStatusStyles }}">
-                        {{ $userStatusNames }}
-                    </span>
+                    @endforeach
                 </div>
-
-                <p class="text-xs text-gray-400 font-mono bg-gray-950/30 p-2 rounded-lg border border-gray-900/40 line-clamp-2">
-                    {{ $ticket->content }}
-                </p>
-
-                <div class="flex justify-between items-center pt-2 border-t border-gray-900/40">
-                    <div class="flex items-center gap-4">
-                        <span class="text-[10px] text-gray-600 italic">
-                            {{ $ticket->created_at->diffForHumans() }}
-                        </span>
-
-                        <form action="{{ route('ticket.destroy', $ticket) }}" method="POST" onsubmit="return confirm('Вы уверены, что хотите безвозвратно удалить данный тикет из базы данных?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-gray-600 hover:text-red-400 p-1 rounded-md hover:bg-red-500/10 border border-transparent hover:border-red-500/10 transition-all active:scale-95" title="Удалить тикет навсегда">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                </svg>
-                            </button>
-                        </form>
-                    </div>
-
-                    <button type="button" onclick="document.getElementById('ticket-modal-{{ $ticket->id }}').showModal()" class="text-[11px] font-bold text-orange-500 hover:text-orange-400 transition-colors">
-                        Подробнее &rarr;
+                @if($achList->count() > 3)
+                <div class="flex justify-end gap-2 mt-3">
+                    <button onclick="document.getElementById('ach-track').scrollBy({left:-200,behavior:'smooth'})"
+                            class="w-8 h-8 border border-gray-700 rounded-lg flex items-center justify-center text-gray-500 hover:text-white hover:border-gray-600 transition">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <button onclick="document.getElementById('ach-track').scrollBy({left:200,behavior:'smooth'})"
+                            class="w-8 h-8 border border-gray-700 rounded-lg flex items-center justify-center text-gray-500 hover:text-white hover:border-gray-600 transition">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                     </button>
                 </div>
+                @endif
+            @else
+            <div class="py-10 text-center">
+                <p class="text-sm font-semibold text-gray-500">Нет достижений</p>
+                <p class="text-xs text-gray-600 mt-1">Первое выдаётся при регистрации</p>
+            </div>
+            @endif
+            </div>
+        </div>
+
+        {{-- ПОДДЕРЖКА --}}
+        <div class="bg-[#161920] border border-gray-800 rounded-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-800 flex items-center justify-between">
+                <h2 class="text-base font-bold text-white">Поддержка</h2>
+                <a href="{{ route('support') }}" class="text-sm font-semibold text-orange-500 hover:text-orange-400 transition">
+                    + Создать
+                </a>
             </div>
 
-            <dialog id="ticket-modal-{{ $ticket->id }}" class="user-ticket-dialog backdrop:bg-black/80 bg-[#111318] border border-gray-900 p-6 rounded-3xl w-full max-w-lg text-gray-200 shadow-2xl focus:outline-none">
-                <div class="space-y-5">
-                    <div class="flex justify-between items-center border-b border-gray-900 pb-4">
-                        <div>
-                            <span class="text-[9px] font-mono text-gray-600 block mb-0.5">ID ТИКЕТА: #TC-{{ str_pad($ticket->id, 4, '0', STR_PAD_LEFT) }}</span>
-                            <h3 class="text-sm font-black uppercase tracking-wider text-white">Просмотр обращения</h3>
+            @if($userTickets->isEmpty())
+            <div class="p-10 text-center">
+                <p class="text-sm font-semibold text-gray-500">Обращений нет</p>
+                <a href="{{ route('support') }}" class="inline-block mt-3 text-sm font-bold text-orange-500 hover:text-orange-400 transition">
+                    Создать тикет →
+                </a>
+            </div>
+            @else
+            <div class="divide-y divide-gray-800">
+                @foreach($userTickets as $ticket)
+                @php
+                    $tc = match($ticket->status){
+                        'pending'=>'text-blue-400','replied'=>'text-orange-400',
+                        'closed'=>'text-gray-500',default=>'text-gray-500'};
+                    $tl = match($ticket->status){
+                        'pending'=>'На рассмотрении','replied'=>'Получен ответ',
+                        'closed'=>'Закрыт',default=>$ticket->status};
+                @endphp
+                <div class="px-6 py-4">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-xs font-mono text-gray-600">#TC-{{ str_pad($ticket->id,4,'0',STR_PAD_LEFT) }}</span>
+                                <span class="text-xs font-bold {{ $tc }}">{{ $tl }}</span>
+                            </div>
+                            <p class="text-sm font-semibold text-white line-clamp-1">{{ $ticket->name }}</p>
+                            <p class="text-xs text-gray-500 line-clamp-1 mt-0.5">{{ $ticket->content }}</p>
                         </div>
-                        <button type="button" onclick="document.getElementById('ticket-modal-{{ $ticket->id }}').close()" class="text-gray-500 hover:text-white transition-colors p-1 flex items-center justify-center">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                    </div>
-
-                    <div class="space-y-1">
-                        <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider block">Имя:</span>
-                        <p class="text-xs text-white font-bold pl-0.5">{{ $ticket->name }}</p>
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider block">Категория:</span>
-                        <span class="inline-block text-[10px] text-gray-400 bg-gray-950 px-3 py-1.5 border border-gray-900 rounded-md font-mono uppercase">{{ $ticket->category ?? 'Общие вопросы' }}</span>
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider block">Ваше сообщение:</span>
-                        <div class="text-xs bg-gray-950 p-3.5 rounded-xl border border-gray-900 font-mono text-gray-400 min-h-[50px] max-h-32 overflow-y-auto custom-scrollbar whitespace-pre-line leading-relaxed flex items-center">
-                            <div class="w-full">{{ $ticket->content }}</div>
+                        <div class="flex items-center gap-1.5 flex-shrink-0">
+                            <form action="{{ route('ticket.destroy', $ticket) }}" method="POST" onsubmit="return confirm('Удалить тикет?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="p-2 text-gray-600 hover:text-red-400 transition rounded-lg hover:bg-red-500/10">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </form>
+                            <button onclick="document.getElementById('tc-{{ $ticket->id }}').showModal()"
+                                    class="px-3 py-1.5 text-xs font-semibold text-gray-400 border border-gray-700 hover:border-gray-600 hover:text-white rounded-lg transition">
+                                Открыть
+                            </button>
                         </div>
-                    </div>
-
-                    <div class="space-y-2 pt-1 border-t border-gray-900">
-                        <span class="text-[10px] text-orange-500 font-bold uppercase tracking-wider block">Ответ поддержки:</span>
-                        @if($ticket->reply)
-                        <div class="bg-orange-500/5 border border-orange-500/20 rounded-xl p-3.5 font-mono text-xs text-gray-300 whitespace-pre-line leading-relaxed min-h-[50px] max-h-40 overflow-y-auto custom-scrollbar flex items-center">
-                            <div class="w-full">{{ $ticket->reply }}</div>
-                        </div>
-                        @else
-                        <div class="bg-gray-950 p-3.5 rounded-xl border border-gray-900 min-h-[50px] flex items-center justify-center text-center">
-                            <p class="text-xs text-gray-600 font-mono italic leading-relaxed">Инженеры уже изучают вашу проблему. Пожалуйста, ожидайте обновления статуса.</p>
-                        </div>
-                        @endif
-                    </div>
-
-                    <div class="pt-2">
-                        <button type="button" onclick="document.getElementById('ticket-modal-{{ $ticket->id }}').close()" class="w-full h-11 flex items-center justify-center bg-gray-900 hover:bg-gray-850 text-xs font-bold rounded-xl border border-gray-850 text-gray-400 transition-colors">
-                            Закрыть окно
-                        </button>
                     </div>
                 </div>
-            </dialog>
-            @endforeach
-        </div>
 
-        <div class="mt-6 pt-4 border-t border-gray-900/60 custom-pagination">
-            {{ $userTickets->onEachSide(1)->links() }}
+                <dialog id="tc-{{ $ticket->id }}" class="tcmodal bg-[#111318] border border-gray-800 rounded-2xl p-6 w-full max-w-lg shadow-2xl focus:outline-none">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between border-b border-gray-800 pb-4">
+                            <div>
+                                <span class="text-xs font-mono text-gray-600 block">#TC-{{ str_pad($ticket->id,4,'0',STR_PAD_LEFT) }}</span>
+                                <h3 class="text-base font-bold text-white mt-0.5">{{ $ticket->name }}</h3>
+                            </div>
+                            <button onclick="document.getElementById('tc-{{ $ticket->id }}').close()" class="text-gray-500 hover:text-white text-2xl leading-none transition">×</button>
+                        </div>
+                        @if($ticket->category)
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Категория</p>
+                            <span class="text-sm text-gray-300 bg-gray-900 px-2.5 py-1 rounded-lg border border-gray-800">{{ $ticket->category }}</span>
+                        </div>
+                        @endif
+                        <div>
+                            <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Сообщение</p>
+                            <div class="bg-gray-900/50 border border-gray-800 rounded-xl p-3.5 text-sm text-gray-300 max-h-32 overflow-y-auto cs whitespace-pre-line leading-relaxed">{{ $ticket->content }}</div>
+                        </div>
+                        <div>
+                            <p class="text-xs text-orange-400/80 uppercase tracking-wider mb-2">Ответ поддержки</p>
+                            @if($ticket->reply)
+                            <div class="bg-orange-500/5 border border-orange-500/20 rounded-xl p-3.5 text-sm text-gray-200 max-h-36 overflow-y-auto cs whitespace-pre-line leading-relaxed">{{ $ticket->reply }}</div>
+                            @else
+                            <div class="bg-gray-900/40 border border-gray-800 rounded-xl p-3.5 text-center">
+                                <p class="text-sm text-gray-500 italic">Ожидает ответа специалиста</p>
+                            </div>
+                            @endif
+                        </div>
+                        <button onclick="document.getElementById('tc-{{ $ticket->id }}').close()"
+                                class="w-full py-2.5 bg-gray-900 hover:bg-gray-800 border border-gray-700 text-sm font-semibold text-gray-400 hover:text-white rounded-xl transition">
+                            Закрыть
+                        </button>
+                    </div>
+                </dialog>
+                @endforeach
+            </div>
+            <div class="px-6 py-3 border-t border-gray-800 custom-pagination">
+                {{ $userTickets->onEachSide(1)->links() }}
+            </div>
+            @endif
         </div>
-        @endif
     </div>
 
-    <button type="button" onclick="toggleModal('logout-modal', true)" class="text-xs text-red-600 hover:text-red-500 uppercase font-bold">
-        Выход
-    </button>
+    {{-- ══════════════════════════════════════════════════ --}}
+    {{-- ИГРОВАЯ ЗОНА                                      --}}
+    {{-- ══════════════════════════════════════════════════ --}}
+    <div class="bg-[#161920] border border-gray-800 rounded-2xl p-6 flex items-center justify-between gap-6">
+        <div>
+            <h2 class="text-base font-bold text-white">Мини-игра RuGear</h2>
+            <p class="text-sm text-gray-500 mt-1">Небольшой перерыв прямо в личном кабинете</p>
+        </div>
+        <button onclick="document.getElementById('mod-game').showModal(); setTimeout(()=>document.getElementById('game-iframe').focus(),100);"
+                class="flex-shrink-0 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white text-sm font-bold px-6 py-2.5 rounded-xl transition">
+            Запустить
+        </button>
+    </div>
 
-    <div id="logout-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-        <div class="bg-[#161920] border border-gray-800 w-full max-w-md rounded-3xl p-8 shadow-2xl">
-            <h3 class="text-2xl font-black text-white uppercase tracking-tighter mb-4 text-center">
-                Уже <span class="text-orange-500">уходишь?</span>
-            </h3>
-            <p class="text-gray-400 text-center mb-8 italic">Ты уверен, что хочешь покинуть систему RuGear?</p>
+    {{-- ══════════════════════════════════════════════════ --}}
+    {{-- ВЫХОД                                             --}}
+    {{-- ══════════════════════════════════════════════════ --}}
+    <div class="pt-2 pb-4">
+        <button onclick="toggleLogout(true)" class="text-sm text-gray-600 hover:text-red-400 transition font-medium">
+            Выйти из аккаунта
+        </button>
+    </div>
 
-            <div class="grid grid-cols-2 gap-4">
-                <button type="button" onclick="toggleModal('logout-modal', false)" class="py-4 bg-gray-800 hover:bg-gray-700 text-white font-bold uppercase tracking-widest rounded-xl transition-all">
+    </div>{{-- /space-y-5 --}}
+
+    {{-- ══════════════════════════════════════════════════ --}}
+    {{-- DIALOGS                                           --}}
+    {{-- ══════════════════════════════════════════════════ --}}
+
+    {{-- Achievements modal --}}
+    <dialog id="modal-ach" class="bg-[#111318] border border-gray-800 rounded-2xl p-0 w-full max-w-xl shadow-2xl focus:outline-none" style="max-height:88vh;">
+        <div class="flex flex-col" style="max-height:88vh;">
+            <div class="flex items-center justify-between border-b border-gray-800 px-6 py-4 flex-shrink-0">
+                <h2 class="text-base font-bold text-white">Все достижения</h2>
+                <button onclick="document.getElementById('modal-ach').close()" class="text-gray-500 hover:text-white text-2xl leading-none transition">×</button>
+            </div>
+            <div class="flex-1 overflow-y-auto px-6 py-4 cs divide-y divide-gray-800/60">
+                @forelse($allAchievements->sortBy('experience') as $ach)
+                @php
+                    $got = in_array($ach->id, $userAchievementIds);
+                    $ua  = auth()->user()->achievements()->where('achievement_id',$ach->id)->first();
+                @endphp
+                <div class="flex items-center gap-4 py-3.5 {{ !$got ? 'opacity-40' : '' }}">
+                    <div class="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center
+                         {{ $got ? 'bg-orange-500/15 border border-orange-500/30' : 'bg-gray-900 border border-gray-800' }}">
+                        <svg class="w-5 h-5 {{ $got ? 'text-orange-400' : 'text-gray-700' }}" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-bold text-white">{{ $ach->title }}</p>
+                        <p class="text-xs text-gray-500 mt-0.5 line-clamp-2">{{ $ach->description }}</p>
+                        @if($got && $ua)
+                        <p class="text-xs text-gray-600 mt-1">{{ \Carbon\Carbon::parse($ua->pivot->awarded_at)->diffForHumans() }}</p>
+                        @endif
+                    </div>
+                    <div class="flex-shrink-0 text-right">
+                        <p class="text-sm font-black {{ $got ? 'text-orange-500' : 'text-gray-700' }}">+{{ $ach->experience }} XP</p>
+                        <p class="text-xs mt-0.5 {{ $got ? 'text-green-400' : 'text-gray-600' }} font-semibold">{{ $got ? 'Получено' : 'Не получено' }}</p>
+                    </div>
+                </div>
+                @empty
+                <p class="py-8 text-center text-sm text-gray-500">Достижений нет</p>
+                @endforelse
+            </div>
+            <div class="border-t border-gray-800 px-6 py-4 flex-shrink-0">
+                <button onclick="document.getElementById('modal-ach').close()"
+                        class="w-full py-2.5 bg-gray-900 hover:bg-gray-800 border border-gray-700 text-sm font-semibold text-gray-400 hover:text-white rounded-xl transition">
+                    Закрыть
+                </button>
+            </div>
+        </div>
+    </dialog>
+
+    {{-- Game modal --}}
+    <dialog id="mod-game" class="bg-[#111318] border border-gray-800 p-0 rounded-2xl w-[70vw] h-[96vh] shadow-2xl focus:outline-none">
+        <div class="flex flex-col h-full">
+            <div class="flex items-center justify-between border-b border-gray-800 px-5 py-4 flex-shrink-0">
+                <h3 class="text-base font-bold text-white">Мини-игра RuGear</h3>
+                <button onclick="document.getElementById('mod-game').close()" class="text-gray-500 hover:text-white text-2xl leading-none transition">×</button>
+            </div>
+            <div class="flex-1 bg-black overflow-hidden relative">
+                <iframe id="game-iframe" src="{{ asset('index.html') }}"
+                        class="absolute inset-0 w-full h-full border-0"
+                        allow="autoplay; keyboard; fullscreen" loading="lazy"></iframe>
+            </div>
+            <div class="border-t border-gray-800 px-4 py-3 flex-shrink-0">
+                <button onclick="document.getElementById('mod-game').close()"
+                        class="w-full py-2 text-sm font-semibold border border-gray-700 text-gray-500 hover:text-white rounded-xl transition">
+                    Закрыть
+                </button>
+            </div>
+        </div>
+    </dialog>
+
+    {{-- Logout modal --}}
+    <div id="mod-logout" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 p-4">
+        <div class="bg-[#161920] border border-gray-800 w-full max-w-sm rounded-2xl p-8 shadow-2xl">
+            <h3 class="text-xl font-black text-white text-center">Выход</h3>
+            <p class="text-sm text-gray-500 text-center mt-2 mb-8">Вы уверены, что хотите выйти из аккаунта?</p>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="toggleLogout(false)"
+                        class="py-3 bg-gray-900 hover:bg-gray-800 border border-gray-700 text-white font-semibold rounded-xl transition">
                     Остаться
                 </button>
-
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="w-full py-4 bg-orange-500 hover:bg-orange-600 text-black font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-orange-500/20">
+                    <button type="submit" class="w-full py-3 bg-orange-500 hover:bg-orange-600 text-black font-black rounded-xl transition">
                         Выйти
                     </button>
                 </form>
             </div>
         </div>
     </div>
-    </div>
 
-    <style>
-        .achievement-toast {
-            pointer-events: auto;
+    <script>
+        function toggleLogout(show){
+            const m=document.getElementById('mod-logout');
+            if(show){m.classList.remove('hidden');m.classList.add('flex');document.body.style.overflow='hidden';}
+            else{m.classList.add('hidden');m.classList.remove('flex');document.body.style.overflow='';}
         }
-    </style>
-</x-shop-layout>
-
-<script>
-    function toggleModal(modalID, show) {
-        const modal = document.getElementById(modalID);
-        if (show) {
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            document.body.style.overflow = 'hidden';
-        } else {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            document.body.style.overflow = 'auto';
-        }
-    }
-
-    window.onclick = function(event) {
-        const logoutModal = document.getElementById('logout-modal');
-        if (event.target == logoutModal) {
-            toggleModal('logout-modal', false);
-        }
-    }
-
-    document.querySelectorAll('.user-ticket-dialog').forEach(dialog => {
-        dialog.addEventListener('click', (e) => {
-            const dialogDimensions = dialog.getBoundingClientRect();
-            if (
-                e.clientX < dialogDimensions.left ||
-                e.clientX > dialogDimensions.right ||
-                e.clientY < dialogDimensions.top ||
-                e.clientY > dialogDimensions.bottom
-            ) {
-                dialog.close();
-            }
+        window.addEventListener('click',e=>{
+            if(e.target===document.getElementById('mod-logout')) toggleLogout(false);
         });
-    });
-
-    function toggleOrderDetails(orderId) {
-        const details = document.getElementById(`order-details-${orderId}`);
-        const btn = document.getElementById(`details-btn-${orderId}`);
-        if (details) {
-            const opening = details.classList.contains('hidden');
-            details.classList.toggle('hidden');
-            if (btn) btn.textContent = opening ? 'Скрыть ↑' : 'Детали ↓';
+        document.querySelectorAll('.tcmodal').forEach(d=>{
+            d.addEventListener('click',e=>{
+                const r=d.getBoundingClientRect();
+                if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom) d.close();
+            });
+        });
+        function toggleDetails(id){
+            const el=document.getElementById('det-'+id);
+            const btn=document.getElementById('btn-'+id);
+            if(!el) return;
+            const open=el.classList.contains('hidden');
+            el.classList.toggle('hidden');
+            if(btn) btn.textContent=open?'Скрыть':'Детали';
         }
-    }
-</script>
+    </script>
+</x-shop-layout>
