@@ -33,6 +33,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/product/{product}/commentary', [CommentaryController::class, 'store'])->name('product.commentary');
     
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+    Route::patch('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
 
     Route::post('ticket/create', [TicketController::class, 'store'])->name('ticket.store');
     Route::delete('tickets/{ticket}', [TicketController::class, 'destroy'])->name('ticket.destroy');

@@ -489,76 +489,190 @@
     </dialog>
 
     <!-- Orders Section -->
-    <div class="bg-[#111318] border border-gray-900 rounded-3xl p-6 space-y-6 mt-8">
-        <div class="flex justify-between items-center border-b border-gray-900 pb-4">
+    <div class="bg-[#111318] border border-gray-900 rounded-3xl p-6 space-y-5 mt-8">
+        <div class="flex items-center justify-between border-b border-gray-900 pb-4">
             <div>
                 <h4 class="text-sm font-black uppercase tracking-wider text-white">Мои заказы</h4>
-                <p class="text-[11px] text-gray-500">История ваших заказов и их статусы.</p>
+                <p class="text-[11px] text-gray-500">История заказов, статусы и детали доставки.</p>
             </div>
+            @if(!$userOrders->isEmpty())
+            <span class="text-[10px] font-mono text-gray-600 bg-gray-800/60 px-2.5 py-1 rounded-lg border border-gray-800">
+                {{ $userOrders->total() }} заказ(ов)
+            </span>
+            @endif
         </div>
 
         @if($userOrders->isEmpty())
-        <div class="py-8 text-center">
-            <p class="text-xs text-gray-600 font-mono mb-4">У вас пока нет заказов</p>
-            <a href="/" class="text-orange-500 hover:text-orange-400 text-sm font-bold transition">Начните покупать →</a>
+        <div class="py-10 text-center space-y-3">
+            <div class="w-14 h-14 rounded-2xl bg-gray-800/60 border border-gray-800 flex items-center justify-center mx-auto text-gray-600">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+            </div>
+            <p class="text-sm font-bold text-gray-500">Заказов пока нет</p>
+            <p class="text-xs text-gray-600">Добавьте товары в корзину и оформите первый заказ</p>
+            <a href="/" class="inline-block text-orange-500 hover:text-orange-400 text-sm font-bold transition">Перейти в каталог →</a>
         </div>
         @else
-        <div class="space-y-4">
+        <div class="space-y-3">
             @foreach($userOrders as $order)
-            <div class="bg-[#161920] border border-gray-800/60 rounded-2xl p-4 space-y-3">
-                <div class="flex items-center justify-between gap-4 flex-wrap">
-                    <div class="flex items-center gap-3">
-                        <span class="text-[10px] font-mono text-gray-600 bg-gray-800 px-2 py-1 rounded">ORD-{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }}</span>
-                        <div>
-                            <p class="text-xs font-bold text-white">{{ $order->items->count() }} товар{{ $order->items->count() !== 1 ? 'ов' : '' }}</p>
-                            <p class="text-[10px] text-gray-500 mt-0.5">{{ $order->created_at->format('d.m.Y H:i') }}</p>
+            @php
+                $deliveryLabels = ['courier' => '🚚 Курьер', 'pickup' => '🏪 Самовывоз', 'post' => '📦 Почта / ПВЗ'];
+                $paymentLabels  = ['card' => '💳 Карта', 'cash' => '💵 Наличные'];
+                $statusOrder    = ['pending' => 0, 'processing' => 1, 'completed' => 2];
+                $currentStep    = $statusOrder[$order->status] ?? 0;
+                $itemCnt        = $order->items->count();
+                $itemWord       = ($itemCnt % 10 === 1 && $itemCnt % 100 !== 11) ? 'позиция'
+                                : (in_array($itemCnt % 10, [2,3,4]) && !in_array($itemCnt % 100, [12,13,14]) ? 'позиции' : 'позиций');
+                $orderId        = str_pad($order->id, 4, '0', STR_PAD_LEFT);
+            @endphp
+            <div class="bg-[#161920] border border-gray-800/60 rounded-2xl overflow-hidden">
+
+                {{-- ── Card body ──────────────────────────────────── --}}
+                <div class="p-4 space-y-3">
+
+                    {{-- Row 1: ID · Date · Status --}}
+                    <div class="flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="text-[10px] font-mono text-gray-500 bg-gray-800/80 px-2 py-1 rounded flex-shrink-0">
+                                ORD-{{ $orderId }}
+                            </span>
+                            <span class="text-[10px] text-gray-600 truncate">{{ $order->created_at->format('d.m.Y · H:i') }}</span>
+                        </div>
+                        <span class="flex-shrink-0 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider
+                            @switch($order->status)
+                                @case('pending')    bg-gray-700/80 text-gray-300 @break
+                                @case('processing') bg-blue-500/20 text-blue-300 border border-blue-500/30 @break
+                                @case('completed')  bg-green-500/20 text-green-300 border border-green-500/30 @break
+                                @case('cancelled')  bg-red-500/20 text-red-300 border border-red-500/30 @break
+                            @endswitch
+                        ">{{ $order->status_label }}</span>
+                    </div>
+
+                    {{-- Row 2: Contact info --}}
+                    @if($order->full_name || $order->phone)
+                    <div class="flex items-center gap-2 text-[11px] text-gray-400 min-w-0">
+                        @if($order->full_name)
+                        <span class="font-semibold truncate">{{ $order->full_name }}</span>
+                        @endif
+                        @if($order->phone)
+                        <span class="text-gray-700 flex-shrink-0">·</span>
+                        <span class="text-gray-500 flex-shrink-0">{{ $order->phone }}</span>
+                        @endif
+                    </div>
+                    @endif
+
+                    {{-- Row 3: Delivery + Payment badges --}}
+                    @if($order->delivery_type || $order->payment_method)
+                    <div class="flex items-center gap-2 flex-wrap">
+                        @if($order->delivery_type && isset($deliveryLabels[$order->delivery_type]))
+                        <span class="text-[10px] bg-gray-800/60 border border-gray-700/40 text-gray-400 px-2.5 py-1 rounded-lg">
+                            {{ $deliveryLabels[$order->delivery_type] }}
+                        </span>
+                        @endif
+                        @if($order->payment_method && isset($paymentLabels[$order->payment_method]))
+                        <span class="text-[10px] bg-gray-800/60 border border-gray-700/40 text-gray-400 px-2.5 py-1 rounded-lg">
+                            {{ $paymentLabels[$order->payment_method] }}
+                        </span>
+                        @endif
+                    </div>
+                    @endif
+
+                    {{-- Status timeline (active orders only) --}}
+                    @if($order->status !== 'cancelled')
+                    <div class="space-y-1.5 pt-0.5">
+                        <div class="flex items-center">
+                            @for($s = 0; $s < 3; $s++)
+                            <div class="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center
+                                 {{ $currentStep > $s
+                                    ? 'bg-orange-500'
+                                    : ($currentStep === $s
+                                       ? 'ring-2 ring-orange-500 ring-offset-[2px] ring-offset-[#161920] bg-orange-500/10'
+                                       : 'bg-gray-800/80') }}">
+                                @if($currentStep > $s)
+                                <svg class="w-2.5 h-2.5 text-black" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                @elseif($currentStep === $s)
+                                <div class="w-1.5 h-1.5 rounded-full bg-orange-500"></div>
+                                @endif
+                            </div>
+                            @if($s < 2)
+                            <div class="flex-1 h-px {{ $currentStep > $s ? 'bg-orange-500' : 'bg-gray-800' }}"></div>
+                            @endif
+                            @endfor
+                        </div>
+                        <div class="flex justify-between">
+                            @foreach(['Ожидание', 'Обработка', 'Доставлен'] as $si => $sl)
+                            <span class="text-[8px] font-bold uppercase tracking-wider {{ $currentStep >= $si ? 'text-orange-400' : 'text-gray-700' }}">{{ $sl }}</span>
+                            @endforeach
                         </div>
                     </div>
+                    @endif
 
-                    <span class="px-3 py-1 rounded-full text-xs font-bold uppercase
-                                    @switch($order->status)
-                                        @case('pending')
-                                            bg-gray-700 text-gray-200
-                                            @break
-                                        @case('processing')
-                                            bg-blue-500/20 text-blue-300 border border-blue-500/40
-                                            @break
-                                        @case('completed')
-                                            bg-green-500/20 text-green-300 border border-green-500/40
-                                            @break
-                                        @case('cancelled')
-                                            bg-red-500/20 text-red-300 border border-red-500/40
-                                            @break
-                                    @endswitch
-                                ">
-                        {{ $order->status_label }}
-                    </span>
-                </div>
-
-                <div class="pt-2 border-t border-gray-800/40 flex items-center justify-between">
-                    <div class="text-sm font-black text-white">
-                        {{ number_format($order->total_price, 0, '.', ' ') }} ₽
+                    {{-- Row 4: Total + Actions --}}
+                    <div class="flex items-center justify-between pt-2 border-t border-gray-800/40 gap-3">
+                        <div class="min-w-0">
+                            <p class="text-[10px] text-gray-600 uppercase tracking-wider">{{ $itemCnt }} {{ $itemWord }}</p>
+                            <p class="text-base font-black text-white leading-tight">
+                                {{ number_format($order->total_price, 0, '.', ' ') }}&nbsp;<span class="text-orange-500">₽</span>
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            @if($order->status === 'pending')
+                            <form action="{{ route('orders.cancel', $order) }}" method="POST"
+                                  onsubmit="return confirm('Отменить заказ ORD-{{ $orderId }}? Товары вернутся в наличие.')"
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit"
+                                        class="text-[11px] font-bold text-red-400 hover:text-red-300 border border-red-500/30 hover:border-red-500/50 bg-red-500/10 hover:bg-red-500/20 px-3 py-1.5 rounded-lg transition-all active:scale-95">
+                                    Отменить
+                                </button>
+                            </form>
+                            @endif
+                            <button onclick="toggleOrderDetails({{ $order->id }})"
+                                    id="details-btn-{{ $order->id }}"
+                                    class="text-[11px] font-bold text-orange-500 hover:text-orange-400 border border-orange-500/30 hover:border-orange-500/50 px-3 py-1.5 rounded-lg transition-all active:scale-95">
+                                Детали ↓
+                            </button>
+                        </div>
                     </div>
-                    <button onclick="toggleOrderDetails({{ $order->id }})" class="text-xs font-bold text-orange-500 hover:text-orange-400 transition">
-                        Детали ↓
-                    </button>
                 </div>
 
-                <!-- Order Details (Hidden) -->
-                <div id="order-details-{{ $order->id }}" class="hidden pt-3 border-t border-gray-800/40 space-y-2">
+                {{-- ── Expandable details ──────────────────────────── --}}
+                <div id="order-details-{{ $order->id }}" class="hidden border-t border-gray-800/40 bg-black/20 p-4 space-y-2.5">
                     @foreach($order->items as $item)
-                    <div class="text-xs flex items-center justify-between">
-                        <span class="text-gray-400">{{ $item->product->name }}</span>
-                        <span class="text-white font-bold">{{ $item->quantity }}x {{ number_format($item->price, 0, '.', ' ') }} ₽</span>
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 bg-gray-900 rounded-xl overflow-hidden flex-shrink-0 border border-gray-800/60 flex items-center justify-center">
+                            <img src="{{ asset($item->product->image) }}"
+                                 alt="{{ $item->product->name }}"
+                                 class="w-full h-full object-contain p-1">
+                        </div>
+                        <span class="text-xs text-gray-300 flex-1 line-clamp-1">{{ $item->product->name }}</span>
+                        <span class="text-[11px] text-gray-600 flex-shrink-0">{{ $item->quantity }}×</span>
+                        <span class="text-xs font-bold text-white flex-shrink-0">{{ number_format($item->price * $item->quantity, 0, '.', ' ') }}&nbsp;₽</span>
                     </div>
                     @endforeach
+
+                    @if($order->address)
+                    <div class="pt-2.5 border-t border-gray-800/40 flex items-start gap-2">
+                        <svg class="w-3.5 h-3.5 text-gray-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        <div>
+                            <p class="text-[10px] text-gray-600 uppercase tracking-wider mb-0.5">Адрес доставки</p>
+                            <p class="text-xs text-gray-400">{{ $order->address }}</p>
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
             @endforeach
         </div>
 
         @if($userOrders->hasPages())
-        <div class="pt-4 border-t border-gray-800/40">
+        <div class="pt-4 border-t border-gray-800/40 custom-pagination">
             {{ $userOrders->links() }}
         </div>
         @endif
@@ -766,9 +880,12 @@
     });
 
     function toggleOrderDetails(orderId) {
-        const detailsElement = document.getElementById(`order-details-${orderId}`);
-        if (detailsElement) {
-            detailsElement.classList.toggle('hidden');
+        const details = document.getElementById(`order-details-${orderId}`);
+        const btn = document.getElementById(`details-btn-${orderId}`);
+        if (details) {
+            const opening = details.classList.contains('hidden');
+            details.classList.toggle('hidden');
+            if (btn) btn.textContent = opening ? 'Скрыть ↑' : 'Детали ↓';
         }
     }
 </script>

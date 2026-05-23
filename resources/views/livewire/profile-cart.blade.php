@@ -94,73 +94,83 @@
     @endif
 
     <div id="checkout-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/80 p-4">
-        <div class="bg-[#161920] border border-gray-800 w-full max-w-lg rounded-3xl p-8">
+        <div class="bg-[#161920] border border-gray-800 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden">
 
-            <h3 class="text-2xl font-black text-white uppercase mb-6">
-                Оформление заказа
-            </h3>
+            {{-- Header --}}
+            <div class="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-800">
+                <div>
+                    <h3 class="text-lg font-black text-white uppercase tracking-tight">Оформление заказа</h3>
+                    <p class="text-[10px] text-gray-500 mt-0.5">Заполните данные для доставки</p>
+                </div>
+                <button type="button" onclick="closeCheckoutModal()" class="text-gray-500 hover:text-white transition text-2xl leading-none p-1">×</button>
+            </div>
 
-            <form action="{{ route('orders.store') }}" method="POST" class="space-y-4">
+            {{-- Cart summary --}}
+            @if(count($cartItems) > 0)
+            <div class="mx-6 mt-4 bg-[#111318] border border-gray-800/60 rounded-2xl p-3 space-y-1.5">
+                <p class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-2">Ваш заказ — {{ $totalQuantity }} поз.</p>
+                @foreach($cartItems as $item)
+                <div class="flex items-center justify-between text-xs gap-2">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <div class="w-6 h-6 bg-gray-900 rounded-lg flex-shrink-0 overflow-hidden border border-gray-800">
+                            <img src="{{ asset($item->product->image) }}" class="w-full h-full object-contain p-0.5">
+                        </div>
+                        <span class="text-gray-400 truncate">{{ $item->product->name }}</span>
+                    </div>
+                    <span class="text-gray-500 flex-shrink-0">{{ $item->quantity }}× {{ number_format($item->product->price, 0, '.', ' ') }} ₽</span>
+                </div>
+                @endforeach
+                <div class="pt-1.5 border-t border-gray-800/60 flex items-center justify-between">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-gray-500">Итого</span>
+                    <span class="text-sm font-black text-white">{{ number_format($totalSum, 0, '.', ' ') }} <span class="text-orange-500">₽</span></span>
+                </div>
+            </div>
+            @endif
+
+            {{-- Form --}}
+            <form action="{{ route('orders.store') }}" method="POST" class="p-6 space-y-3">
                 @csrf
 
-                <!-- ФИО -->
-                <input
-                    name="full_name"
-                    required
-                    placeholder="ФИО получателя"
-                    class="w-full bg-[#111318] border border-gray-800 text-white px-4 py-3 rounded-xl">
+                <div class="grid grid-cols-2 gap-3">
+                    <input name="full_name" required placeholder="ФИО получателя"
+                           class="col-span-2 w-full bg-[#111318] border border-gray-800 text-white text-sm px-4 py-2.5 rounded-xl placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500/50 transition">
 
-                <!-- Телефон -->
-                <input
-                    name="phone"
-                    required
-                    placeholder="Телефон"
-                    class="w-full bg-[#111318] border border-gray-800 text-white px-4 py-3 rounded-xl">
+                    <input name="phone" required placeholder="Телефон"
+                           class="w-full bg-[#111318] border border-gray-800 text-white text-sm px-4 py-2.5 rounded-xl placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500/50 transition">
 
-                <!-- Email (не обязательно, но полезно) -->
-                <input
-                    name="email"
-                    placeholder="Email (необязательно)"
-                    class="w-full bg-[#111318] border border-gray-800 text-white px-4 py-3 rounded-xl">
+                    <input name="email" type="email" placeholder="Email (необязательно)"
+                           class="w-full bg-[#111318] border border-gray-800 text-white text-sm px-4 py-2.5 rounded-xl placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500/50 transition">
+                </div>
 
-                <!-- Адрес с автокомплитом -->
-                <input
-                    id="address-input"
-                    name="address"
-                    required
-                    placeholder="Начните вводить адрес..."
-                    autocomplete="off"
-                    class="w-full bg-[#111318] border border-gray-800 text-white px-4 py-3 rounded-xl">
-
-                <!-- скрытое поле для полного нормализованного адреса -->
+                <input id="address-input" name="address" required placeholder="Адрес доставки" autocomplete="off"
+                       class="w-full bg-[#111318] border border-gray-800 text-white text-sm px-4 py-2.5 rounded-xl placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500/50 transition">
                 <input type="hidden" name="address_full" id="address_full">
 
-                <!-- Способ доставки -->
-                <select name="delivery_type" class="w-full bg-[#111318] border border-gray-800 text-white px-4 py-3 rounded-xl">
-                    <option value="courier">Курьер</option>
-                    <option value="pickup">Самовывоз</option>
-                    <option value="post">Почта / ПВЗ</option>
-                </select>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold uppercase tracking-wider text-gray-500">Доставка</label>
+                        <select name="delivery_type"
+                                class="w-full bg-[#111318] border border-gray-800 text-white text-sm px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500/50 transition">
+                            <option value="courier">🚚 Курьер</option>
+                            <option value="pickup">🏪 Самовывоз</option>
+                            <option value="post">📦 Почта / ПВЗ</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold uppercase tracking-wider text-gray-500">Оплата</label>
+                        <select name="payment_method" required
+                                class="w-full bg-[#111318] border border-gray-800 text-white text-sm px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500/50 transition">
+                            <option value="card">💳 Карта</option>
+                            <option value="cash">💵 Наличные</option>
+                        </select>
+                    </div>
+                </div>
 
-                <!-- Способ оплаты -->
-                <select name="payment_method" class="w-full bg-[#111318] border border-gray-800 text-white px-4 py-3 rounded-xl" required>
-                    <option value="card">Карта</option>
-                    <option value="cash">Наличные</option>
-                </select>
-
-                <button
-                    type="submit"
-                    class="w-full bg-orange-500 hover:bg-orange-600 text-black font-black py-3 rounded-xl uppercase tracking-wider">
-                    Подтвердить заказ
+                <button type="submit"
+                        class="w-full bg-orange-500 hover:bg-orange-600 active:scale-[0.98] text-black font-black py-3 rounded-xl uppercase tracking-wider transition-all shadow-lg shadow-orange-500/20 mt-1">
+                    Подтвердить заказ →
                 </button>
             </form>
-
-            <button
-                type="button"
-                onclick="closeCheckoutModal()"
-                class="mt-4 w-full text-gray-400 hover:text-white text-sm">
-                Отмена
-            </button>
         </div>
     </div>
 </div>
