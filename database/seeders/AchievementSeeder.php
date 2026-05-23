@@ -48,5 +48,15 @@ class AchievementSeeder extends Seeder
                 'icon' => null,
             ]
         );
+
+        Achievement::firstOrCreate(
+            ['slug' => 'first_order'],
+            [
+                'title' => 'Первый заказ',
+                'description' => 'Вы оформили свой первый заказ на RuGear. Добро пожаловать в семью покупателей!',
+                'experience' => 100,
+                'icon' => null,
+            ]
+        );
     }
 }

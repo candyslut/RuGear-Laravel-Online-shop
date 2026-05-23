@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Achievement;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -67,7 +68,29 @@ class OrderController extends Controller
 
             DB::commit();
 
-            return redirect()->route('dashboard')->with('success', 'Заказ ORD-' . str_pad($order->id, 4, '0', STR_PAD_LEFT) . ' успешно оформлен!');
+            $redirect = redirect()->route('dashboard')
+                ->with('success', 'Заказ ORD-' . str_pad($order->id, 4, '0', STR_PAD_LEFT) . ' успешно оформлен!');
+
+            if ($user->orders()->count() === 1) {
+                $achievement = Achievement::firstOrCreate(
+                    ['slug' => 'first_order'],
+                    [
+                        'title'       => 'Первый заказ',
+                        'description' => 'Вы оформили свой первый заказ на RuGear. Добро пожаловать в семью покупателей!',
+                        'experience'  => 100,
+                    ]
+                );
+
+                if ($user->awardAchievement($achievement)) {
+                    $redirect = $redirect->with('achievement_awarded', [
+                        'title'       => $achievement->title,
+                        'description' => $achievement->description,
+                        'experience'  => $achievement->experience,
+                    ]);
+                }
+            }
+
+            return $redirect;
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', 'Ошибка при оформлении заказа');
