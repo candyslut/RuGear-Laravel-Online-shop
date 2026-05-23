@@ -11,6 +11,30 @@ class AchievementSeeder extends Seeder
     {
         $achievements = [
             [
+                'slug'        => 'order_10k',
+                'title'       => 'Крупная покупка',
+                'description' => 'Вы оформили заказ на сумму от 10 000 ₽. Серьёзный подход!',
+                'experience'  => 75,
+                'coins'       => 40,
+                'icon'        => null,
+            ],
+            [
+                'slug'        => 'order_50k',
+                'title'       => 'Кит',
+                'description' => 'Заказ на 50 000 ₽ и выше. Вы настоящий энтузиаст!',
+                'experience'  => 200,
+                'coins'       => 150,
+                'icon'        => null,
+            ],
+            [
+                'slug'        => 'all_categories',
+                'title'       => 'Полный арсенал',
+                'description' => 'Вы заказали товары из всех категорий: клавиатуру, мышь, наушники и коврик.',
+                'experience'  => 150,
+                'coins'       => 75,
+                'icon'        => null,
+            ],
+            [
                 'slug'        => 'registered',
                 'title'       => 'Первое достижение',
                 'description' => 'Вы получили достижение за регистрацию на RuGear.',

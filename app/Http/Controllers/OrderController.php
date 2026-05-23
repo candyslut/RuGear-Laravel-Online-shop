@@ -71,8 +71,12 @@ class OrderController extends Controller
             $redirect = redirect()->route('dashboard')
                 ->with('success', 'Заказ ORD-' . str_pad($order->id, 4, '0', STR_PAD_LEFT) . ' успешно оформлен!');
 
+            // ── Собираем все ачивки которые нужно проверить ───────────────
+            $candidates = [];
+
+            // Первый заказ
             if ($user->orders()->count() === 1) {
-                $achievement = Achievement::updateOrCreate(
+                $candidates[] = Achievement::updateOrCreate(
                     ['slug' => 'first_order'],
                     [
                         'title'       => 'Первый заказ',
@@ -81,24 +85,86 @@ class OrderController extends Controller
                         'coins'       => 25,
                     ]
                 );
+            }
 
-                $result = $user->awardAchievement($achievement);
+            // Заказ на сумму >= 10 000 ₽
+            if ($totalPrice >= 10000) {
+                $candidates[] = Achievement::updateOrCreate(
+                    ['slug' => 'order_10k'],
+                    [
+                        'title'       => 'Крупная покупка',
+                        'description' => 'Вы оформили заказ на сумму от 10 000 ₽. Серьёзный подход!',
+                        'experience'  => 75,
+                        'coins'       => 40,
+                    ]
+                );
+            }
+
+            // Заказ на сумму >= 50 000 ₽
+            if ($totalPrice >= 50000) {
+                $candidates[] = Achievement::updateOrCreate(
+                    ['slug' => 'order_50k'],
+                    [
+                        'title'       => 'Кит',
+                        'description' => 'Заказ на 50 000 ₽ и выше. Вы настоящий энтузиаст!',
+                        'experience'  => 200,
+                        'coins'       => 150,
+                    ]
+                );
+            }
+
+            // Заказал хотя бы раз каждую из 4 категорий
+            $orderedCategoryIds = DB::table('order_items')
+                ->join('orders', 'orders.id', '=', 'order_items.order_id')
+                ->join('products', 'products.id', '=', 'order_items.product_id')
+                ->where('orders.user_id', $user->id)
+                ->where('orders.status', '!=', 'cancelled')
+                ->distinct()
+                ->pluck('products.category_id')
+                ->toArray();
+
+            if (count(array_intersect([1, 2, 3, 4], $orderedCategoryIds)) === 4) {
+                $candidates[] = Achievement::updateOrCreate(
+                    ['slug' => 'all_categories'],
+                    [
+                        'title'       => 'Полный арсенал',
+                        'description' => 'Вы заказали товары из всех категорий: клавиатуру, мышь, наушники и коврик.',
+                        'experience'  => 150,
+                        'coins'       => 75,
+                    ]
+                );
+            }
+
+            // ── Выдаём все ачивки, показываем последнюю в тосте ──────────
+            $toastAchievement = null;
+            $toastLevelUp     = null;
+
+            foreach ($candidates as $ach) {
+                $result = $user->awardAchievement($ach);
                 if ($result) {
-                    $redirect = $redirect->with('achievement_awarded', [
-                        'title'      => $achievement->title,
-                        'experience' => $achievement->experience,
-                        'coins'      => $achievement->coins,
-                    ]);
+                    $toastAchievement = $ach;
                     if ($result['leveled_up']) {
-                        $redirect = $redirect->with('level_up', [
+                        $toastLevelUp = [
                             'level' => $result['new_level'],
                             'coins' => $result['level_coins'],
-                        ]);
+                        ];
                     }
                 }
             }
 
+            if ($toastAchievement) {
+                $redirect = $redirect->with('achievement_awarded', [
+                    'title'      => $toastAchievement->title,
+                    'experience' => $toastAchievement->experience,
+                    'coins'      => $toastAchievement->coins,
+                ]);
+            }
+            if ($toastLevelUp) {
+                $redirect = $redirect->with('level_up', $toastLevelUp);
+            }
+
             return $redirect;
+
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', 'Ошибка при оформлении заказа');
