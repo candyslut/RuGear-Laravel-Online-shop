@@ -72,21 +72,29 @@ class OrderController extends Controller
                 ->with('success', 'Заказ ORD-' . str_pad($order->id, 4, '0', STR_PAD_LEFT) . ' успешно оформлен!');
 
             if ($user->orders()->count() === 1) {
-                $achievement = Achievement::firstOrCreate(
+                $achievement = Achievement::updateOrCreate(
                     ['slug' => 'first_order'],
                     [
                         'title'       => 'Первый заказ',
                         'description' => 'Вы оформили свой первый заказ на RuGear. Добро пожаловать в семью покупателей!',
                         'experience'  => 100,
+                        'coins'       => 25,
                     ]
                 );
 
-                if ($user->awardAchievement($achievement)) {
+                $result = $user->awardAchievement($achievement);
+                if ($result) {
                     $redirect = $redirect->with('achievement_awarded', [
-                        'title'       => $achievement->title,
-                        'description' => $achievement->description,
-                        'experience'  => $achievement->experience,
+                        'title'      => $achievement->title,
+                        'experience' => $achievement->experience,
+                        'coins'      => $achievement->coins,
                     ]);
+                    if ($result['leveled_up']) {
+                        $redirect = $redirect->with('level_up', [
+                            'level' => $result['new_level'],
+                            'coins' => $result['level_coins'],
+                        ]);
+                    }
                 }
             }
 

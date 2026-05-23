@@ -30,14 +30,16 @@ class CommentForm extends Component
 
         $user = Auth::user();
         $commentaryService = app(CommentaryService::class);
-        $awardedAchievement = $commentaryService->addComment($this->content, $this->product, $user);
+        $awarded = $commentaryService->addComment($this->content, $this->product, $user);
 
         $this->content = '';
         $this->dispatch('comment-added')->to('comments-list');
 
-        if ($awardedAchievement) {
-            // Dispatch as array that will be converted to object
-            $this->dispatch('show-toast', $awardedAchievement);
+        if ($awarded) {
+            $this->dispatch('show-achievement', $awarded['achievement']);
+            if ($awarded['level_up']) {
+                $this->dispatch('show-levelup', $awarded['level_up']);
+            }
         }
     }
 

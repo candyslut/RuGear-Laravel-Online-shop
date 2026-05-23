@@ -19,11 +19,9 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    public int $lastLevelUp = 0;
+    public int $lastLevelCoins = 0;
+
     protected function casts(): array
     {
         return [
@@ -57,12 +55,29 @@ class User extends Authenticatable
 
     public function addExperience(int $amount): void
     {
+        $oldLevel = $this->level;
         $this->experience = $this->experience + $amount;
         $this->level = max(1, intdiv($this->experience, 100) + 1);
         $this->save();
+
+        $this->lastLevelUp = $this->level - $oldLevel;
+        if ($this->lastLevelUp > 0) {
+            $this->lastLevelCoins = $this->lastLevelUp * 10;
+            $this->addCoins($this->lastLevelCoins);
+        } else {
+            $this->lastLevelCoins = 0;
+        }
     }
 
-    public function awardAchievement(Achievement $achievement): bool
+    public function addCoins(int $amount): void
+    {
+        $this->increment('coins', $amount);
+    }
+
+    /**
+     * @return array{leveled_up: bool, new_level: int, level_coins: int}|false
+     */
+    public function awardAchievement(Achievement $achievement): array|false
     {
         if ($this->achievements()->where('achievement_id', $achievement->id)->exists()) {
             return false;
@@ -70,8 +85,13 @@ class User extends Authenticatable
 
         $this->achievements()->attach($achievement->id, ['awarded_at' => now()]);
         $this->addExperience($achievement->experience);
+        $this->addCoins($achievement->coins);
 
-        return true;
+        return [
+            'leveled_up'  => $this->lastLevelUp > 0,
+            'new_level'   => $this->level,
+            'level_coins' => $this->lastLevelCoins,
+        ];
     }
 
     public function getNextLevelExperienceAttribute(): int

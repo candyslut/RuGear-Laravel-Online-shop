@@ -24,52 +24,9 @@
         .custom-pagination span[aria-current="page"] span { background:#f97316!important; color:#000!important; border-color:#f97316!important; font-weight:900!important; }
         .custom-pagination a:hover { background:#1f2937!important; color:#fff!important; }
 
-        @keyframes tin  { from{opacity:0;transform:translateX(380px)} to{opacity:1;transform:translateX(0)} }
-        @keyframes tout { from{opacity:1;transform:translateX(0)} to{opacity:0;transform:translateX(380px)} }
-        .toast { animation: tin .4s cubic-bezier(.34,1.56,.64,1); pointer-events:auto; }
-        .toast.out { animation: tout .3s ease-in forwards; }
-
         #ach-track { scrollbar-width:none; -ms-overflow-style:none; }
         #ach-track::-webkit-scrollbar { display:none; }
     </style>
-
-    {{-- TOASTS --}}
-    @if(session('achievement_awarded'))
-    <div id="t-ach" class="fixed bottom-6 right-6 z-50 w-80 bg-[#1a1d24] border border-orange-500/30 rounded-2xl p-4 shadow-2xl toast">
-        <div class="flex gap-3 items-start">
-            <div class="w-10 h-10 rounded-xl bg-orange-500/15 flex items-center justify-center flex-shrink-0">
-                <svg class="w-5 h-5 text-orange-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            </div>
-            <div class="flex-1 min-w-0">
-                <p class="text-xs font-bold uppercase tracking-widest text-orange-400">Достижение разблокировано</p>
-                <p class="text-sm font-bold text-white mt-0.5">{{ session('achievement_awarded.title') }}</p>
-                <p class="text-xs text-gray-400 mt-1">+{{ session('achievement_awarded.experience') }} XP</p>
-            </div>
-            <button onclick="closeToast('t-ach')" class="text-gray-600 hover:text-white text-lg leading-none">×</button>
-        </div>
-    </div>
-    @endif
-
-    @if(session('success'))
-    <div id="t-ok" class="fixed bottom-6 right-6 z-50 w-80 bg-[#1a1d24] border border-green-500/30 rounded-2xl p-4 shadow-2xl toast">
-        <div class="flex gap-3 items-start">
-            <div class="w-10 h-10 rounded-xl bg-green-500/15 flex items-center justify-center flex-shrink-0">
-                <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
-            </div>
-            <div class="flex-1 min-w-0">
-                <p class="text-xs font-bold uppercase tracking-widest text-green-400">Готово</p>
-                <p class="text-sm font-bold text-white mt-0.5">{{ session('success') }}</p>
-            </div>
-            <button onclick="closeToast('t-ok')" class="text-gray-600 hover:text-white text-lg leading-none">×</button>
-        </div>
-    </div>
-    @endif
-
-    <script>
-        function closeToast(id){const t=document.getElementById(id);if(t){t.classList.add('out');setTimeout(()=>t.remove(),300);}}
-        @if(session('achievement_awarded')) setTimeout(()=>closeToast('t-ach'),5000); @endif
-        @if(session('success')) setTimeout(()=>closeToast('t-ok'),4000); @endif
-    </script>
 
     <div class="space-y-5">
 
@@ -97,6 +54,11 @@
                 <div class="text-center">
                     <p class="text-3xl font-black text-white leading-none">{{ auth()->user()->experience }}</p>
                     <p class="text-xs text-gray-500 uppercase tracking-wider mt-1">Опыт (XP)</p>
+                </div>
+                <div class="w-px h-12 bg-gray-800"></div>
+                <div class="text-center">
+                    <p class="text-3xl font-black leading-none" style="color:#f59e0b;">{{ number_format(auth()->user()->coins) }}</p>
+                    <p class="text-xs text-gray-500 uppercase tracking-wider mt-1">Коины</p>
                 </div>
                 <div class="w-px h-12 bg-gray-800"></div>
                 <div class="text-center">

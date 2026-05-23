@@ -11,18 +11,18 @@ use App\Http\Requests\CommentaryRequest;
 
 class CommentaryService
 {
-    public function addComment($contentOrRequest, Product $product, User $user) {
-        $content = is_string($contentOrRequest) 
-            ? $contentOrRequest 
+    public function addComment($contentOrRequest, Product $product, User $user): ?array
+    {
+        $content = is_string($contentOrRequest)
+            ? $contentOrRequest
             : $contentOrRequest->content;
 
         Commentary::create([
-           'content' => $content,
-           'user_id' => $user->id,
+           'content'    => $content,
+           'user_id'    => $user->id,
            'product_id' => $product->id,
         ]);
 
-        // Award comment-based achievements (1, 3, 5 comments)
         $count = $user->commentaries()->count();
 
         $slugMap = [
@@ -31,22 +31,26 @@ class CommentaryService
             5 => 'comment_5',
         ];
 
-        $awardedAchievement = null;
         if (isset($slugMap[$count])) {
             $achievement = Achievement::where('slug', $slugMap[$count])->first();
             if ($achievement) {
-                $awarded = $user->awardAchievement($achievement);
-                if ($awarded) {
-                    $awardedAchievement = [
-                        'title' => $achievement->title,
-                        'description' => $achievement->description,
-                        'experience' => $achievement->experience,
+                $result = $user->awardAchievement($achievement);
+                if ($result) {
+                    return [
+                        'achievement' => [
+                            'title'      => $achievement->title,
+                            'experience' => $achievement->experience,
+                            'coins'      => $achievement->coins,
+                        ],
+                        'level_up' => $result['leveled_up'] ? [
+                            'level' => $result['new_level'],
+                            'coins' => $result['level_coins'],
+                        ] : null,
                     ];
-                    session()->flash('achievement_awarded', $awardedAchievement);
                 }
             }
         }
 
-        return $awardedAchievement;
+        return null;
     }
 }

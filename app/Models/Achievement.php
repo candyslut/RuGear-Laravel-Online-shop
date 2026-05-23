@@ -15,6 +15,7 @@ class Achievement extends Model
         'title',
         'description',
         'experience',
+        'coins',
         'icon',
     ];
 

@@ -9,54 +9,54 @@ class AchievementSeeder extends Seeder
 {
     public function run(): void
     {
-        Achievement::firstOrCreate(
-            ['slug' => 'registered'],
+        $achievements = [
             [
-                'title' => 'Первое достижение',
+                'slug'        => 'registered',
+                'title'       => 'Первое достижение',
                 'description' => 'Вы получили достижение за регистрацию на RuGear.',
-                'experience' => 50,
-                'icon' => null,
-            ]
-        );
-
-        Achievement::firstOrCreate(
-            ['slug' => 'comment_1'],
+                'experience'  => 50,
+                'coins'       => 5,
+                'icon'        => null,
+            ],
             [
-                'title' => 'Первый комментарий',
+                'slug'        => 'comment_1',
+                'title'       => 'Первый комментарий',
                 'description' => 'Спасибо за первый комментарий — добро пожаловать в обсуждение!',
-                'experience' => 10,
-                'icon' => null,
-            ]
-        );
-
-        Achievement::firstOrCreate(
-            ['slug' => 'comment_3'],
+                'experience'  => 10,
+                'coins'       => 5,
+                'icon'        => null,
+            ],
             [
-                'title' => 'Тридцать? Нет — три комментария',
+                'slug'        => 'comment_3',
+                'title'       => 'Тридцать? Нет — три комментария',
                 'description' => 'Вы оставили три комментария — вы активный участник сообщества!',
-                'experience' => 30,
-                'icon' => null,
-            ]
-        );
-
-        Achievement::firstOrCreate(
-            ['slug' => 'comment_5'],
+                'experience'  => 30,
+                'coins'       => 10,
+                'icon'        => null,
+            ],
             [
-                'title' => 'Пятикратный комментатор',
+                'slug'        => 'comment_5',
+                'title'       => 'Пятикратный комментатор',
                 'description' => 'Пять комментариев — класс! Спасибо за вклад в обсуждения.',
-                'experience' => 60,
-                'icon' => null,
-            ]
-        );
-
-        Achievement::firstOrCreate(
-            ['slug' => 'first_order'],
+                'experience'  => 60,
+                'coins'       => 20,
+                'icon'        => null,
+            ],
             [
-                'title' => 'Первый заказ',
+                'slug'        => 'first_order',
+                'title'       => 'Первый заказ',
                 'description' => 'Вы оформили свой первый заказ на RuGear. Добро пожаловать в семью покупателей!',
-                'experience' => 100,
-                'icon' => null,
-            ]
-        );
+                'experience'  => 100,
+                'coins'       => 25,
+                'icon'        => null,
+            ],
+        ];
+
+        foreach ($achievements as $data) {
+            Achievement::updateOrCreate(
+                ['slug' => $data['slug']],
+                $data
+            );
+        }
     }
 }
