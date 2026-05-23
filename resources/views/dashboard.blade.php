@@ -223,7 +223,7 @@
                             </button>
                         </div>
                         <p class="text-xs text-gray-400 line-clamp-2">{{ session('achievement_awarded.description') }}</p>
-                        <div class="text-xs text-orange-300 bg-orange-500/10 px-3 py-2 rounded-2xl border border-orange-500/20 font-semibold">
+                        <div class="text-xs text-orange-300 bg-orange-500/10 px-3 py-2 rounded-2xl border border-orange-500/20 font-semibold text-center w-full">
                             ⭐ +{{ session('achievement_awarded.experience') }} опыта
                         </div>
                     </div>

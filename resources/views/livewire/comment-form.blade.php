@@ -45,7 +45,7 @@
                             </button>
                         </div>
                         <p class="text-xs text-gray-400 line-clamp-2">${achievement.description}</p>
-                        <div class="text-xs text-orange-300 bg-orange-500/10 px-3 py-2 rounded-2xl border border-orange-500/20 font-semibold">
+                        <div class="text-xs text-orange-300 bg-orange-500/10 px-3 py-2 rounded-2xl border border-orange-500/20 font-semibold text-center w-full">
                             ⭐ +${achievement.experience} опыта
                         </div>
                     </div>

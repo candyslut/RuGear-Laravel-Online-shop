@@ -86,10 +86,96 @@
 
         <form action="{{ route('orders.store') }}" method="POST">
             @csrf
-            <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-black font-black px-10 py-4 rounded-2xl transition shadow-lg uppercase tracking-widest cursor-pointer">
+            <button type="button" onclick="openCheckoutModal()" class="bg-orange-500 hover:bg-orange-600 text-black font-black px-10 py-4 rounded-2xl transition shadow-lg uppercase tracking-widest cursor-pointer">
                 Оформить заказ
             </button>
         </form>
     </div>
     @endif
+
+    <div id="checkout-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/80 p-4">
+        <div class="bg-[#161920] border border-gray-800 w-full max-w-lg rounded-3xl p-8">
+
+            <h3 class="text-2xl font-black text-white uppercase mb-6">
+                Оформление заказа
+            </h3>
+
+            <form action="{{ route('orders.store') }}" method="POST" class="space-y-4">
+                @csrf
+
+                <!-- ФИО -->
+                <input
+                    name="full_name"
+                    required
+                    placeholder="ФИО получателя"
+                    class="w-full bg-[#111318] border border-gray-800 text-white px-4 py-3 rounded-xl">
+
+                <!-- Телефон -->
+                <input
+                    name="phone"
+                    required
+                    placeholder="Телефон"
+                    class="w-full bg-[#111318] border border-gray-800 text-white px-4 py-3 rounded-xl">
+
+                <!-- Email (не обязательно, но полезно) -->
+                <input
+                    name="email"
+                    placeholder="Email (необязательно)"
+                    class="w-full bg-[#111318] border border-gray-800 text-white px-4 py-3 rounded-xl">
+
+                <!-- Адрес с автокомплитом -->
+                <input
+                    id="address-input"
+                    name="address"
+                    required
+                    placeholder="Начните вводить адрес..."
+                    autocomplete="off"
+                    class="w-full bg-[#111318] border border-gray-800 text-white px-4 py-3 rounded-xl">
+
+                <!-- скрытое поле для полного нормализованного адреса -->
+                <input type="hidden" name="address_full" id="address_full">
+
+                <!-- Способ доставки -->
+                <select name="delivery_type" class="w-full bg-[#111318] border border-gray-800 text-white px-4 py-3 rounded-xl">
+                    <option value="courier">Курьер</option>
+                    <option value="pickup">Самовывоз</option>
+                    <option value="post">Почта / ПВЗ</option>
+                </select>
+
+                <!-- Способ оплаты -->
+                <select name="payment_method" class="w-full bg-[#111318] border border-gray-800 text-white px-4 py-3 rounded-xl" required>
+                    <option value="card">Карта</option>
+                    <option value="cash">Наличные</option>
+                </select>
+
+                <button
+                    type="submit"
+                    class="w-full bg-orange-500 hover:bg-orange-600 text-black font-black py-3 rounded-xl uppercase tracking-wider">
+                    Подтвердить заказ
+                </button>
+            </form>
+
+            <button
+                type="button"
+                onclick="closeCheckoutModal()"
+                class="mt-4 w-full text-gray-400 hover:text-white text-sm">
+                Отмена
+            </button>
+        </div>
+    </div>
 </div>
+<script>
+    function openCheckoutModal() {
+        const modal = document.getElementById('checkout-modal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeCheckoutModal() {
+        const modal = document.getElementById('checkout-modal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = 'auto';
+    }
+</script>

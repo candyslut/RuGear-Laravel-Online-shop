@@ -13,6 +13,12 @@ class Order extends Model
         'status',
         'total_price',
         'notes',
+        'address',
+        'payment_method',
+        'full_name',
+        'phone',
+        'email',
+        'delivery_type',
     ];
 
     protected $casts = [
@@ -32,7 +38,7 @@ class Order extends Model
 
     public function getStatusLabelAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'pending' => 'В ожидании',
             'processing' => 'В обработке',
             'completed' => 'Завершен',
@@ -43,7 +49,7 @@ class Order extends Model
 
     public function getStatusColorAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'pending' => 'gray',
             'processing' => 'blue',
             'completed' => 'green',
@@ -52,4 +58,3 @@ class Order extends Model
         };
     }
 }
-
