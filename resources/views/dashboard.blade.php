@@ -193,9 +193,6 @@
                             </div>
                             @endif
                         </div>
-                        @if($order->full_name)
-                        <span class="text-sm text-gray-500 truncate">{{ $order->full_name }}</span>
-                        @endif
                     </div>
                     <div class="text-right flex-shrink-0">
                         <p class="text-2xl font-black text-white tabular-nums leading-none">

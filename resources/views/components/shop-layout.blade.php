@@ -50,7 +50,7 @@
                                     <circle cx="12" cy="12" r="7.5" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/>
                                     <text x="12" y="16.5" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#78350F" font-family="Georgia, serif">₽</text>
                                 </svg>
-                                <span class="text-xs font-black tabular-nums" style="color:#f59e0b;">{{ number_format(auth()->user()->coins) }}</span>
+                                <span id="coin-count" class="text-xs font-black tabular-nums" style="color:#f59e0b;">{{ number_format(auth()->user()->coins) }}</span>
                             </div>
                         </div>
                         <a href="{{ route('dashboard') }}" class="p-2 bg-gray-800 hover:bg-gray-700 rounded-full transition">
@@ -223,6 +223,13 @@
             // prepend = первый в DOM = внизу контейнера (flex-col-reverse)
             wrap.prepend(el);
             setTimeout(() => closeToast(id), 5000);
+
+            // Update header coin counter
+            const coinEl = document.getElementById('coin-count');
+            if (coinEl && data.coins) {
+                const cur = parseInt(coinEl.textContent.replace(/\D/g, ''), 10) || 0;
+                coinEl.textContent = (cur + data.coins).toLocaleString('ru-RU');
+            }
         }
 
         @if(session('achievement_awarded')) setTimeout(() => closeToast('t-ach'), 5000); @endif
