@@ -54,6 +54,13 @@ class OrderController extends Controller
                     'quantity' => $item->quantity,
                     'price' => $item->product->price,
                 ]);
+
+                // Decrease product quantity
+                $product = \App\Models\Product::find($item->product_id);
+                if ($product) {
+                    $product->quantity -= $item->quantity;
+                    $product->save();
+                }
             }
 
             // Clear user's cart
