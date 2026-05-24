@@ -17,11 +17,36 @@ class AdminController extends Controller
     /**
      * Список всех пользователей в админ-панели
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::withCount('tickets')->latest()->paginate(12);
+        $search = $request->input('search');
+        $sort   = $request->input('sort', 'newest');
 
-        return view('admin.users', compact('users'));
+        $query = User::withCount(['tickets', 'orders'])->with('achievements');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $query->when($sort === 'level',  fn($q) => $q->orderByDesc('level')->orderByDesc('experience'))
+              ->when($sort === 'coins',  fn($q) => $q->orderByDesc('coins'))
+              ->when($sort === 'oldest', fn($q) => $q->oldest())
+              ->when(!in_array($sort, ['level','coins','oldest']), fn($q) => $q->latest());
+
+        $users = $query->paginate(20)->withQueryString();
+
+        return view('admin.users', compact('users', 'search', 'sort'));
+    }
+
+    public function addCoins(Request $request, User $user)
+    {
+        $request->validate(['amount' => 'required|integer|min:1|max:99999']);
+        $user->addCoins($request->amount);
+
+        return redirect()->back()->with('success', "Начислено {$request->amount} монет пользователю {$user->name}.");
     }
 
     /**
@@ -29,22 +54,37 @@ class AdminController extends Controller
      */
     public function productsIndex(Request $request)
     {
-        $search = $request->get('search');
-
-        $products = Product::with('category')
-            ->when($search, function ($query) use ($search) {
-                $query->where('name', 'like', '%' . $search . '%');
-            })
-            ->latest()
-            ->paginate(15)
-            ->withQueryString();
+        $search   = $request->input('search');
+        $sort     = $request->input('sort', 'newest');
+        $category = $request->input('category', 'all');
 
         $categories = Category::all();
 
+        $query = Product::with('category');
+
+        if ($search) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        if ($category !== 'all') {
+            $query->whereHas('category', fn($q) => $q->where('name', 'like', "%{$category}%"));
+        }
+
+        $query->when($sort === 'oldest',     fn($q) => $q->oldest())
+              ->when($sort === 'price_asc',  fn($q) => $q->orderBy('price'))
+              ->when($sort === 'price_desc', fn($q) => $q->orderByDesc('price'))
+              ->when($sort === 'stock',      fn($q) => $q->orderByDesc('quantity'))
+              ->when(!in_array($sort, ['oldest','price_asc','price_desc','stock']), fn($q) => $q->latest());
+
+        $products = $query->paginate(16)->withQueryString();
+
+        $counts = ['all' => Product::count()];
+        foreach ($categories as $cat) {
+            $counts[$cat->name] = $cat->products()->count();
+        }
+
         return view('admin.products.index', compact(
-            'products',
-            'categories',
-            'search'
+            'products', 'categories', 'search', 'sort', 'category', 'counts'
         ));
     }
 

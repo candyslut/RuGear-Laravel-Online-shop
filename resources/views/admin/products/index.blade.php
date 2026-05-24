@@ -63,32 +63,66 @@
         </a>
     </div>
 
-    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
-        <div class="space-y-1">
-            <h1 class="text-2xl md:text-3xl font-black uppercase tracking-wider text-white">
-                Управление каталогом
-            </h1>
+    {{-- Header --}}
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div>
+            <h1 class="text-2xl font-black uppercase tracking-wider text-white">Каталог товаров</h1>
+            <p class="text-sm text-gray-500 mt-0.5">{{ $products->total() }} товаров найдено</p>
         </div>
-
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
-            <form method="GET" action="{{ route('admin.products.index') }}" class="relative w-full sm:w-[320px]">
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Поиск девайса..." class="w-full bg-[#161920] border border-gray-800 focus:border-orange-500 rounded-2xl px-5 py-3 pr-12 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-0 transition-all">
-                <button type="submit" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-orange-500 transition-colors cursor-pointer">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </button>
-            </form>
-
-            @if(request('search'))
-            <a href="{{ route('admin.products.index') }}" class="inline-flex items-center justify-center gap-2 px-4 py-3 bg-gray-900 hover:bg-red-500/10 border border-gray-800 hover:border-red-500/20 text-gray-400 hover:text-red-400 rounded-2xl text-xs font-black uppercase tracking-widest transition-all">
-                <i class="fa-solid fa-xmark"></i> Сброс
-            </a>
-            @endif
-
-            <button type="button" id="open-create-modal-btn" class="inline-flex items-center justify-center gap-2 px-5 py-3 bg-orange-500 hover:bg-orange-400 text-black font-black uppercase text-xs tracking-widest rounded-2xl transition-all active:scale-95 cursor-pointer shadow-lg shadow-orange-500/10">
-                <i class="fa-solid fa-plus"></i> Добавить девайс
-            </button>
-        </div>
+        <button type="button" id="open-create-modal-btn"
+                class="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-500 hover:bg-orange-400 text-black font-black uppercase text-xs tracking-widest rounded-xl transition-all active:scale-95 flex-shrink-0">
+            <i class="fa-solid fa-plus"></i> Добавить девайс
+        </button>
     </div>
+
+    {{-- Search + Sort + Category filter --}}
+    <form method="GET" action="{{ route('admin.products.index') }}" id="filter-form" class="flex flex-col gap-3 mb-6">
+        <div class="flex flex-col sm:flex-row gap-3">
+            {{-- Search --}}
+            <div class="relative flex-1">
+                <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input type="text" name="search" value="{{ $search ?? '' }}"
+                       placeholder="Поиск по названию..."
+                       oninput="debounceSubmit()"
+                       class="w-full bg-[#161920] border border-gray-800 rounded-xl pl-10 pr-9 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-orange-500 transition">
+                @if($search)
+                <a href="{{ route('admin.products.index', ['sort' => $sort, 'category' => $category]) }}"
+                   class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-white transition text-lg leading-none">×</a>
+                @endif
+            </div>
+
+            {{-- Sort --}}
+            <input type="hidden" name="sort" id="sort-input" value="{{ $sort }}">
+            <input type="hidden" name="category" id="category-input" value="{{ $category }}">
+            <div class="flex items-center gap-1.5 bg-[#161920] border border-gray-800 rounded-xl p-1 flex-shrink-0">
+                @foreach(['newest' => 'Новые', 'oldest' => 'Старые', 'price_asc' => 'Дешевле', 'price_desc' => 'Дороже', 'stock' => 'Остаток'] as $key => $label)
+                <button type="button" onclick="setSort('{{ $key }}')"
+                        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition whitespace-nowrap sort-btn {{ $sort === $key ? 'bg-orange-500 text-black' : 'text-gray-500 hover:text-white' }}"
+                        data-sort="{{ $key }}">{{ $label }}</button>
+                @endforeach
+            </div>
+        </div>
+
+        {{-- Category tabs --}}
+        <div class="flex items-center gap-1.5 flex-wrap">
+            <button type="button" onclick="setCategory('all')"
+                    class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition border cat-btn
+                           {{ $category === 'all' ? 'bg-white/10 text-white border-white/20' : 'text-gray-600 hover:text-gray-400 border-transparent' }}"
+                    data-cat="all">
+                Все ({{ $counts['all'] }})
+            </button>
+            @foreach($categories as $cat)
+            <button type="button" onclick="setCategory('{{ $cat->name }}')"
+                    class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition border cat-btn
+                           {{ $category === $cat->name ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' : 'text-gray-600 hover:text-gray-400 border-transparent' }}"
+                    data-cat="{{ $cat->name }}">
+                {{ $cat->name }} ({{ $counts[$cat->name] ?? 0 }})
+            </button>
+            @endforeach
+        </div>
+    </form>
 
     @if(session('success'))
     <div class="mb-6 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-6 py-4 rounded-2xl text-sm flex items-center gap-3 shadow-xl">
@@ -480,5 +514,25 @@
                 }
             });
         });
+
+        // ── Search / sort / filter ──────────────────────────────
+        let _searchTimer;
+        function debounceSubmit() {
+            clearTimeout(_searchTimer);
+            _searchTimer = setTimeout(() => document.getElementById('filter-form').submit(), 450);
+        }
+        function setSort(val) {
+            document.getElementById('sort-input').value = val;
+            document.querySelectorAll('.sort-btn').forEach(btn => {
+                const active = btn.dataset.sort === val;
+                btn.className = btn.className.replace('bg-orange-500 text-black','').replace('text-gray-500 hover:text-white','').trim();
+                btn.classList.add(...(active ? ['bg-orange-500','text-black'] : ['text-gray-500','hover:text-white']));
+            });
+            document.getElementById('filter-form').submit();
+        }
+        function setCategory(val) {
+            document.getElementById('category-input').value = val;
+            document.getElementById('filter-form').submit();
+        }
     </script>
 </x-admin-layout>

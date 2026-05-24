@@ -71,6 +71,7 @@ Route::middleware('admin')->prefix('admin')->group(function () {
 
     Route::get('users', [AdminController::class, 'index'])->name('admin.users');
     Route::delete('users/{user}/delete', [AdminController::class, 'deleteUser'])->name('admin.users.destroy');
+    Route::post('users/{user}/coins', [AdminController::class, 'addCoins'])->name('admin.users.coins');
 
     Route::get('/products', [AdminController::class, 'productsIndex'])->name('admin.products.index');
     Route::get('/products/create', [AdminController::class, 'create'])->name('admin.products.create');

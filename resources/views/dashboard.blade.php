@@ -93,7 +93,7 @@
                         @endif
                         @if(auth()->user()->gender)
                         <span class="text-xs text-gray-400 bg-gray-800/60 rounded-lg px-2.5 py-1">
-                            {{ ['male' => 'Мужской', 'female' => 'Женский'][auth()->user()->gender] ?? '' }}
+                            <span class="text-gray-600">Пол:</span> {{ ['male' => 'Мужской', 'female' => 'Женский'][auth()->user()->gender] ?? '' }}
                         </span>
                         @endif
                     </div>

@@ -26,10 +26,40 @@ class TicketController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $tickets = Ticket::with('user')->latest()->paginate(15);    
-        return view('admin.tickets', compact('tickets'));
+        $search = $request->input('search');
+        $sort   = $request->input('sort', 'newest');
+        $status = $request->input('status', 'all');
+
+        $query = Ticket::with('user');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('content', 'like', "%{$search}%")
+                  ->orWhereHas('user', fn($u) => $u->where('name', 'like', "%{$search}%"));
+            });
+        }
+
+        if ($status !== 'all') {
+            $query->where('status', $status);
+        }
+
+        $query->when($sort === 'oldest', fn($q) => $q->oldest())
+              ->when($sort === 'status', fn($q) => $q->orderByRaw("FIELD(status,'pending','replied','closed')"))
+              ->when(!in_array($sort, ['oldest','status']), fn($q) => $q->latest());
+
+        $tickets = $query->paginate(20)->withQueryString();
+
+        $counts = [
+            'all'     => Ticket::count(),
+            'pending' => Ticket::where('status','pending')->count(),
+            'replied' => Ticket::where('status','replied')->count(),
+            'closed'  => Ticket::where('status','closed')->count(),
+        ];
+
+        return view('admin.tickets', compact('tickets', 'search', 'sort', 'status', 'counts'));
     }
 
     /**
