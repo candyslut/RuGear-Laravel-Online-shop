@@ -81,7 +81,6 @@
                         <option value="" @selected(!$user->gender)>Не указано</option>
                         <option value="male"   @selected($user->gender === 'male')>Мужской</option>
                         <option value="female" @selected($user->gender === 'female')>Женский</option>
-                        <option value="other"  @selected($user->gender === 'other')>Другой</option>
                     </select>
                     @error('gender')
                         <p class="text-red-400 text-xs mt-1">{{ $message }}</p>

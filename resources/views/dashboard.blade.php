@@ -92,11 +92,8 @@
                         </span>
                         @endif
                         @if(auth()->user()->gender)
-                        <span class="flex items-center gap-1.5 text-xs text-gray-400 bg-gray-800/60 rounded-lg px-2.5 py-1">
-                            <svg class="w-3.5 h-3.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                            </svg>
-                            {{ ['male' => 'Мужской', 'female' => 'Женский', 'other' => 'Другой'][auth()->user()->gender] }}
+                        <span class="text-xs text-gray-400 bg-gray-800/60 rounded-lg px-2.5 py-1">
+                            {{ ['male' => 'Мужской', 'female' => 'Женский'][auth()->user()->gender] ?? '' }}
                         </span>
                         @endif
                     </div>
@@ -611,7 +608,8 @@
                         </div>
 
                         {{-- Avatar --}}
-                        <div class="w-9 h-9 rounded-xl flex-shrink-0 overflow-hidden flex items-center justify-center {{ $isMe ? 'bg-orange-500' : 'bg-gray-700' }} text-sm font-black {{ $isMe ? 'text-black' : 'text-white' }}">
+                        <div class="w-9 h-9 rounded-xl flex-shrink-0 overflow-hidden flex items-center justify-center {{ $isMe ? 'bg-orange-500' : 'bg-gray-700' }} text-sm font-black {{ $isMe ? 'text-black' : 'text-white' }} {{ $u->cosmetic_border === 'rainbow' ? 'avatar-rainbow' : '' }}"
+                             style="{{ $u->cosmetic_border && $u->cosmetic_border !== 'rainbow' ? 'box-shadow:'.$u->cosmetic_border.';' : '' }}">
                             @if($u->avatar)
                                 <img src="{{ Storage::url($u->avatar) }}" class="w-full h-full object-cover">
                             @else
@@ -621,8 +619,9 @@
 
                         {{-- Name --}}
                         <div class="flex-1 min-w-0">
-                            <p class="text-sm font-bold truncate {{ $isMe ? 'text-orange-400' : 'text-white' }}">
-                                {{ $u->name }}@if($isMe)<span class="text-xs font-normal text-orange-500/80 ml-1">вы</span>@endif
+                            <p class="text-sm font-bold truncate"
+                               style="{{ $u->cosmetic_nickname_color ? 'color:'.$u->cosmetic_nickname_color.';' : ($isMe ? 'color:#fb923c;' : 'color:#fff;') }}{{ $u->cosmetic_font ? 'font-family:'.$u->cosmetic_font.';' : '' }}">
+                                {{ $u->name }}@if($isMe)<span class="text-xs font-normal text-orange-500/80 ml-1" style="font-family:inherit;">вы</span>@endif
                             </p>
                         </div>
 
@@ -657,13 +656,10 @@
                     <div id="leader-det-{{ $u->id }}" class="hidden px-6 pb-4">
                         <div class="bg-gray-900/40 border border-gray-800/60 rounded-xl p-4 space-y-3 ml-9">
                             {{-- Gender pill --}}
-                            @if($u->gender)
+                            @if($u->gender && in_array($u->gender, ['male','female']))
                             <div>
-                                <span class="inline-flex items-center gap-1.5 text-xs text-gray-400 bg-gray-800/60 rounded-lg px-2.5 py-1">
-                                    <svg class="w-3 h-3 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                                    </svg>
-                                    {{ ['male'=>'Мужской','female'=>'Женский','other'=>'Другой'][$u->gender] }}
+                                <span class="text-xs text-gray-400 bg-gray-800/60 rounded-lg px-2.5 py-1">
+                                    {{ ['male'=>'Мужской','female'=>'Женский'][$u->gender] }}
                                 </span>
                             </div>
                             @endif
@@ -689,10 +685,13 @@
 
                             {{-- Achievement pills --}}
                             @if($u->achievements->count() > 0)
-                            <div class="flex flex-wrap gap-1.5">
-                                @foreach($u->achievements as $ach)
-                                <span class="text-[10px] text-orange-400 bg-orange-500/10 border border-orange-500/20 rounded-lg px-2 py-0.5">{{ $ach->title }}</span>
-                                @endforeach
+                            <div>
+                                <p class="text-[9px] text-gray-600 uppercase tracking-widest mb-1.5">Достижения</p>
+                                <div class="flex flex-wrap gap-1.5">
+                                    @foreach($u->achievements as $ach)
+                                    <span class="text-[10px] text-orange-400 bg-orange-500/10 border border-orange-500/20 rounded-lg px-2 py-0.5">{{ $ach->title }}</span>
+                                    @endforeach
+                                </div>
                             </div>
                             @endif
                         </div>

@@ -19,7 +19,7 @@ class SettingsController extends Controller
         $data = $request->validate([
             'name'   => ['required', 'string', 'max:255'],
             'phone'  => ['nullable', 'string', 'max:30'],
-            'gender' => ['nullable', 'in:male,female,other'],
+            'gender' => ['nullable', 'in:male,female'],
             'about'  => ['nullable', 'string', 'max:1000'],
             'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);

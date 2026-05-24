@@ -10,7 +10,8 @@ use App\Http\Controllers\{
     TicketController,
     ComparisonController,
     OrderController,
-    SettingsController
+    SettingsController,
+    ShopController
 };
 use App\Http\Controllers\Admin\AdminOrderController;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +32,11 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 Route::middleware('auth')->group(function () {
     Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');
     Route::patch('/settings', [SettingsController::class, 'update'])->name('settings.update');
+
+    Route::get('/market', [ShopController::class, 'index'])->name('market.index');
+    Route::post('/market/buy/{item}', [ShopController::class, 'buy'])->name('market.buy');
+    Route::post('/market/equip/{item}', [ShopController::class, 'equip'])->name('market.equip');
+    Route::post('/market/unequip', [ShopController::class, 'unequip'])->name('market.unequip');
 
     Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
     Route::post('/cart/remove/{product}', [CartController::class, 'remove'])->name('cart.remove');

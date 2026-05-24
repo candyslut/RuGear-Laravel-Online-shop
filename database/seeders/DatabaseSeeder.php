@@ -23,12 +23,13 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
+            ShopSeeder::class,
             AchievementSeeder::class,
             UserSeeder::class,
             ProductSeeder::class,
             CommentSeeder::class,
             AdminSeeder::class,
-            TicketSeeder::class
+            TicketSeeder::class,
         ]);
     }
 }

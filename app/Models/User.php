@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'role', 'phone', 'gender', 'about', 'avatar'])]
+#[Fillable(['name', 'email', 'password', 'role', 'phone', 'gender', 'about', 'avatar', 'cosmetic_border', 'cosmetic_font', 'cosmetic_nickname_color'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -45,6 +45,12 @@ class User extends Authenticatable
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function shopItems(): BelongsToMany
+    {
+        return $this->belongsToMany(\App\Models\ShopItem::class, 'user_shop_items')
+            ->withPivot('purchased_at');
     }
 
     public function achievements(): BelongsToMany
