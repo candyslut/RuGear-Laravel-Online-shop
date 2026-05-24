@@ -25,7 +25,7 @@ class OrderController extends Controller
             'email'          => 'nullable|email|max:255',
             'address'        => 'required|string|max:255',
             'delivery_type'  => 'required|string|in:courier,pickup,post',
-            'payment_method' => 'required|string|in:card,cash',
+            'payment_method' => 'required|string|in:card,qr',
         ]);
 
         $cartItems = $this->cartService->getUserCart($user);
@@ -68,107 +68,131 @@ class OrderController extends Controller
 
             DB::commit();
 
-            $redirect = redirect()->route('dashboard')
-                ->with('success', 'Заказ ORD-' . str_pad($order->id, 4, '0', STR_PAD_LEFT) . ' успешно оформлен!');
-
-            // ── Собираем все ачивки которые нужно проверить ───────────────
-            $candidates = [];
-
-            // Первый заказ
-            if ($user->orders()->count() === 1) {
-                $candidates[] = Achievement::updateOrCreate(
-                    ['slug' => 'first_order'],
-                    [
-                        'title'       => 'Первый заказ',
-                        'description' => 'Вы оформили свой первый заказ на RuGear. Добро пожаловать в семью покупателей!',
-                        'experience'  => 100,
-                        'coins'       => 25,
-                    ]
-                );
-            }
-
-            // Заказ на сумму >= 10 000 ₽
-            if ($totalPrice >= 10000) {
-                $candidates[] = Achievement::updateOrCreate(
-                    ['slug' => 'order_10k'],
-                    [
-                        'title'       => 'Крупная покупка',
-                        'description' => 'Вы оформили заказ на сумму от 10 000 ₽. Серьёзный подход!',
-                        'experience'  => 75,
-                        'coins'       => 40,
-                    ]
-                );
-            }
-
-            // Заказ на сумму >= 50 000 ₽
-            if ($totalPrice >= 50000) {
-                $candidates[] = Achievement::updateOrCreate(
-                    ['slug' => 'order_50k'],
-                    [
-                        'title'       => 'Кит',
-                        'description' => 'Заказ на 50 000 ₽ и выше. Вы настоящий энтузиаст!',
-                        'experience'  => 200,
-                        'coins'       => 150,
-                    ]
-                );
-            }
-
-            // Заказал хотя бы раз каждую из 4 категорий
-            $orderedCategoryIds = DB::table('order_items')
-                ->join('orders', 'orders.id', '=', 'order_items.order_id')
-                ->join('products', 'products.id', '=', 'order_items.product_id')
-                ->where('orders.user_id', $user->id)
-                ->where('orders.status', '!=', 'cancelled')
-                ->distinct()
-                ->pluck('products.category_id')
-                ->toArray();
-
-            if (count(array_intersect([1, 2, 3, 4], $orderedCategoryIds)) === 4) {
-                $candidates[] = Achievement::updateOrCreate(
-                    ['slug' => 'all_categories'],
-                    [
-                        'title'       => 'Полный арсенал',
-                        'description' => 'Вы заказали товары из всех категорий: клавиатуру, мышь, наушники и коврик.',
-                        'experience'  => 150,
-                        'coins'       => 75,
-                    ]
-                );
-            }
-
-            // ── Выдаём все ачивки, показываем последнюю в тосте ──────────
-            $toastAchievement = null;
-            $toastLevelUp     = null;
-
-            foreach ($candidates as $ach) {
-                $result = $user->awardAchievement($ach);
-                if ($result) {
-                    $toastAchievement = $ach;
-                    if ($result['leveled_up']) {
-                        $toastLevelUp = [
-                            'level' => $result['new_level'],
-                            'coins' => $result['level_coins'],
-                        ];
-                    }
-                }
-            }
-
-            if ($toastAchievement) {
-                $redirect = $redirect->with('achievement_awarded', [
-                    'title'      => $toastAchievement->title,
-                    'experience' => $toastAchievement->experience,
-                    'coins'      => $toastAchievement->coins,
-                ]);
-            }
-            if ($toastLevelUp) {
-                $redirect = $redirect->with('level_up', $toastLevelUp);
-            }
-
-            return $redirect;
+            return redirect()->route('orders.payment', $order);
 
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', 'Ошибка при оформлении заказа');
         }
+    }
+
+    public function payment(Order $order)
+    {
+        if ($order->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        return view('orders.payment', compact('order'));
+    }
+
+    public function paymentConfirm(Order $order)
+    {
+        if ($order->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $user     = auth()->user();
+        $orderNum = 'ORD-' . str_pad($order->id, 4, '0', STR_PAD_LEFT);
+        $redirect = redirect()->route('dashboard')
+            ->with('success', 'Оплата по заказу ' . $orderNum . ' прошла успешно! Ожидайте доставку.');
+
+        // ── Накопительная сумма всех не отменённых заказов ───────────
+        $totalSpent = Order::where('user_id', $user->id)
+            ->where('status', '!=', 'cancelled')
+            ->sum('total_price');
+
+        $candidates = [];
+
+        // Первый заказ
+        if (Order::where('user_id', $user->id)->where('status', '!=', 'cancelled')->count() === 1) {
+            $candidates[] = Achievement::updateOrCreate(
+                ['slug' => 'first_order'],
+                [
+                    'title'       => 'Первый заказ',
+                    'description' => 'Вы оформили свой первый заказ на RuGear. Добро пожаловать в семью покупателей!',
+                    'experience'  => 100,
+                    'coins'       => 25,
+                ]
+            );
+        }
+
+        // Накопительная сумма >= 10 000 ₽
+        if ($totalSpent >= 10000) {
+            $candidates[] = Achievement::updateOrCreate(
+                ['slug' => 'order_10k'],
+                [
+                    'title'       => 'Крупная покупка',
+                    'description' => 'Вы потратили в RuGear суммарно от 10 000 ₽. Серьёзный подход!',
+                    'experience'  => 75,
+                    'coins'       => 40,
+                ]
+            );
+        }
+
+        // Накопительная сумма >= 50 000 ₽
+        if ($totalSpent >= 50000) {
+            $candidates[] = Achievement::updateOrCreate(
+                ['slug' => 'order_50k'],
+                [
+                    'title'       => 'Кит',
+                    'description' => 'Суммарные траты в RuGear от 50 000 ₽. Вы настоящий энтузиаст!',
+                    'experience'  => 200,
+                    'coins'       => 150,
+                ]
+            );
+        }
+
+        // Заказал хотя бы раз каждую из 4 категорий
+        $orderedCategoryIds = DB::table('order_items')
+            ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->join('products', 'products.id', '=', 'order_items.product_id')
+            ->where('orders.user_id', $user->id)
+            ->where('orders.status', '!=', 'cancelled')
+            ->distinct()
+            ->pluck('products.category_id')
+            ->toArray();
+
+        if (count(array_intersect([1, 2, 3, 4], $orderedCategoryIds)) === 4) {
+            $candidates[] = Achievement::updateOrCreate(
+                ['slug' => 'all_categories'],
+                [
+                    'title'       => 'Полный арсенал',
+                    'description' => 'Вы заказали товары из всех категорий: клавиатуру, мышь, наушники и коврик.',
+                    'experience'  => 150,
+                    'coins'       => 75,
+                ]
+            );
+        }
+
+        // ── Выдаём все ачивки, показываем последнюю в тосте ──────────
+        $toastAchievement = null;
+        $toastLevelUp     = null;
+
+        foreach ($candidates as $ach) {
+            $result = $user->awardAchievement($ach);
+            if ($result) {
+                $toastAchievement = $ach;
+                if ($result['leveled_up']) {
+                    $toastLevelUp = [
+                        'level' => $result['new_level'],
+                        'coins' => $result['level_coins'],
+                    ];
+                }
+            }
+        }
+
+        if ($toastAchievement) {
+            $redirect = $redirect->with('achievement_awarded', [
+                'title'      => $toastAchievement->title,
+                'experience' => $toastAchievement->experience,
+                'coins'      => $toastAchievement->coins,
+            ]);
+        }
+        if ($toastLevelUp) {
+            $redirect = $redirect->with('level_up', $toastLevelUp);
+        }
+
+        return $redirect;
     }
 
     public function cancel(Order $order)

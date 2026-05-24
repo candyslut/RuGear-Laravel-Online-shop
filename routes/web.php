@@ -43,10 +43,49 @@ Route::middleware('auth')->group(function () {
     Route::post('/product/{product}/commentary', [CommentaryController::class, 'store'])->name('product.commentary');
     
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+    Route::get('/orders/{order}/payment', [OrderController::class, 'payment'])->name('orders.payment');
+    Route::get('/orders/{order}/payment/confirm', [OrderController::class, 'paymentConfirm'])->name('orders.payment.confirm');
     Route::patch('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
 
     Route::post('ticket/create', [TicketController::class, 'store'])->name('ticket.store');
     Route::delete('tickets/{ticket}', [TicketController::class, 'destroy'])->name('ticket.destroy');
+
+    Route::get('/address-suggest', function (\Illuminate\Http\Request $request) {
+        $q     = trim($request->input('q', ''));
+        $token = config('services.dadata.token');
+
+        if (!$token || mb_strlen($q) < 2) {
+            return response()->json([]);
+        }
+
+        try {
+            $resp = \Illuminate\Support\Facades\Http::withoutVerifying()->withHeaders([
+                'Authorization' => 'Token ' . $token,
+                'Content-Type'  => 'application/json',
+                'Accept'        => 'application/json',
+            ])->post('https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address', [
+                'query'          => $q,
+                'count'          => 7,
+                'restrict_value' => false,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([]);
+        }
+
+        if (!$resp->ok()) {
+            return response()->json([]);
+        }
+
+        return response()->json(
+            collect($resp->json('suggestions', []))->map(fn($s) => [
+                'value'  => $s['value'],
+                'region' => $s['data']['region_with_type'] ?? null,
+                'city'   => $s['data']['city'] ?? $s['data']['settlement_with_type'] ?? null,
+                'street' => $s['data']['street_with_type'] ?? null,
+                'house'  => $s['data']['house'] ?? null,
+            ])
+        );
+    })->name('address.suggest');
 
     Route::post('/game/reward', function () {
         $user = auth()->user();
