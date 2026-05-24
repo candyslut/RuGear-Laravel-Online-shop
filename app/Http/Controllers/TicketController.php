@@ -79,7 +79,7 @@ class TicketController extends Controller
     public function destroy(Ticket $ticket)
     {
         $this->ticketService->removeTicket($ticket);
-        return redirect()->back()->with('succsess', 'Заявка успешно удалена и закрыта!');
+        return redirect()->back()->with('success', 'Заявка успешно удалена и закрыта!');
     }
 
     public function reply(Ticket $ticket, Request $request) {

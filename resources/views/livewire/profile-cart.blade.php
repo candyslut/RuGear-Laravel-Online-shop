@@ -11,7 +11,7 @@
     </div>
     @else
 
-    <div class="divide-y divide-gray-900/60 max-h-72 overflow-y-auto cs">
+    <div class="divide-y divide-gray-900/60 max-h-72 overflow-y-auto cs pb-3 pr-3">
         @foreach($cartItems as $item)
         <div class="flex items-center gap-4 py-4" wire:key="profile-cart-item-{{ $item->id }}">
 

@@ -2,18 +2,26 @@
 
 namespace Database\Seeders;
 
+use App\Models\Achievement;
+use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class AdminSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('users')->insert([
-            'name' => 'admin',
-            'email' => 'admin@mail.com',
-            'password' => bcrypt('admin123'),
-            'role' => 'admin'
+        $admin = User::create([
+            'name'     => 'admin',
+            'email'    => 'admin@mail.com',
+            'password' => Hash::make('admin123'),
+            'role'     => 'admin',
         ]);
+
+        $achievement = Achievement::where('slug', 'registered')->first();
+
+        if ($achievement) {
+            $admin->awardAchievement($achievement);
+        }
     }
 }

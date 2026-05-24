@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\CartService;
 use App\Models\Achievement;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
@@ -27,7 +28,12 @@ class DashboardController extends Controller
         $allAchievements = Achievement::all();
         $userAchievementIds = $user->achievements->pluck('id')->toArray();
 
-        return view('dashboard', compact('cartItems', 'userTickets', 'userOrders', 'allAchievements', 'userAchievementIds'));
+        $leaderboard = User::with('achievements')
+            ->orderByDesc('level')
+            ->orderByDesc('experience')
+            ->get();
+
+        return view('dashboard', compact('cartItems', 'userTickets', 'userOrders', 'allAchievements', 'userAchievementIds', 'leaderboard'));
     }
 
 }

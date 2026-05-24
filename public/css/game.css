@@ -117,17 +117,27 @@
   text-shadow: 0 0 14px rgba(255,39,60,0.8);
 }
 #screens.loss #overlay-loss { display: block; }
-#buzzwordBlast .gameContainer #screens.ready {
-  background: url(../images/startscreen.jpg) no-repeat center center;
+#game-title {
+  position: absolute;
+  top: 32%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  font-family: 'Oswald', monospace;
+  font-size: 44px;
+  letter-spacing: 7px;
+  color: #20f8c0;
+  text-shadow: 0 0 24px rgba(32,248,192,0.85), 0 0 6px rgba(32,248,192,0.5);
+  text-transform: uppercase;
+  white-space: nowrap;
 }
-#buzzwordBlast .gameContainer #screens.loss {
-  background: url(../images/endscreen-loss.jpg) no-repeat center center;
+#screens.ready #game-title,
+#screens.win #game-title,
+#screens.loss #game-title {
+  display: block;
 }
 #buzzwordBlast .gameContainer #screens.loss #restart {
   display: block;
-}
-#buzzwordBlast .gameContainer #screens.win {
-  background: url(../images/endscreen-win.jpg) no-repeat center center;
 }
 #buzzwordBlast .gameContainer #screens.win #continue {
   display: block;

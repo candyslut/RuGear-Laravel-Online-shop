@@ -9,7 +9,8 @@ use App\Http\Controllers\{
     CommentaryController,
     TicketController,
     ComparisonController,
-    OrderController
+    OrderController,
+    SettingsController
 };
 use App\Http\Controllers\Admin\AdminOrderController;
 use Illuminate\Support\Facades\Route;
@@ -28,6 +29,9 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');
+    Route::patch('/settings', [SettingsController::class, 'update'])->name('settings.update');
+
     Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
     Route::post('/cart/remove/{product}', [CartController::class, 'remove'])->name('cart.remove');
     Route::post('/product/{product}/commentary', [CommentaryController::class, 'store'])->name('product.commentary');
@@ -37,6 +41,16 @@ Route::middleware('auth')->group(function () {
 
     Route::post('ticket/create', [TicketController::class, 'store'])->name('ticket.store');
     Route::delete('tickets/{ticket}', [TicketController::class, 'destroy'])->name('ticket.destroy');
+
+    Route::post('/game/reward', function () {
+        $user = auth()->user();
+        $user->addCoins(1);
+        $user->addExperience(5);
+        return response()->json([
+            'coins' => 1,
+            'xp'    => 5,
+        ]);
+    })->name('game.reward');
 });
 
 

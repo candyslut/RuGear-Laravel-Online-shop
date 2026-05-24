@@ -1234,6 +1234,7 @@ if (typeof window.yodorada === 'undefined') {
 							Game.scoreCache = Game.score;
 							Game.lifeCache = Game.lives;
 							$('#screens').removeClass('ready').removeClass('loss').addClass('win');
+							window.parent.postMessage({ type: 'game_level_complete' }, '*');
 							$('#continue').fadeOut(0);
 							$('#restart').fadeOut(0);
 							window.setTimeout(function() {
