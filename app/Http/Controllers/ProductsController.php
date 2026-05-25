@@ -25,9 +25,11 @@ class ProductsController extends Controller
         $this->filterService->applyFilters($query, $request->validated());
 
         $products = $query->paginate(12)->withQueryString();
-        $categories = Category::all();
+        $topProducts = Product::with('category')->latest('created_at')->take(4)->get();
+        $featuredProduct = Product::with('category')->where('quantity', '>', 0)->inRandomOrder()->first();
+        $categories = Category::withCount('products')->get();
 
-        return view('welcome', compact('products', 'categories'));
+        return view('welcome', compact('products', 'categories', 'topProducts', 'featuredProduct'));
     }
 
     public function show(Product $product)

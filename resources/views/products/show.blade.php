@@ -265,7 +265,7 @@
 
     <div class="w-full pb-20 max-w-4xl mx-auto space-y-8">
         <h2 class="text-2xl font-black text-white uppercase tracking-tight">
-            Отзывы о девайсе <span class="text-orange-500 font-normal">/</span> <span class="text-gray-500 font-normal">{{ $product->commentaries->count() }}</span>
+            Отзывы о девайсе 
         </h2>
 
         @auth

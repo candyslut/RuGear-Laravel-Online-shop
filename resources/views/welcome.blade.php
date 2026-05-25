@@ -161,6 +161,128 @@
         </form>
     </div>
 
+    <div class="mb-12 grid gap-6 lg:grid-cols-3 auto-rows-fr">
+        <section class="lg:col-span-2 rounded-[2rem] border border-gray-800 bg-[#14171d] p-8 shadow-2xl overflow-hidden flex flex-col">
+            <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                <div class="max-w-2xl">
+                    <span class="text-[10px] font-black uppercase tracking-[0.35em] text-orange-400">Выбор дня</span>
+                    <h2 class="mt-4 text-4xl font-black text-white tracking-tight leading-tight">Товар дня и рекомендуемые сборки</h2>
+                    <p class="mt-4 text-gray-400 leading-relaxed">Особый блок каждый день подбирает крутые устройства для тех, кто хочет выиграть бой в любой сборке. Проверено по горячим трекам и отзывам.</p>
+                </div>
+                <div class="flex items-center gap-3 rounded-[2rem] bg-gray-900/60 border border-gray-800 px-5 py-4">
+                    <div class="w-12 h-12 rounded-3xl bg-orange-500/15 flex items-center justify-center text-orange-300">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.333 0-4 1-4 4s2.667 4 4 4 4-1 4-4-2.667-4-4-4zm0 0V4m0 16v-4" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.35em] text-gray-500">Всего товаров</p>
+                        <p class="text-xl font-black text-white">{{ $products->total() }}</p>
+                    </div>
+                </div>
+            </div>
+
+            @if($featuredProduct)
+            <div class="mt-10 flex-1 rounded-[2rem] overflow-hidden border border-orange-500/20 bg-gradient-to-br from-[#161920] to-[#0f1115] shadow-xl flex flex-col">
+                <div class="flex-1 relative overflow-hidden bg-gray-900">
+                    @if($featuredProduct->image)
+                    <img src="{{ asset($featuredProduct->image) }}" alt="{{ $featuredProduct->name }}" class="w-full h-full object-cover transition-transform duration-700 hover:scale-105">
+                    @else
+                    <div class="w-full h-full flex items-center justify-center text-gray-600">
+                        <svg class="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                    </div>
+                    @endif
+                    <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent px-6 py-6">
+                        <span class="text-[10px] uppercase tracking-[0.3em] text-orange-400 font-black">{{ $featuredProduct->category->name ?? 'Базовый' }}</span>
+                        <h3 class="mt-3 text-3xl font-black text-white">{{ $featuredProduct->name }}</h3>
+                        <p class="mt-3 text-sm text-gray-300 line-clamp-2">{{ $featuredProduct->description ?? 'Лучшее предложение дня для тех, кто собирает мощный комплект.' }}</p>
+                    </div>
+                </div>
+                <div class="p-6 bg-[#0f1115] border-t border-gray-800 flex flex-col gap-5">
+                    <div class="flex items-center justify-between gap-4">
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.3em] text-gray-500">Цена сегодня</p>
+                            <p class="text-3xl font-black text-white">{{ number_format($featuredProduct->price, 0, '.', ' ') }} ₽</p>
+                        </div>
+                        <span class="inline-flex items-center gap-2 rounded-full bg-orange-500/10 px-4 py-2 text-xs font-black uppercase tracking-[0.3em] text-orange-300">Премиум</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 text-center text-xs font-bold uppercase tracking-[0.2em] text-gray-400">
+                        <div class="rounded-3xl bg-gray-900/80 p-3">
+                            <p class="text-white text-base">{{ $featuredProduct->quantity }}</p>
+                            <p>В наличии</p>
+                        </div>
+                        <div class="rounded-3xl bg-gray-900/80 p-3">
+                            <p class="text-white text-base">{{ $products->total() }}</p>
+                            <p>Проверено</p>
+                        </div>
+                        <div class="rounded-3xl bg-gray-900/80 p-3">
+                            <p class="text-white text-base">{{ $featuredProduct->category->name ?? '—' }}</p>
+                            <p>Категория</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <a href="{{ route('products.show', $featuredProduct) }}" class="inline-flex items-center justify-center rounded-2xl bg-orange-500 px-5 py-4 text-sm font-black uppercase tracking-[0.2em] text-black transition hover:bg-orange-400">Подробнее</a>
+                        <a href="{{ route('products.index', ['search' => $featuredProduct->name]) }}" class="inline-flex items-center justify-center rounded-2xl border border-gray-800 bg-gray-900 px-5 py-4 text-sm font-black uppercase tracking-[0.2em] text-gray-200 transition hover:border-orange-500 hover:text-orange-400">Найти похожие</a>
+                    </div>
+                </div>
+            </div>
+            @else
+            <div class="mt-10 rounded-[2rem] border border-gray-800 bg-gray-900/80 p-8 text-center text-gray-300">
+                <p class="text-lg font-black">Товар дня готовится</p>
+                <p class="mt-3 text-sm text-gray-500">Скоро здесь появится новое выгодное предложение.</p>
+            </div>
+            @endif
+        </section>
+
+        <aside class="h-full flex flex-col gap-6 lg:col-span-1">
+            <div class="flex-1 rounded-[2rem] border border-gray-800 bg-[#161920] p-6 shadow-xl flex flex-col">
+                <div class="flex items-center justify-between gap-4">
+                    <div>
+                        <span class="text-[10px] uppercase tracking-[0.35em] text-orange-400 font-black">Хит недели</span>
+                        <h3 class="mt-3 text-2xl font-black text-white">Топ-товары</h3>
+                    </div>
+                    <span class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-500">{{ $topProducts->count() }} позиции</span>
+                </div>
+                <div class="mt-6 space-y-4 flex-1 overflow-y-auto">
+                    @foreach($topProducts as $topProduct)
+                    <a href="{{ route('products.show', $topProduct) }}" class="group flex items-center gap-4 rounded-3xl border border-gray-800 bg-gray-900/80 p-4 transition hover:border-orange-500/40 hover:bg-orange-500/10">
+                        <div class="w-16 h-16 rounded-3xl overflow-hidden bg-gray-800 flex items-center justify-center flex-shrink-0">
+                            @if($topProduct->image)
+                            <img src="{{ asset($topProduct->image) }}" alt="{{ $topProduct->name }}" class="w-full h-full object-cover">
+                            @else
+                            <svg class="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                            @endif
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-sm font-black text-white line-clamp-1">{{ $topProduct->name }}</p>
+                            <p class="text-xs text-gray-500 line-clamp-1">{{ $topProduct->category->name ?? 'Категория' }}</p>
+                        </div>
+                        <span class="ml-auto text-sm font-black text-orange-400 flex-shrink-0">{{ number_format($topProduct->price, 0, '.', ' ') }} ₽</span>
+                    </a>
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="flex-1 rounded-[2rem] border border-gray-800 bg-[#161920] p-6 shadow-xl flex flex-col">
+                <div class="flex items-center justify-between gap-4">
+                    <div>
+                        <span class="text-[10px] uppercase tracking-[0.35em] text-gray-500 font-black">Категории</span>
+                        <h3 class="mt-3 text-2xl font-black text-white">Быстрый выбор</h3>
+                    </div>
+                    <span class="text-xs uppercase tracking-[0.35em] text-gray-500">По стилю</span>
+                </div>
+                <div class="mt-6 grid grid-cols-2 gap-3 flex-1">
+                    @foreach($categories->take(4) as $category)
+                    <a href="{{ route('products.index', ['category' => $category->id]) }}" class="group rounded-3xl border border-gray-800 bg-gray-900/80 p-4 text-center transition hover:border-orange-500/40 hover:bg-orange-500/10 flex flex-col items-center justify-center">
+                        <p class="font-black text-white">{{ $category->name }}</p>
+                        <p class="mt-2 text-xs text-gray-500">{{ $category->products_count }} товаров</p>
+                    </a>
+                    @endforeach
+                </div>
+            </div>
+        </aside>
+    </div>
+
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         @forelse($products as $product)
         <div class="group bg-[#161920] border border-gray-800 rounded-[2rem] overflow-hidden hover:border-orange-500/50 transition-all duration-500 flex flex-col shadow-xl">
