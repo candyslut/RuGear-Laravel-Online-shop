@@ -367,6 +367,28 @@
         function closeLogoutModal() {
             document.getElementById('logout-modal').close();
         }
+
+        // ── Toggle password visibility ───────────────────────────
+        function togglePasswordVisibility(fieldId) {
+            const input = document.getElementById(fieldId);
+            const eyeOpen = document.getElementById(fieldId + '-eye-open');
+            const eyeClosed = document.getElementById(fieldId + '-eye-closed');
+            if (!input) return;
+
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+
+            // Toggle between eye icons
+            if (eyeOpen && eyeClosed) {
+                if (isPassword) {
+                    eyeOpen.classList.add('hidden');
+                    eyeClosed.classList.remove('hidden');
+                } else {
+                    eyeOpen.classList.remove('hidden');
+                    eyeClosed.classList.add('hidden');
+                }
+            }
+        }
     </script>
 
     @auth

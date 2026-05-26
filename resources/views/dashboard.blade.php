@@ -917,8 +917,7 @@
     </div>
 
     <script>
-        const GAME_SRC = '{{ asset('
-        index.html ') }}';
+        const GAME_SRC = '{{ asset('index.html') }}';
 
         window.openGame = function() {
             const iframe = document.getElementById('game-iframe');
