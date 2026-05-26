@@ -1010,8 +1010,7 @@
 
         window.addEventListener('message', function(e) {
             if (!e.data || e.data.type !== 'game_level_complete') return;
-            fetch('{{ route('
-                    game.reward ') }}', {
+            fetch('{{ route('game.reward') }}', {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
