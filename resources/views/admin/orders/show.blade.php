@@ -103,7 +103,7 @@
                         @endif
                     </div>
                     <div class="min-w-0">
-                        <p class="text-sm font-bold text-white truncate">{{ $order->user->name }}</p>
+                        <p class="text-sm font-bold truncate" style="{{ $order->user->cosmetic_nickname_color ? 'color:' . $order->user->cosmetic_nickname_color . ';' : '' }}{{ $order->user->cosmetic_font ? 'font-family:' . $order->user->cosmetic_font . ';' : '' }}">{{ $order->user->name }}</p>
                         <p class="text-xs text-gray-500 truncate">{{ $order->user->email }}</p>
                     </div>
                 </div>

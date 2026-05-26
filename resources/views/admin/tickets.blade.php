@@ -180,7 +180,7 @@
                 @endif
             </div>
             <div class="min-w-0">
-                <p class="text-xs font-semibold text-gray-300 truncate">{{ $ticket->user->name ?? 'Аноним' }}</p>
+                <p class="text-xs font-semibold truncate" style="{{ $ticket->user?->cosmetic_nickname_color ? 'color:' . $ticket->user->cosmetic_nickname_color . ';' : '' }}{{ $ticket->user?->cosmetic_font ? 'font-family:' . $ticket->user->cosmetic_font . ';' : '' }}">{{ $ticket->user->name ?? 'Аноним' }}</p>
                 <p class="text-[9px] text-gray-600 truncate">{{ $ticket->user->email ?? '' }}</p>
             </div>
         </div>
@@ -221,7 +221,7 @@
     <div class="flex items-center justify-between border-b border-gray-800 px-6 py-4">
         <div>
             <h3 class="text-sm font-black text-white">#TC-{{ str_pad($ticket->id, 4, '0', STR_PAD_LEFT) }} · {{ $ticket->name }}</h3>
-            <p class="text-xs text-gray-500 mt-0.5">от {{ $ticket->user->name ?? 'Аноним' }} · {{ $ticket->created_at->format('d.m.Y H:i') }}</p>
+            <p class="text-xs text-gray-500 mt-0.5">от <span style="{{ $ticket->user?->cosmetic_nickname_color ? 'color:' . $ticket->user->cosmetic_nickname_color . ';' : '' }}{{ $ticket->user?->cosmetic_font ? 'font-family:' . $ticket->user->cosmetic_font . ';' : '' }}">{{ $ticket->user->name ?? 'Аноним' }}</span> · {{ $ticket->created_at->format('d.m.Y H:i') }}</p>
         </div>
         <button onclick="document.getElementById('reply-modal-{{ $ticket->id }}').close()" class="text-gray-500 hover:text-white text-2xl leading-none transition ml-4">×</button>
     </div>

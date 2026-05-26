@@ -165,7 +165,7 @@
                         @endif
                     </div>
                     <div>
-                        <h1 class="text-2xl font-black text-white leading-tight">{{ auth()->user()->name }}</h1>
+                        <h1 class="text-2xl font-black leading-tight" style="{{ auth()->user()->cosmetic_nickname_color ? 'color:' . auth()->user()->cosmetic_nickname_color . ';' : '' }}{{ auth()->user()->cosmetic_font ? 'font-family:' . auth()->user()->cosmetic_font . ';' : '' }}">{{ auth()->user()->name }}</h1>
                         <p class="text-sm text-gray-500 mt-0.5">{{ auth()->user()->email }}</p>
                         @if(auth()->user()->phone || auth()->user()->gender)
                         <div class="mt-2 flex flex-wrap gap-2">
@@ -920,12 +920,12 @@
         const GAME_SRC = '{{ asset('
         index.html ') }}';
 
-        function openGame() {
+        window.openGame = function() {
             const iframe = document.getElementById('game-iframe');
             iframe.src = GAME_SRC;
             document.getElementById('mod-game').showModal();
             setTimeout(() => iframe.focus(), 150);
-        }
+        };
 
         function closeGame() {
             document.getElementById('mod-game').close();

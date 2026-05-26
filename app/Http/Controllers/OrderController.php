@@ -164,14 +164,18 @@ class OrderController extends Controller
             );
         }
 
-        // ── Выдаём все ачивки, показываем последнюю в тосте ──────────
-        $toastAchievement = null;
-        $toastLevelUp     = null;
+        // ── Выдаём все ачивки, собираем все для тоста ──────────
+        $awardedAchievements = [];
+        $toastLevelUp        = null;
 
         foreach ($candidates as $ach) {
             $result = $user->awardAchievement($ach);
             if ($result) {
-                $toastAchievement = $ach;
+                $awardedAchievements[] = [
+                    'title'      => $ach->title,
+                    'experience' => $ach->experience,
+                    'coins'      => $ach->coins,
+                ];
                 if ($result['leveled_up']) {
                     $toastLevelUp = [
                         'level' => $result['new_level'],
@@ -181,12 +185,8 @@ class OrderController extends Controller
             }
         }
 
-        if ($toastAchievement) {
-            $redirect = $redirect->with('achievement_awarded', [
-                'title'      => $toastAchievement->title,
-                'experience' => $toastAchievement->experience,
-                'coins'      => $toastAchievement->coins,
-            ]);
+        if (!empty($awardedAchievements)) {
+            $redirect = $redirect->with('achievements_awarded', $awardedAchievements);
         }
         if ($toastLevelUp) {
             $redirect = $redirect->with('level_up', $toastLevelUp);

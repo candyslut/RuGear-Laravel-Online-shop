@@ -34,7 +34,7 @@
                             <div class="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center text-black font-black text-sm flex-shrink-0">
                                 {{ strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}
                             </div>
-                            <span class="text-sm font-semibold text-gray-700 group-hover:text-gray-900 transition hidden sm:block leading-none">
+                            <span class="text-sm font-semibold group-hover:text-gray-900 transition hidden sm:block leading-none" style="{{ auth()->user()->cosmetic_nickname_color ? 'color:' . auth()->user()->cosmetic_nickname_color . ';' : 'color:#374151;' }}{{ auth()->user()->cosmetic_font ? 'font-family:' . auth()->user()->cosmetic_font . ';' : '' }}">
                                 {{ auth()->user()->name }}
                             </span>
                             <span class="flex items-center gap-1 text-sm font-black tabular-nums" style="color:#b45309;">

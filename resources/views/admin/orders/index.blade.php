@@ -142,7 +142,10 @@
 
         {{-- Buyer --}}
         <div class="min-w-0">
-            <p class="text-sm font-bold text-white truncate">{{ $order->full_name ?: $order->user->name }}</p>
+            @php
+                $nameStyle = !$order->full_name ? "{{ $order->user->cosmetic_nickname_color ? 'color:' . $order->user->cosmetic_nickname_color . ';' : '' }}{{ $order->user->cosmetic_font ? 'font-family:' . $order->user->cosmetic_font . ';' : '' }}" : '';
+            @endphp
+            <p class="text-sm font-bold text-white truncate" style="{{ $nameStyle }}">{{ $order->full_name ?: $order->user->name }}</p>
             <p class="text-xs text-gray-600 truncate">{{ $order->user->email }}</p>
         </div>
 

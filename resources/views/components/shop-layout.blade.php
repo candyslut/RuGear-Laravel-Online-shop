@@ -70,7 +70,7 @@
                             <button
                                 id="avatar-btn"
                                 onclick="toggleAvatarMenu()"
-                                class="w-9 h-9 rounded-full bg-orange-500 flex items-center justify-center text-black font-black text-sm flex-shrink-0 hover:opacity-90 transition focus:outline-none overflow-hidden {{ auth()->user()->cosmetic_border === 'rainbow' ? 'avatar-rainbow' : '' }}"
+                                class="w-9 h-9 rounded-full bg-orange-500 flex items-center justify-center text-black font-black text-sm flex-shrink-0 hover:opacity-90 transition focus:outline-none overflow-hidden {{ auth()->user()->cosmetic_border === 'rainbow' ? 'avatar-rainbow' : '' }} hover:shadow-[0_0_20px_rgba(249,115,22,0.6)]"
                                 style="{{ auth()->user()->cosmetic_border && auth()->user()->cosmetic_border !== 'rainbow' ? 'box-shadow:'.auth()->user()->cosmetic_border.';' : '' }}"
                                 aria-haspopup="true"
                                 aria-expanded="false"
@@ -84,36 +84,46 @@
 
                             <div
                                 id="avatar-dropdown"
-                                class="hidden absolute right-0 mt-2 w-52 bg-[#1a1d24] border border-gray-700 rounded-2xl shadow-2xl py-2 z-50"
+                                class="hidden absolute right-0 mt-3 w-56 bg-[#0f1115] border border-gray-700 rounded-xl shadow-lg overflow-hidden z-50"
                             >
-                                <div class="px-4 py-2 border-b border-gray-700 mb-1">
-                                    <p class="text-xs text-gray-500 leading-none">Вы вошли как</p>
-                                    <p class="text-sm font-bold text-white mt-0.5 truncate">{{ auth()->user()->name }}</p>
+                                <!-- Header -->
+                                <div class="px-4 py-3 border-b border-gray-700/50 bg-gray-900/50">
+                                    <p class="text-xs text-gray-400 font-semibold">{{ auth()->user()->name }}</p>
+                                    <p class="text-[10px] text-gray-600 mt-0.5">Уровень {{ auth()->user()->level }}</p>
                                 </div>
-                                <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/5 transition">
-                                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                                    </svg>
-                                    Личный кабинет
-                                </a>
-                                <a href="{{ route('market.index') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/5 transition">
-                                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                                    </svg>
-                                    Мини-маркет
-                                </a>
-                                <a href="{{ route('settings.edit') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/5 transition">
-                                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                    </svg>
-                                    Настройки
-                                </a>
-                                <div class="border-t border-gray-700 mt-1 pt-1">
-                                    <button onclick="openLogoutModal()" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-400 hover:text-red-300 hover:bg-white/5 transition text-left">
-                                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                                <!-- Menu Items -->
+                                <div class="divide-y divide-gray-700/50 py-1.5">
+                                    <!-- Личный кабинет -->
+                                    <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition">
+                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                                        </svg>
+                                        <span>Личный кабинет</span>
+                                    </a>
+
+                                    <!-- Мини-маркет -->
+                                    <a href="{{ route('market.index') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition">
+                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                        </svg>
+                                        <span>Мини-маркет</span>
+                                    </a>
+
+                                    <!-- Настройки -->
+                                    <a href="{{ route('settings.edit') }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition">
+                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        </svg>
+                                        <span>Настройки</span>
+                                    </a>
+
+                                    <!-- Выход -->
+                                    <button onclick="openLogoutModal()" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-gray-800/50 transition text-left">
+                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                                         </svg>
-                                        Выйти
+                                        <span>Выход</span>
                                     </button>
                                 </div>
                             </div>
@@ -149,6 +159,10 @@
          class="fixed bottom-6 right-6 z-[999] flex flex-col-reverse gap-3 items-end pointer-events-none">
 
         {{-- achievement — первый в DOM = ближайший к низу экрана --}}
+        @if(session('achievements_awarded'))
+        <div id="achievements-queue" data-achievements="{{ json_encode(session('achievements_awarded')) }}" class="hidden"></div>
+        @endif
+
         @if(session('achievement_awarded'))
         <div id="t-ach" class="w-80 bg-[#1a1d24] border border-orange-500/30 rounded-2xl p-4 shadow-2xl toast pointer-events-auto">
             <div class="flex gap-3 items-start">
@@ -312,6 +326,21 @@
         @if(session('achievement_awarded')) setTimeout(() => closeToast('t-ach'), 5000); @endif
         @if(session('level_up'))            setTimeout(() => closeToast('t-lvl'), 5500); @endif
         @if(session('success'))             setTimeout(() => closeToast('t-ok'),  4000); @endif
+
+        // ── Показываем несколько достижений поочередно ──────────────────────
+        const achQueue = document.getElementById('achievements-queue');
+        if (achQueue) {
+            const achievements = JSON.parse(achQueue.getAttribute('data-achievements'));
+            achievements.forEach((ach, idx) => {
+                setTimeout(() => {
+                    showToast('achievement', {
+                        title: ach.title,
+                        experience: ach.experience,
+                        coins: ach.coins
+                    });
+                }, idx * 600);
+            });
+        }
 
         // ── Avatar dropdown ──────────────────────────────────────
         function toggleAvatarMenu() {

@@ -161,12 +161,13 @@
         </form>
     </div>
 
+    @if(!request()->anyFilled(['search', 'category', 'min_price', 'max_price']) && (int)request('page', 1) === 1)
     <div class="mb-12 grid gap-6 lg:grid-cols-3 auto-rows-fr">
         <section class="lg:col-span-2 rounded-[2rem] border border-gray-800 bg-[#14171d] p-8 shadow-2xl overflow-hidden flex flex-col">
             <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                 <div class="max-w-2xl">
                     <span class="text-[10px] font-black uppercase tracking-[0.35em] text-orange-400">Выбор дня</span>
-                    <h2 class="mt-4 text-4xl font-black text-white tracking-tight leading-tight">Товар дня и рекомендуемые сборки</h2>
+                    <h2 class="mt-4 text-4xl font-black text-white tracking-tight leading-tight">Товары дня</h2>
                     <p class="mt-4 text-gray-400 leading-relaxed">Особый блок каждый день подбирает крутые устройства для тех, кто хочет выиграть бой в любой сборке. Проверено по горячим трекам и отзывам.</p>
                 </div>
                 <div class="flex items-center gap-3 rounded-[2rem] bg-gray-900/60 border border-gray-800 px-5 py-4">
@@ -282,6 +283,7 @@
             </div>
         </aside>
     </div>
+    @endif
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         @forelse($products as $product)
