@@ -14,6 +14,7 @@ use App\Http\Controllers\{
     ShopController
 };
 use App\Http\Controllers\Admin\AdminOrderController;
+use App\Http\Controllers\Admin\AdminStatsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [ProductsController::class, 'index'])->name('products.index');
@@ -100,6 +101,8 @@ Route::middleware('auth')->group(function () {
 
 
 Route::middleware('admin')->prefix('admin')->group(function () {
+
+    Route::get('statistics', [AdminStatsController::class, 'index'])->name('admin.statistics');
 
     Route::get('orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');
     Route::get('orders/{order}', [AdminOrderController::class, 'show'])->name('admin.orders.show');

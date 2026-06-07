@@ -38,6 +38,20 @@ class User extends Authenticatable
         return $this->hasMany(Commentary::class);
     }
 
+    /**
+     * Site notifications shown in the header bell.
+     * Overrides the Notifiable trait's morphMany (database channel is unused here).
+     */
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(\App\Models\Notification::class);
+    }
+
+    public function unreadNotificationsCount(): int
+    {
+        return $this->notifications()->whereNull('read_at')->count();
+    }
+
     public function tickets() {
         return $this->hasMany(Ticket::class);
     }
@@ -70,6 +84,7 @@ class User extends Authenticatable
         if ($this->lastLevelUp > 0) {
             $this->lastLevelCoins = $this->lastLevelUp * 10;
             $this->addCoins($this->lastLevelCoins);
+            app(\App\Services\NotificationService::class)->levelUp($this, $this->level);
         } else {
             $this->lastLevelCoins = 0;
         }
@@ -90,6 +105,7 @@ class User extends Authenticatable
         }
 
         $this->achievements()->attach($achievement->id, ['awarded_at' => now()]);
+        app(\App\Services\NotificationService::class)->achievement($this, $achievement);
         $this->addExperience($achievement->experience);
         $this->addCoins($achievement->coins);
 

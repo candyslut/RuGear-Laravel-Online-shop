@@ -11,7 +11,7 @@ class ShopController extends Controller
     public function index()
     {
         $user  = Auth::user();
-        $items = ShopItem::all()->groupBy('category');
+        $items = ShopItem::where('category', '!=', 'font')->get()->groupBy('category');
         $owned = $user->shopItems()->pluck('shop_item_id')->toArray();
 
         return view('market', compact('items', 'owned'));
@@ -20,6 +20,10 @@ class ShopController extends Controller
     public function buy(ShopItem $item)
     {
         $user = Auth::user();
+
+        if ($item->category === 'font') {
+            return response()->json(['error' => 'unavailable'], 404);
+        }
 
         if (in_array($item->id, $user->shopItems()->pluck('shop_item_id')->toArray())) {
             return response()->json(['error' => 'already_owned'], 400);

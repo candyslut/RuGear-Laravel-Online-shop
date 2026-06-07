@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\ShopItem;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class ShopSeeder extends Seeder
@@ -10,32 +11,6 @@ class ShopSeeder extends Seeder
     public function run(): void
     {
         $items = [
-            // ── Fonts ──────────────────────────────────────────────
-            [
-                'slug'        => 'font_mono',
-                'category'    => 'font',
-                'name'        => 'Монопространственный',
-                'description' => 'Строгий терминальный стиль',
-                'price'       => 50,
-                'css_value'   => "ui-monospace,'Courier New',monospace",
-            ],
-            [
-                'slug'        => 'font_serif',
-                'category'    => 'font',
-                'name'        => 'Классика',
-                'description' => 'Элегантный шрифт с засечками',
-                'price'       => 80,
-                'css_value'   => "Georgia,'Times New Roman',serif",
-            ],
-            [
-                'slug'        => 'font_cursive',
-                'category'    => 'font',
-                'name'        => 'Курсив',
-                'description' => 'Лёгкий и изящный',
-                'price'       => 120,
-                'css_value'   => "cursive",
-            ],
-
             // ── Avatar borders ─────────────────────────────────────
             [
                 'slug'        => 'border_orange',
@@ -128,6 +103,11 @@ class ShopSeeder extends Seeder
                 'css_value'   => '#fbbf24',
             ],
         ];
+
+        // Шрифты убраны из мини-маркета — удаляем ранее посеянные записи
+        // (pivot user_shop_items чистится каскадом) и сбрасываем надетые шрифты
+        ShopItem::where('category', 'font')->delete();
+        User::whereNotNull('cosmetic_font')->update(['cosmetic_font' => null]);
 
         foreach ($items as $data) {
             ShopItem::updateOrCreate(['slug' => $data['slug']], $data);

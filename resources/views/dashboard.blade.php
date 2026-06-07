@@ -147,6 +147,132 @@
         #ach-track.ach-expanded .ach-xp {
             margin: 0 auto !important;
         }
+
+        /* ══════════════════════════════════════════════════ */
+        /* ИГРОВОЙ БАННЕР                                      */
+        /* ══════════════════════════════════════════════════ */
+
+        /* Базовые (тёмная тема) — неоновая кнопка «Играть».
+           Раньше задавалось инлайном + onmouseover, перенесено в CSS,
+           чтобы корректно переопределять hover в светлой теме. */
+        .game-banner-btn {
+            background: rgba(32, 248, 192, 0.08);
+            border: 1px solid rgba(32, 248, 192, 0.35);
+            color: #20f8c0;
+            text-shadow: 0 0 10px rgba(32, 248, 192, 0.6);
+            box-shadow: 0 0 18px rgba(32, 248, 192, 0.08);
+        }
+
+        .game-banner-btn:hover {
+            background: rgba(32, 248, 192, 0.16);
+            box-shadow: 0 0 28px rgba(32, 248, 192, 0.2);
+        }
+
+        /* ── Светлая тема: чистый светлый баннер без тёмной картинки ──
+           background-шорткат с !important перекрывает инлайн целиком,
+           поэтому тёмное фото игры убирается, остаётся мягкий бирюзовый
+           градиент. Текст и кнопка перекрашиваются ниже. */
+        [data-theme="light"] .game-banner {
+            background: linear-gradient(120deg, #e7f9f2 0%, #f1fbf8 55%, #ffffff 100%) !important;
+            border-color: rgba(13, 148, 136, 0.30) !important;
+        }
+
+        /* Тёмная маска поверх картинки больше не нужна — делаем прозрачной. */
+        [data-theme="light"] .game-banner-grad {
+            background: transparent !important;
+        }
+
+        [data-theme="light"] .game-banner-line {
+            background: linear-gradient(to right, transparent, rgba(13, 148, 136, 0.5), transparent) !important;
+        }
+
+        [data-theme="light"] .game-banner-dot {
+            background: #0d9488 !important;
+            box-shadow: 0 0 6px rgba(13, 148, 136, 0.5) !important;
+        }
+
+        [data-theme="light"] .game-banner-title {
+            color: #0f766e !important;
+            text-shadow: none !important;
+        }
+
+        [data-theme="light"] .game-banner-bolt {
+            color: #0d9488 !important;
+        }
+
+        [data-theme="light"] .game-banner-btn {
+            background: #0d9488 !important;
+            border-color: #0f766e !important;
+            color: #ffffff !important;
+            text-shadow: none !important;
+            box-shadow: 0 6px 16px rgba(13, 148, 136, 0.28) !important;
+        }
+
+        [data-theme="light"] .game-banner-btn:hover {
+            background: #0f766e !important;
+            box-shadow: 0 8px 22px rgba(13, 148, 136, 0.40) !important;
+        }
+
+        /* ══════════════════════════════════════════════════ */
+        /* ПРОЧИЕ ПРАВКИ СВЕТЛОЙ ТЕМЫ ДЛЯ ДАШБОРДА            */
+        /* ══════════════════════════════════════════════════ */
+
+        /* Кольца аватаров (в тёмной теме сливались с фоном #161920) —
+           делаем белыми, чтобы совпадали с белой карточкой. */
+        [data-theme="light"] .border-\[\#161920\] { border-color: #ffffff !important; }
+
+        /* Полупрозрачный белый hover строк (рейтинг/история) на светлом
+           фоне невидим — заменяем на лёгкое затемнение. */
+        [data-theme="light"] .hover\:bg-white\/\[0\.02\]:hover { background-color: rgba(0, 0, 0, .035) !important; }
+
+        /* ══════════════════════════════════════════════════ */
+        /* МОДАЛКА ТИКЕТА — акценты и читаемость в светлой теме */
+        /* ══════════════════════════════════════════════════ */
+
+        /* Сама модалка: более выраженная рамка и тень, чтобы белая
+           карточка отделялась от белого фона страницы. */
+        [data-theme="light"] .tcmodal {
+            border-color: #d8dce2 !important;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, .22) !important;
+        }
+
+        /* Номер заявки и подписи разделов — заметнее, чем бледно-серые. */
+        [data-theme="light"] .tcmodal .text-gray-600 { color: #64748b !important; }
+        [data-theme="light"] .tcmodal .tc-label { color: #475569 !important; }
+
+        /* Чип категории — яркий синий информационный акцент. */
+        [data-theme="light"] .tcmodal .tc-cat {
+            background: #e0f2fe !important;
+            border-color: #7dd3fc !important;
+            color: #0369a1 !important;
+            font-weight: 600;
+        }
+
+        /* Блок «Сообщение» — чёткая светлая поверхность с выраженной рамкой. */
+        [data-theme="light"] .tcmodal .tc-msg {
+            background: #f4f6f9 !important;
+            border-color: #d3d8e0 !important;
+            color: #1f2937 !important;
+        }
+
+        /* Заголовок «Ответ поддержки» — насыщенный оранжевый. */
+        [data-theme="light"] .tcmodal .tc-reply-label { color: #ea580c !important; }
+
+        /* Блок ответа поддержки — главный акцент: живой оранжевый
+           с цветной полосой слева. */
+        [data-theme="light"] .tcmodal .tc-reply {
+            background: #fff7ed !important;
+            border: 1px solid #fb923c !important;
+            color: #1f2937 !important;
+            box-shadow: inset 3px 0 0 #f97316;
+        }
+
+        /* Плашка «ожидает ответа» — мягкая пунктирная, но читаемая. */
+        [data-theme="light"] .tcmodal .tc-noreply {
+            background: #f8fafc !important;
+            border: 1px dashed #cbd5e1 !important;
+        }
+        [data-theme="light"] .tcmodal .tc-noreply p { color: #64748b !important; }
     </style>
 
     <div class="space-y-5">
@@ -249,28 +375,28 @@
         {{-- ══════════════════════════════════════════════════ --}}
         {{-- ИГРОВАЯ ЗОНА                                      --}}
         {{-- ══════════════════════════════════════════════════ --}}
-        <div class="relative overflow-hidden rounded-2xl"
+        <div class="game-banner relative overflow-hidden rounded-2xl"
             style="background:#0b0b0d url('{{ asset('images/game-bg.jpg') }}') right center/cover no-repeat; border:1px solid rgba(32,248,192,0.18);">
 
             {{-- Gradient: opaque on left (text), semi-transparent on right (bg shows) --}}
-            <div class="absolute inset-0" style="background:linear-gradient(to right,rgba(11,11,13,0.97) 0%,rgba(11,11,13,0.85) 45%,rgba(11,11,13,0.45) 100%);"></div>
+            <div class="game-banner-grad absolute inset-0" style="background:linear-gradient(to right,rgba(11,11,13,0.97) 0%,rgba(11,11,13,0.85) 45%,rgba(11,11,13,0.45) 100%);"></div>
 
             {{-- Top accent line --}}
-            <div class="absolute top-0 left-0 right-0 h-px" style="background:linear-gradient(to right,transparent,rgba(32,248,192,0.55),transparent);"></div>
+            <div class="game-banner-line absolute top-0 left-0 right-0 h-px" style="background:linear-gradient(to right,transparent,rgba(32,248,192,0.55),transparent);"></div>
 
             {{-- Content --}}
             <div class="relative z-10 px-7 py-5 flex items-center justify-between gap-8">
                 <div class="min-w-0">
                     <div class="flex items-center gap-2 mb-2.5">
-                        <div class="w-1.5 h-1.5 rounded-full animate-pulse" style="background:#20f8c0;box-shadow:0 0 6px #20f8c0;"></div>
+                        <div class="game-banner-dot w-1.5 h-1.5 rounded-full animate-pulse" style="background:#20f8c0;box-shadow:0 0 6px #20f8c0;"></div>
                         <span class="text-[10px] font-bold uppercase tracking-[0.18em] text-gray-500">Мини-игра</span>
                     </div>
-                    <h2 class="text-xl font-black uppercase tracking-widest leading-none"
+                    <h2 class="game-banner-title text-xl font-black uppercase tracking-widest leading-none"
                         style="color:#20f8c0;text-shadow:0 0 18px rgba(32,248,192,0.6),0 0 4px rgba(32,248,192,0.4);">BUZZWORD BLAST</h2>
                     <p class="text-sm text-gray-500 mt-1.5">Уничтожь астероиды — заработай награды</p>
                     <div class="flex items-center gap-5 mt-3">
                         <span class="flex items-center gap-1.5 text-xs text-gray-500">
-                            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:#20f8c0">
+                            <svg class="game-banner-bolt w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:#20f8c0">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
                             +5 XP за уровень
@@ -287,10 +413,7 @@
                 </div>
 
                 <button onclick="openGame()"
-                    class="flex-shrink-0 flex items-center gap-2.5 px-6 py-3 rounded-xl font-black text-sm uppercase tracking-widest transition-all duration-200"
-                    style="background:rgba(32,248,192,0.08);border:1px solid rgba(32,248,192,0.35);color:#20f8c0;text-shadow:0 0 10px rgba(32,248,192,0.6);box-shadow:0 0 18px rgba(32,248,192,0.08);"
-                    onmouseover="this.style.background='rgba(32,248,192,0.16)';this.style.boxShadow='0 0 28px rgba(32,248,192,0.2)';"
-                    onmouseout="this.style.background='rgba(32,248,192,0.08)';this.style.boxShadow='0 0 18px rgba(32,248,192,0.08)';">
+                    class="game-banner-btn flex-shrink-0 flex items-center gap-2.5 px-6 py-3 rounded-xl font-black text-sm uppercase tracking-widest transition-all duration-200">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M8 5v14l11-7z" />
                     </svg>
@@ -652,19 +775,19 @@
                         @if($ticket->category)
                         <div>
                             <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">Категория</p>
-                            <span class="text-sm text-gray-300 bg-gray-900 px-2.5 py-1 rounded-lg border border-gray-800">{{ $ticket->category }}</span>
+                            <span class="tc-cat text-sm text-gray-300 bg-gray-900 px-2.5 py-1 rounded-lg border border-gray-800">{{ $ticket->category }}</span>
                         </div>
                         @endif
                         <div>
-                            <p class="text-xs text-gray-500 uppercase tracking-wider mb-2">Сообщение</p>
-                            <div class="bg-gray-900/50 border border-gray-800 rounded-xl p-3.5 text-sm text-gray-300 max-h-32 overflow-y-auto cs whitespace-pre-line leading-relaxed">{{ $ticket->content }}</div>
+                            <p class="tc-label text-xs text-gray-500 uppercase tracking-wider mb-2">Сообщение</p>
+                            <div class="tc-msg bg-gray-900/50 border border-gray-800 rounded-xl p-3.5 text-sm text-gray-300 max-h-32 overflow-y-auto cs whitespace-pre-line leading-relaxed">{{ $ticket->content }}</div>
                         </div>
                         <div>
-                            <p class="text-xs text-orange-400/80 uppercase tracking-wider mb-2">Ответ поддержки</p>
+                            <p class="tc-reply-label text-xs text-orange-400/80 uppercase tracking-wider mb-2">Ответ поддержки</p>
                             @if($ticket->reply)
-                            <div class="bg-orange-500/5 border border-orange-500/20 rounded-xl p-3.5 text-sm text-gray-200 max-h-36 overflow-y-auto cs whitespace-pre-line leading-relaxed">{{ $ticket->reply }}</div>
+                            <div class="tc-reply bg-orange-500/5 border border-orange-500/20 rounded-xl p-3.5 text-sm text-gray-200 max-h-36 overflow-y-auto cs whitespace-pre-line leading-relaxed">{{ $ticket->reply }}</div>
                             @else
-                            <div class="bg-gray-900/40 border border-gray-800 rounded-xl p-3.5 text-center">
+                            <div class="tc-noreply bg-gray-900/40 border border-gray-800 rounded-xl p-3.5 text-center">
                                 <p class="text-sm text-gray-500 italic">Ожидает ответа специалиста</p>
                             </div>
                             @endif
@@ -739,7 +862,7 @@
                         {{-- Name --}}
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-bold truncate"
-                                style="{{ $u->cosmetic_nickname_color ? 'color:'.$u->cosmetic_nickname_color.';' : ($isMe ? 'color:#fb923c;' : 'color:#fff;') }}{{ $u->cosmetic_font ? 'font-family:'.$u->cosmetic_font.';' : '' }}">
+                                style="{{ $u->cosmetic_nickname_color ? 'color:'.$u->cosmetic_nickname_color.';' : ($isMe ? 'color:#fb923c;' : 'color:var(--text-primary);') }}{{ $u->cosmetic_font ? 'font-family:'.$u->cosmetic_font.';' : '' }}">
                                 {{ $u->name }}@if($isMe)<span class="text-xs font-normal text-orange-500/80 ml-1" style="font-family:inherit;">вы</span>@endif
                             </p>
                         </div>

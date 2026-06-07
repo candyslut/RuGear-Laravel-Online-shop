@@ -8,6 +8,7 @@ use Exception;
 use GuzzleHttp\Psr7\Request;
 
 use App\Models\Ticket;
+use App\Services\NotificationService;
 
 class AdminService
 {
@@ -29,9 +30,17 @@ class AdminService
     }
 
     public function reply(Ticket $ticket, array $data) {
-        return $ticket->update([
+        $statusChanged = $ticket->status !== $data['status'];
+
+        $result = $ticket->update([
             'reply' => $data['reply'],
             'status' => $data['status']
         ]);
+
+        if ($statusChanged) {
+            app(NotificationService::class)->ticketStatus($ticket->fresh());
+        }
+
+        return $result;
     }
 }

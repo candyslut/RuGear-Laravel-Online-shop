@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 
 class AdminOrderController extends Controller
@@ -62,7 +63,13 @@ class AdminOrderController extends Controller
             'status' => 'required|in:pending,processing,completed,cancelled',
         ]);
 
+        $statusChanged = $order->status !== $validated['status'];
+
         $order->update(['status' => $validated['status']]);
+
+        if ($statusChanged) {
+            app(NotificationService::class)->orderStatus($order->fresh());
+        }
 
         return redirect()->back()->with('success', 'Статус заказа обновлен');
     }
