@@ -353,6 +353,14 @@
         /* clipped corner (gaming HUD) */
         .clip-tr { clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%); }
 
+        /* В адаптиве (до lg, когда шапка профиля складывается в столбец)
+           кнопка рейтинга прижимается к левому краю панели, а не висит
+           с отступом под текстом рядом с аватаром.
+           Сдвиг = ширина аватара (w-16 = 4rem) + gap-5 (1.25rem). */
+        @media (max-width: 1023.98px) {
+            .rating-btn { margin-left: -5.25rem; }
+        }
+
         /* Срез clip-tr обрезает обычную рамку по диагонали правого верхнего
            угла, из-за чего грань выглядела «пропавшей». Дорисовываем её
            отдельной линией под тем же углом 45°. */
@@ -468,7 +476,7 @@
                         </div>
                         @endif
 
-                        <button onclick="document.getElementById('modal-leaderboard').showModal()" class="hud-btn mt-4">
+                        <button onclick="document.getElementById('modal-leaderboard').showModal()" class="hud-btn mt-4 rating-btn">
                             <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                             </svg>
@@ -973,7 +981,7 @@
                 $prog = $u->experienceProgress;
                 $rankColors = ['#f59e0b','#9ca3af','#cd7c3a'];
                 @endphp
-                <div class="leader-row" data-name="{{ strtolower($u->name) }}">
+                <div class="leader-row" data-name="{{ mb_strtolower($u->name) }}">
                     <div class="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 sm:px-6 py-3.5 {{ $isMe ? 'bg-orange-500/5' : 'hover:bg-white/[0.02]' }} transition-colors">
                         {{-- Rank --}}
                         <div class="w-6 flex-shrink-0 text-center">
