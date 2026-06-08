@@ -1,20 +1,20 @@
 <x-shop-layout>
     <x-slot name="title">Центр связи | RuGear Support</x-slot>
 
-    <div class="mb-12">
-        <h1 class="text-5xl font-black uppercase tracking-tighter text-white">
+    <div class="mb-8 md:mb-12">
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tighter text-white">
             Техподдержка <span class="text-orange-500">2.0</span>
         </h1>
-        <p class="text-gray-500 mt-2 font-medium italic text-lg">
+        <p class="text-gray-500 mt-2 font-medium italic text-base md:text-lg">
             Если девайс подвел в решающем раунде — мы здесь.
         </p>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-10">
 
-        <div class="space-y-8">
+        <div class="space-y-6 md:space-y-8">
 
-            <div class="bg-[#161920] border border-gray-800 p-8 rounded-3xl shadow-xl">
+            <div class="bg-[#161920] border border-gray-800 p-6 md:p-8 rounded-3xl shadow-xl">
                 <h3 class="text-orange-500 font-bold uppercase tracking-widest text-sm mb-6">Прямая связь</h3>
                 <div class="space-y-4">
                     <div class="flex items-center gap-4 group">
@@ -99,14 +99,14 @@
     @endif
 
         <div class="lg:col-span-2">
-            <div class="bg-[#161920] border border-gray-800 p-10 rounded-3xl shadow-2xl relative overflow-hidden">
+            <div class="bg-[#161920] border border-gray-800 p-6 sm:p-8 md:p-10 rounded-3xl shadow-2xl relative overflow-hidden">
                 <div class="absolute -top-10 -right-10 opacity-[0.03] pointer-events-none">
                     <svg class="w-80 h-80" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
                     </svg>
                 </div>
 
-                <h2 class="text-3xl font-black text-white uppercase mb-8 tracking-tighter">Открыть тикет</h2>
+                <h2 class="text-2xl md:text-3xl font-black text-white uppercase mb-6 md:mb-8 tracking-tighter">Открыть тикет</h2>
 
                 <form action="{{route('ticket.store')}}" method="POST" class="space-y-6">
                     @csrf
@@ -114,13 +114,13 @@
                         <div class="space-y-2">
                             <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Позывной (Имя)</label>
                             <input type="text" name="name" required
-                                class="w-full bg-gray-900/50 border border-gray-800 rounded-2xl px-6 py-4 text-white placeholder-gray-700 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/20 transition-all"
+                                class="w-full bg-gray-900/50 border border-gray-800 rounded-2xl px-4 md:px-6 py-3.5 md:py-4 text-white placeholder-gray-700 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/20 transition-all"
                                 placeholder="Ghost_99">
                         </div>
                         <div class="space-y-2">
                             <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Категория лога</label>
                             <select name="category"
-                                class="w-full bg-gray-900/50 border border-gray-800 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-orange-500 transition-all appearance-none cursor-pointer">
+                                class="w-full bg-gray-900/50 border border-gray-800 rounded-2xl px-4 md:px-6 py-3.5 md:py-4 text-white focus:outline-none focus:border-orange-500 transition-all appearance-none cursor-pointer">
                                 <option>Технический сбой</option>
                                 <option>Проблема с заказом</option>
                                 <option>Сотрудничество</option>
@@ -132,12 +132,12 @@
                     <div class="space-y-2">
                         <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Детали инцидента</label>
                         <textarea name="content" rows="5" required
-                            class="w-full bg-gray-900/50 border border-gray-800 rounded-2xl px-6 py-4 text-white placeholder-gray-700 focus:outline-none focus:border-orange-500 transition-all resize-none"
+                            class="w-full bg-gray-900/50 border border-gray-800 rounded-2xl px-4 md:px-6 py-3.5 md:py-4 text-white placeholder-gray-700 focus:outline-none focus:border-orange-500 transition-all resize-none"
                             placeholder="Опиши, что пошло не так..."></textarea>
                     </div>
 
                     <button type="submit"
-                        class="group relative w-full py-5 bg-orange-500 text-black font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-orange-400 transition-all active:scale-[0.99] shadow-[0_10px_20px_rgba(249,115,22,0.2)]">
+                        class="group relative w-full py-4 md:py-5 bg-orange-500 text-black font-black uppercase tracking-[0.15em] md:tracking-[0.2em] rounded-2xl hover:bg-orange-400 transition-all active:scale-[0.99] shadow-[0_10px_20px_rgba(249,115,22,0.2)]">
                         Отправить данные
                     </button>
                 </form>
@@ -186,9 +186,16 @@
 
         select {
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 1.5rem center;
+            background-position: right 1rem center;
             background-repeat: no-repeat;
             background-size: 1.5em 1.5em;
+            padding-right: 2.75rem;
+        }
+
+        @media (min-width: 768px) {
+            select {
+                background-position: right 1.5rem center;
+            }
         }
     </style>
 </x-shop-layout>

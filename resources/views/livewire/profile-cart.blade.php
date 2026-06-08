@@ -23,7 +23,7 @@
 
             <div class="flex-1 min-w-0">
                 <p class="text-sm font-semibold text-white line-clamp-1">{{ $item->product->name }}</p>
-                <p class="font-mono text-[10px] uppercase tracking-wider text-gray-600 mt-0.5">{{ $item->product->category->name ?? '—' }}</p>
+                <p class="font-mono text-[10px] uppercase tracking-wider text-gray-600 mt-0.5 truncate">{{ $item->product->category->name ?? '—' }}</p>
             </div>
 
             <div class="flex items-center border border-gray-800 rounded-lg overflow-hidden flex-shrink-0">
@@ -53,7 +53,7 @@
         @endforeach
     </div>
 
-    <div class="flex items-center justify-between pt-7 mt-3 border-t border-gray-900/50">
+    <div class="flex items-center justify-between gap-4 pt-7 mt-3 border-t border-gray-900/50 max-[450px]:flex-col max-[450px]:items-stretch max-[450px]:gap-3">
         <div>
             <p class="font-mono text-[10px] uppercase tracking-widest text-gray-600 mb-1.5">Итого</p>
             <p class="text-3xl font-black text-white leading-none tabular-nums">
@@ -61,7 +61,7 @@
             </p>
         </div>
         <button type="button" onclick="openCheckoutModal()"
-                class="bg-orange-500 hover:bg-orange-600 active:scale-[0.98] text-black font-black text-sm px-8 py-3.5 rounded-xl transition-all uppercase tracking-wider shadow-lg shadow-orange-500/10">
+                class="bg-orange-500 hover:bg-orange-600 active:scale-[0.98] text-black font-black text-sm px-8 py-3.5 rounded-xl transition-all uppercase tracking-wider shadow-lg shadow-orange-500/10 max-[450px]:w-full">
             Оформить заказ
         </button>
     </div>
@@ -72,7 +72,7 @@
         <div class="bg-[#13151a] border border-gray-800/60 w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden flex flex-col" style="max-height:92vh;">
 
             {{-- Header --}}
-            <div class="flex items-center justify-between px-8 py-5 border-b border-gray-800/60 flex-shrink-0">
+            <div class="flex items-center justify-between px-5 sm:px-8 py-4 sm:py-5 border-b border-gray-800/60 flex-shrink-0">
                 <div class="flex items-center gap-3">
                     <div class="w-9 h-9 rounded-xl bg-orange-500/15 flex items-center justify-center">
                         <svg class="w-4.5 h-4.5 text-orange-400 w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -87,11 +87,11 @@
                 <button onclick="closeCheckoutModal()" class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-500 hover:text-white hover:bg-gray-800/60 transition text-xl leading-none">×</button>
             </div>
 
-            {{-- Body: two columns --}}
-            <div class="flex flex-1 overflow-hidden">
+            {{-- Body: two columns (stacks on mobile) --}}
+            <div class="flex flex-col sm:flex-row flex-1 overflow-y-auto sm:overflow-hidden">
 
                 {{-- Left column: form --}}
-                <form action="{{ route('orders.store') }}" method="POST" class="flex-1 overflow-y-auto p-8 space-y-5" id="checkout-form">
+                <form action="{{ route('orders.store') }}" method="POST" class="flex-1 sm:overflow-y-auto p-5 sm:p-8 space-y-5" id="checkout-form">
                     @csrf
 
                     {{-- Recipient --}}
@@ -102,7 +102,7 @@
                     </div>
 
                     {{-- Phone + Email --}}
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 min-[420px]:grid-cols-2 gap-4">
                         <div>
                             <label class="font-mono text-[10px] uppercase tracking-widest text-gray-500 mb-2 block">Телефон</label>
                             <input name="phone" required placeholder="+7 (999) 000-00-00"
@@ -166,11 +166,11 @@
                     <div>
                         <label class="font-mono text-[10px] uppercase tracking-widest text-gray-500 mb-2 block">Способ оплаты</label>
                         <div class="grid grid-cols-2 gap-3" id="payment-cards">
-                            <label class="payment-card cursor-pointer">
+                            <label class="payment-card cursor-pointer flex">
                                 <input type="radio" name="payment_method" value="card" class="sr-only" checked>
-                                <div class="payment-card-inner border border-orange-500/40 bg-orange-500/5 rounded-xl p-4 transition hover:border-orange-500/60">
+                                <div class="payment-card-inner w-full h-full border border-orange-500/40 bg-orange-500/5 rounded-xl p-4 transition hover:border-orange-500/60">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 rounded-lg bg-orange-500/15 flex items-center justify-center flex-shrink-0">
+                                        <div class="w-10 h-10 rounded-lg bg-orange-500/15 flex items-center justify-center flex-shrink-0 max-[450px]:hidden">
                                             <svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/>
                                             </svg>
@@ -182,11 +182,11 @@
                                     </div>
                                 </div>
                             </label>
-                            <label class="payment-card cursor-pointer">
+                            <label class="payment-card cursor-pointer flex">
                                 <input type="radio" name="payment_method" value="qr" class="sr-only">
-                                <div class="payment-card-inner border border-gray-800 bg-[#0d0f14] rounded-xl p-4 transition hover:border-orange-500/40">
+                                <div class="payment-card-inner w-full h-full border border-gray-800 bg-[#0d0f14] rounded-xl p-4 transition hover:border-orange-500/40">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 rounded-lg bg-gray-800/60 flex items-center justify-center flex-shrink-0">
+                                        <div class="w-10 h-10 rounded-lg bg-gray-800/60 flex items-center justify-center flex-shrink-0 max-[450px]:hidden">
                                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z"/>
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z"/>
@@ -205,8 +205,8 @@
                 </form>
 
                 {{-- Right column: summary + submit --}}
-                <div class="w-72 flex-shrink-0 border-l border-gray-800/60 flex flex-col bg-[#0f1115]">
-                    <div class="p-6 flex-1 overflow-y-auto">
+                <div class="w-full sm:w-72 flex-shrink-0 border-t sm:border-t-0 sm:border-l border-gray-800/60 flex flex-col bg-[#0f1115]">
+                    <div class="p-5 sm:p-6 flex-1 sm:overflow-y-auto">
                         <p class="font-mono text-[10px] uppercase tracking-widest text-gray-500 mb-4">Ваш заказ</p>
 
                         @if(count($cartItems) > 0)
@@ -243,7 +243,7 @@
                         </div>
                     </div>
 
-                    <div class="p-6 border-t border-gray-800/60 flex-shrink-0">
+                    <div class="p-5 sm:p-6 border-t border-gray-800/60 flex-shrink-0">
                         <button type="submit" form="checkout-form"
                                 class="w-full bg-orange-500 hover:bg-orange-600 active:scale-[0.98] text-black font-black py-3.5 rounded-xl uppercase tracking-wider transition-all text-sm shadow-lg shadow-orange-500/20">
                             Перейти к оплате →

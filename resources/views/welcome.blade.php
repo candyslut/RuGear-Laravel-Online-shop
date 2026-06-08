@@ -150,7 +150,7 @@
     .panel-meta { font-size: .6rem; letter-spacing: .18em; text-transform: uppercase; color: var(--text-tertiary); white-space: nowrap; }
 
     /* Фичер «Товар дня» */
-    .feature { display: flex; flex-direction: column; gap: 1.35rem; padding: 1.6rem; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: .9rem; }
+    .feature { display: flex; flex-direction: column; gap: 1.35rem; padding: 1.6rem; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: .9rem; min-width: 0; }
     .feature__media {
         position: relative; overflow: hidden; aspect-ratio: 16 / 10;
         background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: .7rem;
@@ -165,13 +165,14 @@
         color: var(--hud); background: rgba(0,0,0,.55); backdrop-filter: blur(4px);
         border: 1px solid rgba(249,115,22,.35); border-radius: .4rem; padding: .32rem .6rem;
     }
-    .feature__name { font-size: clamp(1.5rem, 2.4vw, 2rem); font-weight: 900; color: var(--text-primary); line-height: 1.05; }
+    .feature__name { font-size: clamp(1.5rem, 2.4vw, 2rem); font-weight: 900; color: var(--text-primary); line-height: 1.05; overflow-wrap: anywhere; }
     .feature__desc { font-size: .9rem; line-height: 1.55; color: var(--text-secondary); }
 
     .params { display: grid; grid-template-columns: repeat(3, 1fr); gap: .65rem; }
-    .param { padding: .7rem .8rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: .6rem; }
+    @media (max-width: 391px) { .params { grid-template-columns: 1fr; } }
+    .param { min-width: 0; padding: .7rem .8rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: .6rem; }
     .param__k { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .53rem; letter-spacing: .16em; text-transform: uppercase; color: var(--text-tertiary); }
-    .param__v { margin-top: .3rem; font-size: .92rem; font-weight: 800; color: var(--text-primary); line-height: 1.1; }
+    .param__v { margin-top: .3rem; font-size: .92rem; font-weight: 800; color: var(--text-primary); line-height: 1.1; overflow-wrap: anywhere; }
 
     .price-block { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; padding-top: 1.1rem; border-top: 1px solid var(--border-color); }
     .price-block__label { font-size: .55rem; letter-spacing: .2em; text-transform: uppercase; color: var(--text-tertiary); }
@@ -179,7 +180,7 @@
     .price-block__chip { font-size: .58rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--hud); background: rgba(249,115,22,.1); border: 1px solid rgba(249,115,22,.3); border-radius: .5rem; padding: .35rem .7rem; }
 
     .cta-row { display: flex; flex-wrap: wrap; gap: .7rem; }
-    .cta { flex: 1; min-width: 9rem; text-align: center; padding: .95rem 1.4rem; border-radius: .7rem; font-size: .7rem; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; transition: all .2s; }
+    .cta { flex: 1; min-width: 9rem; display: flex; align-items: center; justify-content: center; text-align: center; padding: .95rem 1.4rem; border-radius: .7rem; font-size: .7rem; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; transition: all .2s; }
     .cta--primary { background: var(--hud); color: #000; border: 1px solid var(--hud); }
     .cta--primary:hover { background: #fb923c; }
     .cta--ghost { background: transparent; color: var(--text-secondary); border: 1px solid var(--border-color); }

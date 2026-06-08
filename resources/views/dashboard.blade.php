@@ -583,7 +583,7 @@
                 'processing'=>'bg-blue-500','completed'=>'bg-green-500',
                 'cancelled'=>'bg-red-500',default=>'bg-gray-700'};
                 @endphp
-                <div class="hud-row relative pl-6 pr-5 py-5 {{ !$loop->first ? 'border-t' : '' }}" style="border-color:var(--line)">
+                <div class="hud-row relative pl-4 pr-4 py-4 sm:pl-6 sm:pr-5 sm:py-5 {{ !$loop->first ? 'border-t' : '' }}" style="border-color:var(--line)">
 
                     {{-- Full-height left accent --}}
                     <div class="absolute left-0 top-0 bottom-0 w-[3px] {{ $accent }}"></div>
@@ -630,7 +630,7 @@
                     </div>
 
                     {{-- thumbnails (left) | timeline (center) | price (right) --}}
-                    <div class="flex items-center gap-4 mb-4">
+                    <div class="flex flex-wrap items-center gap-3 sm:gap-4 mb-4">
                         {{-- Left: thumbnails --}}
                         <div class="flex gap-1.5 flex-shrink-0">
                             @foreach($order->items->take(3) as $item)
@@ -647,7 +647,7 @@
 
                         {{-- Center: status timeline --}}
                         @if($order->status !== 'cancelled')
-                        <div class="flex-1 min-w-0 px-2">
+                        <div class="order-last w-full sm:order-none sm:w-auto sm:flex-1 min-w-0 px-0 sm:px-2 mt-2 sm:mt-0">
                             <div class="flex items-center gap-2">
                                 @for($s = 0; $s < 3; $s++)
                                     <div class="w-4 h-4 flex-shrink-0 flex items-center justify-center"
@@ -677,8 +677,8 @@
                 @endif
 
                 {{-- Right: price --}}
-                <div class="text-right flex-shrink-0">
-                    <p class="text-2xl font-black t-text hud-tnum leading-none">
+                <div class="text-right flex-shrink-0 ml-auto sm:ml-0">
+                    <p class="text-xl sm:text-2xl font-black t-text hud-tnum leading-none">
                         {{ number_format($order->total_price, 0, '.', ' ') }}&nbsp;<span class="t-acc">₽</span>
                     </p>
                     <p class="hud-mono text-[11px] t-dim2 mt-1">{{ $cnt }} {{ $word }}</p>

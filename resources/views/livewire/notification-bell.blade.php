@@ -66,7 +66,7 @@
         x-cloak
         x-transition.opacity
         @click.outside="open = false"
-        class="absolute right-0 mt-3 w-80 sm:w-96 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl shadow-2xl overflow-hidden z-50"
+        class="fixed sm:absolute top-20 sm:top-auto left-3 right-3 sm:left-auto sm:right-0 sm:mt-3 w-auto sm:w-96 max-w-[calc(100vw-1.5rem)] bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl shadow-2xl overflow-hidden z-50"
         style="display: none;"
     >
         {{-- Header --}}

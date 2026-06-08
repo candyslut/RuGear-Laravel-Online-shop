@@ -335,37 +335,86 @@
                     <span class="text-xl font-black uppercase tracking-tighter">RU<span class="text-orange-500">GEAR</span></span>
                 </a>
 
-                <nav class="hidden md:flex items-center space-x-10 text-sm font-medium text-[var(--text-secondary)]">
-                    <a href="/" class="hover:text-orange-500 transition">Каталог</a>
-                    <a href="{{route('support')}}" class="hover:text-orange-500 transition">Поддержка</a>
-                    @if(auth()->user() && auth()->user()->role === 'admin')
-                    <a href="{{route('admin.tickets.index')}}" class="hover:text-orange-500 transition">Админ панель</a>
-                    @endif
-                </nav>
+                <div class="flex items-center space-x-4">
+                    {{-- Бургер-меню — строго между логотипом и аватаром.
+                         Сюда свёрнуты: Каталог, Поддержка, Админ панель,
+                         колокольчик уведомлений и переключатель темы. --}}
+                    <div class="relative" x-data="{ open: false }" @keydown.escape.window="open = false">
+                        <button
+                            type="button"
+                            @click="open = !open"
+                            :aria-expanded="open.toString()"
+                            class="w-9 h-9 rounded-lg flex items-center justify-center border border-[var(--border-color)] bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-orange-500 hover:border-orange-500/40 transition-colors"
+                            aria-label="Меню"
+                            title="Меню"
+                        >
+                            {{-- Иконка «бургер» --}}
+                            <svg x-show="!open" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+                            </svg>
+                            {{-- Иконка «крестик» при открытом меню --}}
+                            <svg x-show="open" x-cloak style="display: none;" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
 
-                <div class="flex items-center space-x-6">
-                    <!-- Theme Toggle Button -->
-                    <button
-                        id="theme-toggle"
-                        onclick="toggleTheme()"
-                        class="w-9 h-9 rounded-lg flex items-center justify-center border border-[var(--border-color)] bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-orange-500 hover:border-orange-500/40 transition-colors"
-                        aria-label="Переключить тему"
-                        title="Переключить тему"
-                    >
-                        {{-- Солнце — видно в тёмной теме (клик → светлая) --}}
-                        <svg class="ti-sun w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="4.5"/>
-                            <path stroke-linecap="round" d="M12 2v2.5M12 19.5V22M4.22 4.22l1.77 1.77M18.01 18.01l1.77 1.77M2 12h2.5M19.5 12H22M4.22 19.78l1.77-1.77M18.01 5.99l1.77-1.77"/>
-                        </svg>
-                        {{-- Луна — видно в светлой теме (клик → тёмная) --}}
-                        <svg class="ti-moon w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M21.64 13a1 1 0 0 0-1.05-.14 8 8 0 0 1-9.45-9.45 1 1 0 0 0-1.19-1.19A10 10 0 1 0 22 14.05a1 1 0 0 0-.36-1.05z"/>
-                        </svg>
-                    </button>
+                        <div
+                            x-show="open"
+                            x-cloak
+                            x-transition.opacity
+                            @click.outside="open = false"
+                            class="fixed sm:absolute top-20 sm:top-auto left-3 right-3 sm:left-auto sm:right-0 sm:mt-3 w-auto sm:w-64 max-w-[calc(100vw-1.5rem)] bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl shadow-lg z-50"
+                            style="display: none;"
+                        >
+                            {{-- Навигация --}}
+                            <div class="py-1.5">
+                                <a href="/" class="block px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition">Каталог</a>
+                                <a href="{{ route('support') }}" class="block px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition">Поддержка</a>
+                                @if(auth()->user() && auth()->user()->role === 'admin')
+                                <a href="{{ route('admin.tickets.index') }}" class="block px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition">Админ панель</a>
+                                @endif
+                            </div>
+
+                            {{-- Вход / Регистрация — только на узких экранах, где кнопки шапки скрыты --}}
+                            @guest
+                            <div class="sm:hidden py-1.5 border-t border-[var(--border-color-light)]">
+                                <a href="{{ route('login') }}" class="block px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition">Вход</a>
+                                <a href="{{ route('register') }}" class="block px-4 py-2.5 text-sm font-bold text-orange-500 hover:bg-[var(--bg-tertiary)] transition">Регистрация</a>
+                            </div>
+                            @endguest
+
+                            {{-- Уведомления и переключатель темы --}}
+                            <div class="flex items-center justify-between gap-3 px-4 py-3 border-t border-[var(--border-color-light)]">
+                                <span class="text-sm text-[var(--text-secondary)]">Оформление</span>
+                                <div class="flex items-center gap-3">
+                                    @auth
+                                    {{-- Notification bell --}}
+                                    @livewire('notification-bell')
+                                    @endauth
+                                    {{-- Theme Toggle Button --}}
+                                    <button
+                                        id="theme-toggle"
+                                        onclick="toggleTheme()"
+                                        class="w-9 h-9 rounded-lg flex items-center justify-center border border-[var(--border-color)] bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-orange-500 hover:border-orange-500/40 transition-colors"
+                                        aria-label="Переключить тему"
+                                        title="Переключить тему"
+                                    >
+                                        {{-- Солнце — видно в тёмной теме (клик → светлая) --}}
+                                        <svg class="ti-sun w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <circle cx="12" cy="12" r="4.5"/>
+                                            <path stroke-linecap="round" d="M12 2v2.5M12 19.5V22M4.22 4.22l1.77 1.77M18.01 18.01l1.77 1.77M2 12h2.5M19.5 12H22M4.22 19.78l1.77-1.77M18.01 5.99l1.77-1.77"/>
+                                        </svg>
+                                        {{-- Луна — видно в светлой теме (клик → тёмная) --}}
+                                        <svg class="ti-moon w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M21.64 13a1 1 0 0 0-1.05-.14 8 8 0 0 1-9.45-9.45 1 1 0 0 0-1.19-1.19A10 10 0 1 0 22 14.05a1 1 0 0 0-.36-1.05z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     @auth
-                    {{-- Notification bell --}}
-                    @livewire('notification-bell')
-
                     <div class="flex items-center space-x-4 border-l border-[var(--border-color)] pl-6">
                         <div class="text-right hidden sm:block">
                             <p class="text-xs text-[var(--text-tertiary)] leading-none mb-0.5">Личный кабинет</p>
@@ -444,10 +493,12 @@
                         </div>
                     </div>
                     @else
-                    <a href="{{ route('login') }}" class="text-sm font-bold hover:text-orange-500 transition">Вход</a>
-                    <a href="{{ route('register') }}" class="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm transition shadow-[0_0_20px_rgba(249,115,22,0.3)]">
-                        Регистрация
-                    </a>
+                    <div class="hidden sm:flex items-center space-x-4">
+                        <a href="{{ route('login') }}" class="text-sm font-bold hover:text-orange-500 transition">Вход</a>
+                        <a href="{{ route('register') }}" class="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm transition shadow-[0_0_20px_rgba(249,115,22,0.3)]">
+                            Регистрация
+                        </a>
+                    </div>
                     @endauth
                 </div>
             </div>
