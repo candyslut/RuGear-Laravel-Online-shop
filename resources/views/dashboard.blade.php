@@ -1194,17 +1194,40 @@
     <script>
         const GAME_SRC = '{{ asset('index.html') }}';
 
+        // Прогреваем игру заранее: грузим iframe в фоне (внутри закрытого
+        // <dialog>), чтобы её скрипты и обработчики клавиш/тапа были готовы
+        // ещё до открытия — тогда пробел/тап срабатывают мгновенно, а не
+        // через пару секунд ожидания загрузки.
+        function preloadGame() {
+            const iframe = document.getElementById('game-iframe');
+            if (iframe && !iframe.src) iframe.src = GAME_SRC;
+        }
+        if (document.readyState === 'complete') preloadGame();
+        else window.addEventListener('load', preloadGame);
+
+        function focusGame() {
+            const iframe = document.getElementById('game-iframe');
+            try {
+                iframe.focus();
+                if (iframe.contentWindow) iframe.contentWindow.focus();
+            } catch (e) { /* same-origin, focus best-effort */ }
+        }
+
         window.openGame = function() {
             const iframe = document.getElementById('game-iframe');
-            iframe.src = GAME_SRC;
+            if (iframe.src !== GAME_SRC) iframe.src = GAME_SRC; // на случай, если прогрев не успел
             document.getElementById('mod-game').showModal();
-            setTimeout(() => iframe.focus(), 150);
+            // showModal() забирает фокус на диалог — возвращаем его в игру,
+            // чтобы первое нажатие пробела дошло до неё.
+            focusGame();
+            setTimeout(focusGame, 60);
         };
 
         function closeGame() {
             document.getElementById('mod-game').close();
-            const iframe = document.getElementById('game-iframe');
-            iframe.src = '';
+            // Перезагружаем во «свежую» игру и сразу прогреваем её для
+            // следующего открытия (фоновая загрузка, пока модалка закрыта).
+            document.getElementById('game-iframe').src = GAME_SRC;
         }
 
         function toggleLogout(show) {
