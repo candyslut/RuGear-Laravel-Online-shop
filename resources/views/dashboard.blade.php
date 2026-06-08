@@ -353,6 +353,32 @@
         /* clipped corner (gaming HUD) */
         .clip-tr { clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%); }
 
+        /* Срез clip-tr обрезает обычную рамку по диагонали правого верхнего
+           угла, из-за чего грань выглядела «пропавшей». Дорисовываем её
+           отдельной линией под тем же углом 45°. */
+        .game-banner::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 18px;
+            height: 18px;
+            z-index: 30;
+            pointer-events: none;
+            background: linear-gradient(to top right,
+                transparent calc(50% - 0.9px),
+                rgba(32, 248, 192, 0.55) calc(50% - 0.9px),
+                rgba(32, 248, 192, 0.55) calc(50% + 0.9px),
+                transparent calc(50% + 0.9px));
+        }
+        [data-theme="light"] .game-banner::after {
+            background: linear-gradient(to top right,
+                transparent calc(50% - 0.9px),
+                rgba(13, 148, 136, 0.5) calc(50% - 0.9px),
+                rgba(13, 148, 136, 0.5) calc(50% + 0.9px),
+                transparent calc(50% + 0.9px));
+        }
+
         /* hero stat cell */
         .stat-cell { position: relative; background: var(--bg); padding: 1.1rem 1.15rem; }
         .stat-cell::after {
