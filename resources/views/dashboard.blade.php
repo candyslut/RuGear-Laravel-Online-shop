@@ -118,7 +118,7 @@
             min-width: 0 !important;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             text-align: center;
             padding: 1.25rem !important;
         }
@@ -145,7 +145,7 @@
         }
 
         #ach-track.ach-expanded .ach-xp {
-            margin: 0 auto !important;
+            margin: auto auto 0 auto !important;
         }
 
         /* ══════════════════════════════════════════════════ */
@@ -776,7 +776,7 @@
                 @if($achList->count() > 0)
                 <div id="ach-track" class="flex gap-3 overflow-x-auto flex-1 min-h-0" style="scroll-snap-type:x mandatory;scroll-behavior:smooth;">
                     @foreach($achList as $a)
-                    <div class="ach-card flex-shrink-0 p-4 flex flex-col items-center justify-center"
+                    <div class="ach-card flex-shrink-0 p-4 flex flex-col items-center justify-start"
                         style="width:calc(33.333% - 8px);min-width:140px;scroll-snap-align:start;background:var(--inset);border:1px solid var(--line);">
 
                         <div class="ach-icon-wrap w-9 h-9 flex items-center justify-center flex-shrink-0" style="background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.28)">
@@ -789,7 +789,7 @@
 
                         <p class="ach-desc hidden text-xs t-dim leading-snug line-clamp-3 mb-2 flex items-center justify-center text-center">{{ $a->description }}</p>
 
-                        <p class="ach-xp hud-mono text-xs font-bold t-acc flex-shrink-0 flex items-center justify-center text-center">+{{ $a->experience }} XP</p>
+                        <p class="ach-xp hud-mono text-xs font-bold t-acc flex-shrink-0 mt-auto flex items-center justify-center text-center">+{{ $a->experience }} XP</p>
 
                     </div>
                     @endforeach
@@ -924,12 +924,12 @@
     {{-- Leaderboard modal --}}
     <dialog id="modal-leaderboard" class="bg-[#111318] border border-gray-800 rounded-2xl p-0 w-full max-w-4xl shadow-2xl focus:outline-none" style="height:92vh;max-height:92vh;">
         <div class="flex flex-col h-full">
-            <div class="flex items-center justify-between border-b border-gray-800 px-6 py-4 flex-shrink-0">
+            <div class="flex items-center justify-between border-b border-gray-800 px-4 sm:px-6 py-4 flex-shrink-0">
                 <h2 class="text-base font-bold text-white">Рейтинг игроков</h2>
                 <button onclick="document.getElementById('modal-leaderboard').close()" class="text-gray-500 hover:text-white text-2xl leading-none transition">×</button>
             </div>
 
-            <div class="px-6 py-3 border-b border-gray-800 flex-shrink-0">
+            <div class="px-4 sm:px-6 py-3 border-b border-gray-800 flex-shrink-0">
                 <div class="relative">
                     <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -948,7 +948,7 @@
                 $rankColors = ['#f59e0b','#9ca3af','#cd7c3a'];
                 @endphp
                 <div class="leader-row" data-name="{{ strtolower($u->name) }}">
-                    <div class="flex items-center gap-3 px-6 py-3.5 {{ $isMe ? 'bg-orange-500/5' : 'hover:bg-white/[0.02]' }} transition-colors">
+                    <div class="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 sm:px-6 py-3.5 {{ $isMe ? 'bg-orange-500/5' : 'hover:bg-white/[0.02]' }} transition-colors">
                         {{-- Rank --}}
                         <div class="w-6 flex-shrink-0 text-center">
                             @if($i < 3)
@@ -978,8 +978,8 @@
                             </p>
                         </div>
 
-                        {{-- Stats --}}
-                        <div class="flex items-center gap-4 flex-shrink-0">
+                        {{-- Stats + expand (wraps below name on mobile) --}}
+                        <div class="flex items-center gap-3 sm:gap-4 w-full sm:w-auto justify-end flex-shrink-0">
                             <div class="text-center w-10">
                                 <p class="text-sm font-black text-orange-500 leading-none">{{ $u->level }}</p>
                                 <p class="text-[9px] text-gray-600 uppercase mt-0.5">ур.</p>
@@ -996,18 +996,18 @@
                                 <p class="text-sm font-black text-white leading-none">{{ $u->achievements->count() }}</p>
                                 <p class="text-[9px] text-gray-600 uppercase mt-0.5">ачивки</p>
                             </div>
-                        </div>
 
-                        {{-- Expand button --}}
-                        <button id="leader-btn-{{ $u->id }}" onclick="toggleLeader({{ $u->id }})"
-                            class="flex-shrink-0 text-xs font-semibold text-gray-500 hover:text-white border border-gray-700 hover:border-gray-600 rounded-lg px-2.5 py-1.5 transition whitespace-nowrap">
-                            Подробнее
-                        </button>
+                            {{-- Expand button --}}
+                            <button id="leader-btn-{{ $u->id }}" onclick="toggleLeader({{ $u->id }})"
+                                class="flex-shrink-0 text-xs font-semibold text-gray-500 hover:text-white border border-gray-700 hover:border-gray-600 rounded-lg px-2.5 py-1.5 transition whitespace-nowrap">
+                                Подробнее
+                            </button>
+                        </div>
                     </div>
 
                     {{-- Expanded details --}}
-                    <div id="leader-det-{{ $u->id }}" class="hidden px-6 pb-4">
-                        <div class="bg-gray-900/40 border border-gray-800/60 rounded-xl p-4 space-y-3 ml-9">
+                    <div id="leader-det-{{ $u->id }}" class="hidden px-4 sm:px-6 pb-4">
+                        <div class="bg-gray-900/40 border border-gray-800/60 rounded-xl p-4 space-y-3 ml-0 sm:ml-9">
                             {{-- Gender pill --}}
                             @if($u->gender && in_array($u->gender, ['male','female']))
                             <div>
@@ -1053,7 +1053,7 @@
                 @endforeach
             </div>
 
-            <div class="border-t border-gray-800 px-6 py-4 flex-shrink-0">
+            <div class="border-t border-gray-800 px-4 sm:px-6 py-4 flex-shrink-0">
                 <button onclick="document.getElementById('modal-leaderboard').close()"
                     class="w-full py-2.5 bg-gray-900 hover:bg-gray-800 border border-gray-700 text-sm font-semibold text-gray-400 hover:text-white rounded-xl transition">
                     Закрыть

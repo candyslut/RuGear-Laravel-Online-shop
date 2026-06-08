@@ -12,21 +12,21 @@
                             <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
                         </svg>
                     </div>
-                    <span class="text-xs font-bold text-green-400 uppercase tracking-wider">Заказ оформлен</span>
+                    <span class="hidden sm:inline text-xs font-bold text-green-400 uppercase tracking-wider">Заказ оформлен</span>
                 </div>
-                <div class="flex-1 h-px bg-orange-500/50 mx-4"></div>
+                <div class="flex-1 h-px bg-orange-500/50 mx-2 sm:mx-4"></div>
                 <div class="flex items-center gap-2">
                     <div class="w-7 h-7 rounded-full bg-orange-500/20 border border-orange-500/50 flex items-center justify-center">
                         <span class="text-xs font-black text-orange-400">2</span>
                     </div>
-                    <span class="text-xs font-bold text-orange-400 uppercase tracking-wider">Оплата</span>
+                    <span class="hidden sm:inline text-xs font-bold text-orange-400 uppercase tracking-wider">Оплата</span>
                 </div>
-                <div class="flex-1 h-px bg-gray-800 mx-4"></div>
+                <div class="flex-1 h-px bg-gray-800 mx-2 sm:mx-4"></div>
                 <div class="flex items-center gap-2">
                     <div class="w-7 h-7 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center">
                         <span class="text-xs font-black text-gray-600">3</span>
                     </div>
-                    <span class="text-xs font-bold text-gray-600 uppercase tracking-wider">Доставка</span>
+                    <span class="hidden sm:inline text-xs font-bold text-gray-600 uppercase tracking-wider">Доставка</span>
                 </div>
             </div>
         </div>
@@ -35,7 +35,7 @@
             <div class="bg-[#13151a] border border-gray-800/60 rounded-2xl overflow-hidden shadow-2xl">
 
                 {{-- Header --}}
-                <div class="px-8 py-6 border-b border-gray-800/60">
+                <div class="px-5 sm:px-8 py-6 border-b border-gray-800/60">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="font-mono text-[10px] uppercase tracking-widest text-gray-500 mb-1">Заказ</p>
@@ -49,8 +49,8 @@
                 </div>
 
                 {{-- Order summary --}}
-                <div class="px-8 py-5 border-b border-gray-800/40 bg-[#0f1115]">
-                    <div class="grid grid-cols-3 gap-6 text-center">
+                <div class="px-5 sm:px-8 py-5 border-b border-gray-800/40 bg-[#0f1115]">
+                    <div class="grid grid-cols-3 gap-3 sm:gap-6 text-center">
                         <div>
                             <p class="font-mono text-[10px] uppercase tracking-widest text-gray-600 mb-1">Получатель</p>
                             <p class="text-sm font-bold text-white">{{ $order->full_name }}</p>
@@ -72,7 +72,7 @@
                 </div>
 
                 {{-- Payment section --}}
-                <div class="px-8 py-8">
+                <div class="px-5 sm:px-8 py-6 sm:py-8">
 
                     @if($order->payment_method === 'card')
                     {{-- Card payment --}}
@@ -294,7 +294,7 @@
                 </div>
 
                 {{-- Footer --}}
-                <div class="px-8 py-5 border-t border-gray-800/40 bg-[#0f1115] flex items-center justify-between">
+                <div class="px-5 sm:px-8 py-5 border-t border-gray-800/40 bg-[#0f1115] flex flex-wrap items-center justify-between gap-3">
                     <a href="{{ route('dashboard') }}" class="text-xs text-gray-600 hover:text-gray-400 transition flex items-center gap-1.5">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
