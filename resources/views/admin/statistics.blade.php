@@ -1,243 +1,241 @@
 <x-admin-layout>
 <x-slot name="title">Статистика | RuGear Admin</x-slot>
 
+@include('admin.partials.hud')
+
 <style>
-    /* Theme-aware chart internals (defaults = dark, overridden for light) */
-    .stats { --track: #1b1f27; --grid: rgba(148,163,184,.10); --donut-track: #1b1f27; }
-    [data-theme="light"] .stats { --track: #eceef2; --grid: rgba(100,116,139,.14); --donut-track: #eceef2; }
-
-    .stat-card { transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
-    .stat-card:hover { transform: translateY(-3px); border-color: rgba(249,115,22,.35); box-shadow: 0 14px 30px rgba(0,0,0,.18); }
-
-    .bar-fill { transition: filter .15s ease; }
-    .bar-col:hover .bar-fill { filter: brightness(1.18); }
-
-    @keyframes stat-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .stat-rise { animation: stat-rise .45s cubic-bezier(.34,1.56,.64,1) both; }
+    .core { position: relative; background: var(--bg); border: 1px solid var(--line); }
+    .readout-cell { background: var(--bg); transition: background .12s ease; }
+    .readout-cell:hover { background: var(--bg-2); }
+    .bar-col { position: relative; }
+    .bar-col:hover .bar-fill { filter: brightness(1.2); }
+    .bar-col:hover .bar-cap { opacity: 1; }
+    .lead-row { transition: background .12s ease, box-shadow .12s ease; }
+    .lead-row:hover { background: var(--bg-2); box-shadow: inset -3px 0 0 var(--accent); }
+    .lead-row + .lead-row { border-top: 1px solid var(--line); }
 </style>
 
 @php
     $money = fn ($v) => number_format((float) $v, 0, '.', ' ') . ' ₽';
+
+    $ic = [
+        'rev'  => '<path stroke-linecap="round" stroke-linejoin="round" d="M4 19V5m0 14h16M4 13l4-4 4 3 7-7"/>',
+        'aov'  => '<path stroke-linecap="round" stroke-linejoin="round" d="M5 3h14v18l-2-1.5L15 21l-2-1.5L11 21l-2-1.5L7 21l-2-1.5V3z"/><path stroke-linecap="round" d="M8 8h8M8 12h8"/>',
+        'box'  => '<path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>',
+        'usr'  => '<path stroke-linecap="round" stroke-linejoin="round" d="M17 20v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2M10 10a3 3 0 100-6 3 3 0 000 6zm11 10v-2a4 4 0 00-3-3.87M16 4.13A4 4 0 0118 8"/>',
+        'chk'  => '<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>',
+        'x'    => '<path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>',
+    ];
+    $kpis = [
+        ['ic' => 'rev', 'span' => 'sm:col-span-2', 'label' => 'Выручка · завершённые', 'value' => $money($totalRevenue), 'sub' => 'в работе: ' . $money($pipelineRevenue), 'tone' => 'var(--accent)'],
+        ['ic' => 'aov', 'span' => '', 'label' => 'Средний чек',     'value' => $money($aov),                  'sub' => 'по активным',     'tone' => 'var(--text)'],
+        ['ic' => 'box', 'span' => '', 'label' => 'Товаров продано', 'value' => number_format($itemsSold),     'sub' => 'в завершённых',   'tone' => 'var(--text)'],
+        ['ic' => 'usr', 'span' => '', 'label' => 'Активных клиентов','value' => number_format($activeCustomers),'sub' => 'с покупкой',     'tone' => 'var(--text)'],
+        ['ic' => 'chk', 'span' => '', 'label' => 'Завершаемость',   'value' => $completionRate . '%',         'sub' => $completed . '/' . $totalOrders, 'tone' => '#22c55e'],
+        ['ic' => 'x',   'span' => '', 'label' => 'Отмены',          'value' => $cancelRate . '%',             'sub' => 'от всех',         'tone' => '#ef4444'],
+    ];
 @endphp
 
-<div class="stats space-y-8">
+<div class="hud space-y-5">
 
-    <div class="mb-1">
-        <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-orange-500 transition-colors group">
-            <i class="fa-solid fa-arrow-left transition-transform group-hover:-translate-x-1"></i>
-            Вернуться в личный кабинет
-        </a>
-    </div>
+    <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 text-xs font-bold t-dim hover:t-acc transition-colors group">
+        <svg class="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        НАЗАД В ПРОФИЛЬ
+    </a>
 
-    {{-- Header --}}
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-            <h1 class="text-2xl font-black uppercase tracking-wider text-white flex items-center gap-3">
-                <span class="w-2.5 h-8 bg-orange-500 rounded-full shadow-[0_0_15px_rgba(249,115,22,.5)]"></span>
-                Статистика заказов
-            </h1>
-            <p class="text-sm text-gray-500 mt-1">Аналитика продаж, спроса и аудитории</p>
+    {{-- ══ Command header ══ --}}
+    <div class="core hud-corner hud-grid-bg flex flex-col lg:flex-row lg:items-stretch">
+        <div class="flex-1 p-6">
+            <p class="hud-mono text-[10px] tracking-[0.3em] t-dim2">RUGEAR // СТАТИСТИКА</p>
+            <h1 class="text-3xl font-black uppercase tracking-tight t-text mt-2">Статистика заказов</h1>
+            <p class="text-sm t-dim mt-1">Сводка продаж, спроса и аудитории в реальном времени</p>
+
+            {{-- ── Экспорт в Excel (CSV) за выбранный период ── --}}
+            <form method="GET" action="{{ route('admin.statistics.export') }}"
+                  class="flex flex-wrap items-end gap-3 mt-5">
+                <label class="flex flex-col gap-1">
+                    <span class="hud-colhead">Период с</span>
+                    <input type="date" name="from" max="{{ now()->format('Y-m-d') }}"
+                           class="bg-gray-950 border border-gray-800 rounded-lg px-3 py-2 text-xs t-text focus:border-orange-500/50 focus:outline-none">
+                </label>
+                <label class="flex flex-col gap-1">
+                    <span class="hud-colhead">по</span>
+                    <input type="date" name="to" max="{{ now()->format('Y-m-d') }}"
+                           class="bg-gray-950 border border-gray-800 rounded-lg px-3 py-2 text-xs t-text focus:border-orange-500/50 focus:outline-none">
+                </label>
+                <button type="submit"
+                        class="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-400 text-black text-xs font-black uppercase tracking-wider rounded-lg transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/>
+                    </svg>
+                    Экспорт в Excel
+                </button>
+                <span class="text-[10px] t-dim2 hud-mono pb-2">пусто = за всё время</span>
+            </form>
         </div>
-        <div class="flex items-center gap-2 bg-[#161920] border border-gray-800 px-4 py-2.5 rounded-xl">
-            <i class="fa-solid fa-bolt text-orange-500"></i>
-            <span class="text-[10px] text-gray-500 uppercase tracking-widest">Всего заказов</span>
-            <span class="text-lg font-black text-white tabular-nums">{{ number_format($totalOrders) }}</span>
-        </div>
-    </div>
-
-    {{-- ═══════════ KPI CARDS ═══════════ --}}
-    @php
-        $kpis = [
-            ['icon' => 'fa-money-bill-trend-up', 'tone' => 'orange', 'label' => 'Выручка (завершённые)', 'value' => $money($totalRevenue),  'sub' => 'В ожидании: ' . $money($pipelineRevenue)],
-            ['icon' => 'fa-receipt',             'tone' => 'cyan',   'label' => 'Средний чек',            'value' => $money($aov),           'sub' => 'по активным заказам'],
-            ['icon' => 'fa-boxes-stacked',       'tone' => 'violet', 'label' => 'Товаров продано',        'value' => number_format($itemsSold), 'sub' => 'единиц в завершённых'],
-            ['icon' => 'fa-users',               'tone' => 'blue',   'label' => 'Активных клиентов',      'value' => number_format($activeCustomers), 'sub' => 'совершили покупку'],
-            ['icon' => 'fa-circle-check',        'tone' => 'green',  'label' => 'Доля завершённых',       'value' => $completionRate . '%',  'sub' => $completed . ' из ' . $totalOrders],
-            ['icon' => 'fa-circle-xmark',        'tone' => 'red',    'label' => 'Доля отмен',             'value' => $cancelRate . '%',      'sub' => 'от всех заказов'],
-        ];
-        $tones = [
-            'orange' => 'text-orange-400 bg-orange-500/10',
-            'cyan'   => 'text-cyan-400 bg-cyan-500/10',
-            'violet' => 'text-violet-400 bg-violet-500/10',
-            'blue'   => 'text-blue-400 bg-blue-500/10',
-            'green'  => 'text-emerald-400 bg-emerald-500/10',
-            'red'    => 'text-red-400 bg-red-500/10',
-        ];
-    @endphp
-    <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        @foreach($kpis as $i => $k)
-            <div class="stat-card stat-rise bg-[#161920] border border-gray-800 rounded-2xl p-5" style="animation-delay: {{ $i * 60 }}ms">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4 {{ $tones[$k['tone']] }}">
-                    <i class="fa-solid {{ $k['icon'] }}"></i>
-                </div>
-                <p class="text-2xl font-black text-white tabular-nums leading-none">{{ $k['value'] }}</p>
-                <p class="text-[11px] text-gray-500 font-semibold uppercase tracking-wider mt-2 leading-tight">{{ $k['label'] }}</p>
-                <p class="text-[10px] text-gray-600 mt-1 truncate">{{ $k['sub'] }}</p>
+        <div class="flex border-t lg:border-t-0 lg:border-l" style="border-color: var(--line)">
+            <div class="flex flex-col justify-center px-6 py-4 lg:py-0 border-r" style="border-color: var(--line); min-width: 8rem">
+                <span class="hud-colhead">Заказов всего</span>
+                <span class="text-3xl font-black hud-tnum t-text mt-1">{{ number_format($totalOrders) }}</span>
             </div>
-        @endforeach
+            <div class="flex flex-col justify-center px-6 py-4 lg:py-0" style="min-width: 9rem">
+                <span class="hud-colhead">Выручка 14д</span>
+                <span class="text-3xl font-black hud-tnum t-acc mt-1">{{ $money($periodRevenue) }}</span>
+            </div>
+        </div>
     </div>
 
-    {{-- ═══════════ MAIN GRID ═══════════ --}}
-    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+    {{-- ══ Primary readouts (one sblocked instrument panel, asymmetric cells) ══ --}}
+    <div class="core hud-corner">
+        <div class="hud-head"><span class="hud-head__bar"></span><span class="hud-head__title">Ключевые показатели</span><span class="hud-head__code hud-mono">01 / 03</span></div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-7 gap-px" style="background: var(--line)">
+            @foreach($kpis as $k)
+            <div class="readout-cell p-5 {{ $k['ic'] === 'rev' ? 'xl:col-span-2' : '' }}">
+                <svg class="w-5 h-5 mb-3" fill="none" stroke="{{ $k['tone'] }}" stroke-width="1.8" viewBox="0 0 24 24">{!! $ic[$k['ic']] !!}</svg>
+                <p class="text-2xl font-black hud-tnum leading-none" style="color: {{ $k['tone'] }}">{{ $k['value'] }}</p>
+                <p class="hud-colhead mt-2.5 leading-tight">{{ $k['label'] }}</p>
+                <p class="text-[10px] t-dim2 mt-1 hud-mono truncate">{{ $k['sub'] }}</p>
+            </div>
+            @endforeach
+        </div>
+    </div>
 
-        {{-- ── Revenue chart (2/3) ── --}}
-        <div class="xl:col-span-2 bg-[#161920] border border-gray-800 rounded-2xl p-6">
-            <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
-                <div>
-                    <h2 class="text-sm font-black uppercase tracking-wider text-white flex items-center gap-2">
-                        <i class="fa-solid fa-chart-column text-orange-500"></i> Выручка · 14 дней
-                    </h2>
-                    <p class="text-[11px] text-gray-500 mt-1">{{ $money($periodRevenue) }} · {{ $periodOrders }} заказов за период</p>
-                </div>
+    {{-- ══ Asymmetric: revenue flux (wide) + status matrix (narrow) ══ --}}
+    <div class="grid grid-cols-1 xl:grid-cols-[1.75fr_1fr] gap-5">
+
+        {{-- Revenue flux --}}
+        <div class="core hud-corner">
+            <div class="hud-head">
+                <span class="hud-head__bar"></span>
+                <span class="hud-head__title">Выручка · 14 дней</span>
                 @if($bestDay && $bestDay['revenue'] > 0)
-                    <div class="text-right">
-                        <p class="text-[10px] text-gray-600 uppercase tracking-widest">Лучший день</p>
-                        <p class="text-sm font-black text-emerald-400 tabular-nums">{{ $bestDay['label'] }} · {{ $money($bestDay['revenue']) }}</p>
+                    <span class="hud-head__code hud-mono">ПИК {{ $bestDay['label'] }} · {{ $money($bestDay['revenue']) }}</span>
+                @endif
+            </div>
+            <div class="p-6">
+                @if($periodRevenue > 0)
+                    <div class="flex items-end justify-between mb-4">
+                        <div>
+                            <p class="text-2xl font-black hud-tnum t-text">{{ $money($periodRevenue) }}</p>
+                            <p class="hud-colhead mt-1">{{ $periodOrders }} заказов за период</p>
+                        </div>
+                        <p class="hud-mono text-[10px] t-dim2">MAX {{ $money($maxRevenue) }}</p>
+                    </div>
+                    <div class="relative h-52 flex items-end gap-1.5">
+                        <div class="absolute inset-0 flex flex-col justify-between pointer-events-none">
+                            @for($g = 0; $g < 4; $g++)<div class="w-full" style="border-top: 1px solid var(--grid)"></div>@endfor
+                        </div>
+                        @foreach($series as $d)
+                            @php $pct = $maxRevenue > 0 ? $d['revenue'] / $maxRevenue * 100 : 0; if ($d['revenue'] > 0) $pct = max($pct, 4); @endphp
+                            <div class="bar-col flex-1 h-full flex items-end" title="{{ $d['label'] }} — {{ $d['orders'] }} зак. · {{ $money($d['revenue']) }}">
+                                <div class="absolute inset-x-0 bottom-0 top-0" style="background: var(--track)"></div>
+                                <div class="relative w-full bar-fill" style="height: {{ $pct }}%; min-height: {{ $d['revenue'] > 0 ? '4px' : '0' }}; background: var(--accent); opacity: {{ $d['weekend'] ? '.5' : '1' }}">
+                                    <span class="bar-cap absolute -top-px inset-x-0 h-0.5 opacity-0 transition-opacity" style="background: var(--text)"></span>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                    <div class="flex gap-1.5 mt-2">
+                        @foreach($series as $d)<span class="flex-1 text-center text-[9px] t-dim2 hud-mono">{{ $d['label'] }}</span>@endforeach
+                    </div>
+                    <div class="flex items-center gap-5 mt-4 pt-4 border-t" style="border-color: var(--line)">
+                        <span class="flex items-center gap-2 text-[10px] t-dim"><span class="hud-state" style="background: var(--accent)"></span>Будни</span>
+                        <span class="flex items-center gap-2 text-[10px] t-dim"><span class="hud-state" style="background: var(--accent); opacity: .5"></span>Выходные</span>
+                    </div>
+                @else
+                    <div class="h-52 flex flex-col items-center justify-center t-dim2">
+                        <svg class="w-9 h-9 mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 19V5m0 14h16M8 15l3-3 3 2 4-5"/></svg>
+                        <p class="text-xs uppercase tracking-widest">Нет данных за период</p>
                     </div>
                 @endif
             </div>
-
-            @if($periodRevenue > 0)
-                <div class="relative h-52 flex items-end gap-1.5">
-                    {{-- grid lines --}}
-                    <div class="absolute inset-0 flex flex-col justify-between pointer-events-none">
-                        @for($g = 0; $g < 4; $g++)
-                            <div class="w-full" style="border-top: 1px dashed var(--grid)"></div>
-                        @endfor
-                    </div>
-                    @foreach($series as $d)
-                        @php
-                            $pct = $maxRevenue > 0 ? $d['revenue'] / $maxRevenue * 100 : 0;
-                            if ($d['revenue'] > 0) { $pct = max($pct, 6); }
-                        @endphp
-                        <div class="bar-col relative flex-1 h-full flex items-end">
-                            <div class="absolute inset-x-0 bottom-0 top-0 rounded-md" style="background: var(--track)"></div>
-                            <div class="relative w-full rounded-md bar-fill"
-                                 style="height: {{ $pct }}%; min-height: {{ $d['revenue'] > 0 ? '6px' : '0' }}; background: {{ $d['weekend'] ? '#fb923c' : '#f97316' }}"
-                                 title="{{ $d['label'] }}: {{ $d['orders'] }} заказов · {{ $money($d['revenue']) }}"></div>
-                        </div>
-                    @endforeach
-                </div>
-                <div class="flex gap-1.5 mt-2">
-                    @foreach($series as $d)
-                        <span class="flex-1 text-center text-[9px] text-gray-600 tabular-nums">{{ $d['label'] }}</span>
-                    @endforeach
-                </div>
-                <div class="flex items-center gap-4 mt-4 pt-4 border-t border-gray-800">
-                    <span class="flex items-center gap-1.5 text-[10px] text-gray-500"><span class="w-2.5 h-2.5 rounded-sm" style="background:#f97316"></span> Будни</span>
-                    <span class="flex items-center gap-1.5 text-[10px] text-gray-500"><span class="w-2.5 h-2.5 rounded-sm" style="background:#fb923c"></span> Выходные</span>
-                </div>
-            @else
-                <div class="h-52 flex flex-col items-center justify-center text-gray-600">
-                    <i class="fa-solid fa-chart-column text-3xl mb-3 opacity-30"></i>
-                    <p class="text-xs uppercase tracking-wider">Нет данных за период</p>
-                </div>
-            @endif
         </div>
 
-        {{-- ── Status donut (1/3) ── --}}
-        <div class="bg-[#161920] border border-gray-800 rounded-2xl p-6">
-            <h2 class="text-sm font-black uppercase tracking-wider text-white flex items-center gap-2 mb-6">
-                <i class="fa-solid fa-circle-half-stroke text-orange-500"></i> Статусы заказов
-            </h2>
-
-            @if($totalOrders > 0)
-                @php $C = 2 * M_PI * 54; $acc = 0; @endphp
-                <div class="flex items-center justify-center mb-6">
-                    <div class="relative w-44 h-44">
-                        <svg viewBox="0 0 140 140" class="w-full h-full -rotate-90">
-                            <circle cx="70" cy="70" r="54" fill="none" stroke="var(--donut-track)" stroke-width="16"/>
-                            @foreach($statusData as $seg)
-                                @if($seg['count'] > 0)
-                                    @php
-                                        $len = $seg['count'] / $totalOrders * $C;
-                                    @endphp
-                                    <circle cx="70" cy="70" r="54" fill="none"
-                                            stroke="{{ $seg['color'] }}" stroke-width="16"
-                                            stroke-dasharray="{{ $len }} {{ $C - $len }}"
-                                            stroke-dashoffset="{{ -$acc }}"/>
-                                    @php $acc += $len; @endphp
-                                @endif
-                            @endforeach
-                        </svg>
-                        <div class="absolute inset-0 flex flex-col items-center justify-center">
-                            <span class="text-3xl font-black text-white tabular-nums leading-none">{{ $completionRate }}%</span>
-                            <span class="text-[9px] text-gray-500 uppercase tracking-widest mt-1">завершено</span>
+        {{-- Status matrix donut --}}
+        <div class="core">
+            <div class="hud-head"><span class="hud-head__bar"></span><span class="hud-head__title">Статусы заказов</span><span class="hud-head__code hud-mono">02 / 03</span></div>
+            <div class="p-6">
+                @if($totalOrders > 0)
+                    @php $C = 2 * M_PI * 54; $acc = 0; @endphp
+                    <div class="flex items-center justify-center mb-6">
+                        <div class="relative w-40 h-40">
+                            <svg viewBox="0 0 140 140" class="w-full h-full -rotate-90">
+                                <circle cx="70" cy="70" r="54" fill="none" stroke="var(--track)" stroke-width="14"/>
+                                @foreach($statusData as $seg)
+                                    @if($seg['count'] > 0)
+                                        @php $len = $seg['count'] / $totalOrders * $C; @endphp
+                                        <circle cx="70" cy="70" r="54" fill="none" stroke="{{ $seg['color'] }}" stroke-width="14" stroke-dasharray="{{ $len }} {{ $C - $len }}" stroke-dashoffset="{{ -$acc }}"/>
+                                        @php $acc += $len; @endphp
+                                    @endif
+                                @endforeach
+                            </svg>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                <span class="text-3xl font-black hud-tnum t-text leading-none">{{ $completionRate }}%</span>
+                                <span class="hud-colhead mt-1">завершено</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="space-y-2.5">
-                    @foreach($statusData as $seg)
-                        <div class="flex items-center gap-3">
-                            <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background: {{ $seg['color'] }}"></span>
-                            <span class="text-xs text-gray-400 flex-1">{{ $seg['label'] }}</span>
-                            <span class="text-xs font-bold text-white tabular-nums">{{ $seg['count'] }}</span>
-                            <span class="text-[10px] text-gray-600 tabular-nums w-10 text-right">{{ $seg['pct'] }}%</span>
+                    <div class="space-y-px" style="background: var(--line); border: 1px solid var(--line)">
+                        @foreach($statusData as $seg)
+                        <div class="flex items-center gap-3 px-3 py-2" style="background: var(--bg)">
+                            <span class="hud-state" style="background: {{ $seg['color'] }}"></span>
+                            <span class="text-xs t-dim flex-1">{{ $seg['label'] }}</span>
+                            <span class="text-xs font-bold t-text hud-tnum">{{ $seg['count'] }}</span>
+                            <span class="text-[10px] t-dim2 hud-tnum w-10 text-right hud-mono">{{ $seg['pct'] }}%</span>
                         </div>
-                    @endforeach
-                </div>
-            @else
-                <div class="h-44 flex flex-col items-center justify-center text-gray-600">
-                    <i class="fa-solid fa-circle-half-stroke text-3xl mb-3 opacity-30"></i>
-                    <p class="text-xs uppercase tracking-wider">Заказов пока нет</p>
-                </div>
-            @endif
+                        @endforeach
+                    </div>
+                @else
+                    <div class="h-40 flex flex-col items-center justify-center t-dim2">
+                        <svg class="w-9 h-9 mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" d="M12 3v9l6 3"/></svg>
+                        <p class="text-xs uppercase tracking-widest">Заказов нет</p>
+                    </div>
+                @endif
+            </div>
         </div>
     </div>
 
-    {{-- ═══════════ SECONDARY GRID ═══════════ --}}
-    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+    {{-- ══ Leaderboards ══ --}}
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-5">
 
-        {{-- ── Top products ── --}}
-        <div class="bg-[#161920] border border-gray-800 rounded-2xl p-6">
-            <h2 class="text-sm font-black uppercase tracking-wider text-white flex items-center gap-2 mb-6">
-                <i class="fa-solid fa-fire text-orange-500"></i> Хиты продаж
-            </h2>
-
-            @forelse($topProducts as $i => $tp)
-                <div class="flex items-center gap-4 py-3 {{ !$loop->last ? 'border-b border-gray-800' : '' }}">
-                    <span class="text-sm font-black tabular-nums w-5 text-center {{ $i === 0 ? 'text-orange-500' : 'text-gray-600' }}">{{ $i + 1 }}</span>
-                    <div class="w-10 h-10 rounded-lg bg-gray-950 border border-gray-800 flex items-center justify-center flex-shrink-0 overflow-hidden">
+        {{-- Top units --}}
+        <div class="core">
+            <div class="hud-head"><span class="hud-head__bar"></span><span class="hud-head__title">Хиты продаж</span><span class="hud-head__code hud-mono">ТОП-5</span></div>
+            <div>
+                @forelse($topProducts as $i => $tp)
+                <div class="lead-row flex items-center gap-4 px-5 py-3">
+                    <span class="w-7 h-7 flex items-center justify-center text-xs font-black hud-tnum flex-shrink-0" style="{{ $i === 0 ? 'background:var(--accent);color:#0a0a0a' : 'border:1px solid var(--line);color:var(--dim)' }}">{{ $i + 1 }}</span>
+                    <div class="w-9 h-9 flex-shrink-0 flex items-center justify-center overflow-hidden" style="background: var(--inset); border: 1px solid var(--line)">
                         @if($tp->product && $tp->product->image)
                             <img src="{{ asset($tp->product->image) }}" class="w-full h-full object-contain p-1" onerror="this.style.display='none'">
                         @else
-                            <i class="fa-solid fa-microchip text-gray-700"></i>
+                            <svg class="w-4 h-4 t-dim2" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1"/><path d="M9 9h6v6H9z"/></svg>
                         @endif
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-sm font-bold text-white truncate">{{ $tp->product->name ?? 'Товар #' . $tp->product_id }}</p>
-                        <div class="mt-1.5 h-1.5 rounded-full overflow-hidden" style="background: var(--track)">
-                            <div class="h-full rounded-full" style="width: {{ max(round($tp->qty / $topProductMax * 100), 4) }}%; background: #f97316"></div>
-                        </div>
+                        <p class="text-sm font-bold t-text truncate">{{ $tp->product->name ?? 'Товар #' . $tp->product_id }}</p>
+                        <div class="hud-meter mt-1.5"><span style="width: {{ max(round($tp->qty / $topProductMax * 100), 4) }}%; background: var(--accent)"></span></div>
                     </div>
                     <div class="text-right flex-shrink-0">
-                        <p class="text-sm font-black text-white tabular-nums">{{ $tp->qty }} шт</p>
-                        <p class="text-[10px] text-gray-600 tabular-nums">{{ $money($tp->revenue) }}</p>
+                        <p class="text-sm font-black t-text hud-tnum">{{ $tp->qty }} <span class="t-dim2 text-[10px]">шт</span></p>
+                        <p class="text-[10px] t-dim2 hud-mono">{{ $money($tp->revenue) }}</p>
                     </div>
                 </div>
-            @empty
-                <div class="h-32 flex flex-col items-center justify-center text-gray-600">
-                    <i class="fa-solid fa-fire text-2xl mb-2 opacity-30"></i>
-                    <p class="text-xs uppercase tracking-wider">Нет продаж</p>
-                </div>
-            @endforelse
+                @empty
+                <div class="py-12 text-center text-xs uppercase tracking-widest t-dim2">Нет продаж</div>
+                @endforelse
+            </div>
         </div>
 
-        {{-- ── Top customers (leaderboard) ── --}}
-        <div class="bg-[#161920] border border-gray-800 rounded-2xl p-6">
-            <h2 class="text-sm font-black uppercase tracking-wider text-white flex items-center gap-2 mb-6">
-                <i class="fa-solid fa-trophy text-orange-500"></i> Топ покупателей
-            </h2>
-
-            @php
-                $medal = ['#f59e0b', '#9ca3af', '#b45309']; // gold, silver, bronze
-            @endphp
-            @forelse($topCustomers as $i => $tc)
-                <div class="flex items-center gap-4 py-3 {{ !$loop->last ? 'border-b border-gray-800' : '' }}">
-                    <span class="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black flex-shrink-0 tabular-nums"
-                          style="{{ $i < 3 ? 'color:#000;background:' . $medal[$i] : 'color:#9ca3af;background:var(--track)' }}">{{ $i + 1 }}</span>
-                    <div class="w-9 h-9 rounded-full bg-orange-500 flex items-center justify-center text-black font-black text-xs flex-shrink-0 overflow-hidden">
+        {{-- Top operators --}}
+        <div class="core">
+            <div class="hud-head"><span class="hud-head__bar"></span><span class="hud-head__title">Топ покупателей</span><span class="hud-head__code hud-mono">ТОП-5</span></div>
+            <div>
+                @php $medal = ['var(--accent)', '#9ca3af', '#b45309']; @endphp
+                @forelse($topCustomers as $i => $tc)
+                <div class="lead-row flex items-center gap-4 px-5 py-3">
+                    <span class="w-7 h-7 flex items-center justify-center text-xs font-black hud-tnum flex-shrink-0" style="{{ $i < 3 ? 'background:'.$medal[$i].';color:#0a0a0a' : 'border:1px solid var(--line);color:var(--dim)' }}">{{ $i + 1 }}</span>
+                    <div class="w-9 h-9 flex-shrink-0 flex items-center justify-center overflow-hidden font-black text-xs text-black" style="background: var(--accent)">
                         @if($tc->user && $tc->user->avatar)
                             <img src="{{ Storage::url($tc->user->avatar) }}" class="w-full h-full object-cover">
                         @else
@@ -245,51 +243,46 @@
                         @endif
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-sm font-bold text-white truncate">{{ $tc->user->name ?? 'Пользователь #' . $tc->user_id }}</p>
-                        <div class="mt-1.5 h-1.5 rounded-full overflow-hidden" style="background: var(--track)">
-                            <div class="h-full rounded-full" style="width: {{ max(round($tc->total / $topCustomerMax * 100), 4) }}%; background: #f59e0b"></div>
-                        </div>
+                        <p class="text-sm font-bold t-text truncate">{{ $tc->user->name ?? 'Пользователь #' . $tc->user_id }}</p>
+                        <div class="hud-meter mt-1.5"><span style="width: {{ max(round($tc->total / $topCustomerMax * 100), 4) }}%; background: #f59e0b"></span></div>
                     </div>
                     <div class="text-right flex-shrink-0">
-                        <p class="text-sm font-black text-white tabular-nums">{{ $money($tc->total) }}</p>
-                        <p class="text-[10px] text-gray-600 tabular-nums">{{ $tc->orders }} заказов</p>
+                        <p class="text-sm font-black t-text hud-tnum">{{ $money($tc->total) }}</p>
+                        <p class="text-[10px] t-dim2 hud-mono">{{ $tc->orders }} зак.</p>
                     </div>
                 </div>
-            @empty
-                <div class="h-32 flex flex-col items-center justify-center text-gray-600">
-                    <i class="fa-solid fa-trophy text-2xl mb-2 opacity-30"></i>
-                    <p class="text-xs uppercase tracking-wider">Нет покупателей</p>
-                </div>
-            @endforelse
+                @empty
+                <div class="py-12 text-center text-xs uppercase tracking-widest t-dim2">Нет покупателей</div>
+                @endforelse
+            </div>
         </div>
     </div>
 
-    {{-- ═══════════ BREAKDOWN: payment + delivery ═══════════ --}}
-    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        @php
-            $breakdowns = [
-                ['title' => 'Способы оплаты',   'icon' => 'fa-credit-card', 'color' => '#3b82f6', 'data' => $payments],
-                ['title' => 'Способы доставки', 'icon' => 'fa-truck-fast',  'color' => '#a855f7', 'data' => $deliveries],
-            ];
-        @endphp
-        @foreach($breakdowns as $bd)
-            <div class="bg-[#161920] border border-gray-800 rounded-2xl p-6">
-                <h2 class="text-sm font-black uppercase tracking-wider text-white flex items-center gap-2 mb-6">
-                    <i class="fa-solid {{ $bd['icon'] }}" style="color: {{ $bd['color'] }}"></i> {{ $bd['title'] }}
-                </h2>
-                @forelse($bd['data'] as $row)
-                    <div class="flex items-center gap-4 py-2.5">
-                        <span class="text-xs text-gray-400 w-24 flex-shrink-0">{{ $row['label'] }}</span>
-                        <div class="flex-1 h-2 rounded-full overflow-hidden" style="background: var(--track)">
-                            <div class="h-full rounded-full" style="width: {{ max(round($row['count'] / $nonCancelled * 100), 3) }}%; background: {{ $bd['color'] }}"></div>
-                        </div>
-                        <span class="text-xs font-bold text-white tabular-nums w-16 text-right">{{ $row['count'] }} <span class="text-gray-600 font-normal">({{ round($row['count'] / $nonCancelled * 100) }}%)</span></span>
-                    </div>
+    {{-- ══ Channels (one core split in two) ══ --}}
+    <div class="core">
+        <div class="hud-head"><span class="hud-head__bar"></span><span class="hud-head__title">Каналы оплаты и доставки</span><span class="hud-head__code hud-mono">CORE // 03</span></div>
+        <div class="grid grid-cols-1 md:grid-cols-2">
+            @php
+                $channels = [
+                    ['title' => 'Оплата',   'data' => $payments],
+                    ['title' => 'Доставка', 'data' => $deliveries],
+                ];
+            @endphp
+            @foreach($channels as $idx => $ch)
+            <div class="p-6 {{ $idx === 0 ? 'md:border-r' : 'border-t md:border-t-0' }}" style="border-color: var(--line)">
+                <p class="hud-colhead mb-4">{{ $ch['title'] }}</p>
+                @forelse($ch['data'] as $row)
+                <div class="flex items-center gap-4 py-2">
+                    <span class="text-xs t-dim w-24 flex-shrink-0 truncate">{{ $row['label'] }}</span>
+                    <div class="flex-1 hud-meter"><span style="width: {{ max(round($row['count'] / $nonCancelled * 100), 3) }}%; background: var(--accent)"></span></div>
+                    <span class="text-xs font-bold t-text hud-tnum w-16 text-right">{{ $row['count'] }} <span class="t-dim2 font-normal hud-mono">{{ round($row['count'] / $nonCancelled * 100) }}%</span></span>
+                </div>
                 @empty
-                    <p class="text-xs text-gray-600 uppercase tracking-wider py-6 text-center">Нет данных</p>
+                <p class="text-xs uppercase tracking-widest t-dim2 py-4">Нет данных</p>
                 @endforelse
             </div>
-        @endforeach
+            @endforeach
+        </div>
     </div>
 
 </div>

@@ -15,7 +15,7 @@
             @if(!empty($comment['photos']))
                 <div class="flex flex-wrap gap-2 mt-3 pl-11">
                     @foreach($comment['photos'] as $photo)
-                        <a href="{{ Storage::url($photo['path']) }}" target="_blank"
+                        <a href="{{ Storage::url($photo['path']) }}" target="_blank" data-lightbox
                            class="block w-20 h-20 rounded-lg overflow-hidden border border-gray-800 hover:border-orange-500 transition-colors">
                             <img src="{{ Storage::url($photo['path']) }}" class="w-full h-full object-cover">
                         </a>
@@ -121,7 +121,7 @@
                             @if(!empty($reply['photos']))
                                 <div class="flex flex-wrap gap-2 mt-2 pl-9">
                                     @foreach($reply['photos'] as $photo)
-                                        <a href="{{ Storage::url($photo['path']) }}" target="_blank"
+                                        <a href="{{ Storage::url($photo['path']) }}" target="_blank" data-lightbox
                                            class="block w-16 h-16 rounded-lg overflow-hidden border border-gray-800 hover:border-orange-500 transition-colors">
                                             <img src="{{ Storage::url($photo['path']) }}" class="w-full h-full object-cover">
                                         </a>

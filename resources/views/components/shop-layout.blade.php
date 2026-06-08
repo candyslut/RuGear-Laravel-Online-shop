@@ -731,6 +731,57 @@
     </dialog>
     @endauth
 
+    {{-- ─── Image lightbox (фото в отзывах и т.п.) ──────────────────────
+         Любая ссылка с атрибутом data-lightbox открывает изображение
+         поверх страницы. Закрытие: крестик, клик по фону или Esc. --}}
+    <div id="lightbox"
+         class="hidden fixed inset-0 z-[1000] items-center justify-center bg-black/85 backdrop-blur-sm p-4"
+         role="dialog" aria-modal="true" aria-label="Просмотр изображения">
+        <button type="button"
+                onclick="closeLightbox()"
+                class="absolute top-4 right-4 w-11 h-11 flex items-center justify-center rounded-full bg-black/50 text-white text-3xl leading-none hover:bg-black/80 transition-colors"
+                aria-label="Закрыть">&times;</button>
+        <img id="lightbox-img" src="" alt=""
+             class="max-w-full max-h-full object-contain rounded-lg shadow-2xl select-none">
+    </div>
+
+    <script>
+        (function () {
+            const box = document.getElementById('lightbox');
+            const img = document.getElementById('lightbox-img');
+
+            window.closeLightbox = function () {
+                box.classList.add('hidden');
+                box.classList.remove('flex');
+                img.src = '';
+                document.body.style.overflow = '';
+            };
+
+            function openLightbox(src) {
+                img.src = src;
+                box.classList.remove('hidden');
+                box.classList.add('flex');
+                document.body.style.overflow = 'hidden';
+            }
+
+            // Делегирование: работает и для фото, добавленных Livewire после загрузки.
+            document.addEventListener('click', function (e) {
+                const link = e.target.closest('a[data-lightbox]');
+                if (link) {
+                    e.preventDefault();
+                    openLightbox(link.getAttribute('href'));
+                    return;
+                }
+                // Клик по фону (но не по самому изображению) — закрыть.
+                if (e.target === box) closeLightbox();
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && !box.classList.contains('hidden')) closeLightbox();
+            });
+        })();
+    </script>
+
 </body>
 
 </html>

@@ -273,109 +273,216 @@
             border: 1px dashed #cbd5e1 !important;
         }
         [data-theme="light"] .tcmodal .tc-noreply p { color: #64748b !important; }
+
+        /* ════════════════════════════════════════════════════════════
+           HUD DESIGN LANGUAGE
+           Общий визуальный словарь командных поверхностей (тот же, что и
+           в админ-статистике). Токены theme-aware, область — .hud.
+           ──────────────────────────────────────────────────────────── */
+        .hud {
+            --bg:     #0e1014;  --bg-2:  #14171d;  --inset: #090b0e;
+            --line:   #232a36;  --line-2:#333c4b;  --grid:  rgba(148,163,184,.06);
+            --text:   #e6e8ec;  --dim:   #828b9b;  --dim-2: #525a68;
+            --accent: #f97316;  --mint:  #20f8c0;  --track: #1a1e26;
+            color: var(--text);
+        }
+        [data-theme="light"] .hud {
+            --bg:     #ffffff;  --bg-2:  #f1f4f8;  --inset: #e9edf2;
+            --line:   #d7dde6;  --line-2:#c2cad6;  --grid:  rgba(100,116,139,.10);
+            --text:   #141a22;  --dim:   #5b6472;  --dim-2: #97a0ad;
+            --accent: #ea580c;  --mint:  #0d9488;  --track: #e6eaf0;
+        }
+
+        .hud .t-text { color: var(--text); }
+        .hud .t-dim  { color: var(--dim); }
+        .hud .t-dim2 { color: var(--dim-2); }
+        .hud .t-acc  { color: var(--accent); }
+        .hud-mono    { font-family: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace; }
+        .hud-tnum    { font-variant-numeric: tabular-nums; }
+
+        /* framed module */
+        .hudpanel { position: relative; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+
+        /* corner brackets — restrained HUD accent on key modules */
+        .hud-corner::before, .hud-corner::after {
+            content: ''; position: absolute; width: 14px; height: 14px;
+            border: 2px solid var(--accent); pointer-events: none; z-index: 3;
+        }
+        .hud-corner::before { top: -1px;    left: -1px;  border-right: 0; border-bottom: 0; border-top-left-radius: 12px; }
+        .hud-corner::after  { bottom: -1px; right: -1px; border-left: 0;  border-top: 0; border-bottom-right-radius: 12px; }
+
+        /* module header strip */
+        .hud-head { display: flex; align-items: center; gap: .6rem; padding: .7rem .95rem; border-bottom: 1px solid var(--line); }
+        .hud-head__bar   { width: 3px; height: 15px; background: var(--accent); flex-shrink: 0; }
+        .hud-head__title { font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .2em; color: var(--text); }
+        .hud-head__code  { margin-left: auto; font-size: .6rem; letter-spacing: .14em; color: var(--dim-2); font-family: ui-monospace, Menlo, monospace; }
+
+        /* technical labels */
+        .hud-kicker { font-size: .58rem; font-weight: 700; text-transform: uppercase; letter-spacing: .3em; color: var(--dim-2); font-family: ui-monospace, Menlo, monospace; }
+        .hud-label  { font-size: .56rem; font-weight: 700; text-transform: uppercase; letter-spacing: .2em; color: var(--dim-2); }
+
+        /* faint engineering grid */
+        .hud-grid-bg {
+            background-image: linear-gradient(var(--grid) 1px, transparent 1px),
+                              linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+            background-size: 26px 26px;
+        }
+
+        /* thin meter + segmented tier bar */
+        .hud-meter { height: 6px; background: var(--track); overflow: hidden; }
+        .hud-meter > span { display: block; height: 100%; background: var(--accent); }
+        .hud-ticks { display: flex; gap: 3px; }
+        .hud-ticks i { flex: 1; height: 6px; background: var(--track); transition: background .15s ease; }
+        .hud-ticks i.on { background: var(--accent); }
+
+        /* mechanical button */
+        .hud-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: .45rem;
+            padding: .6rem 1rem; border: 1px solid var(--line-2); background: transparent;
+            color: var(--dim); font-size: .66rem; font-weight: 800; text-transform: uppercase; letter-spacing: .14em;
+            transition: color .12s ease, border-color .12s ease, background .12s ease, transform .08s ease; cursor: pointer;
+        }
+        .hud-btn:hover  { color: var(--text); border-color: var(--accent); background: var(--bg-2); }
+        .hud-btn:active { transform: translateY(1px); }
+        .hud-btn--danger:hover { color: #ef4444; border-color: #ef4444; background: rgba(239,68,68,.08); }
+
+        /* data row with status rail on hover */
+        .hud-row { position: relative; transition: background .12s ease, box-shadow .12s ease; }
+        .hud-row:hover { background: var(--bg-2); }
+
+        /* clipped corner (gaming HUD) */
+        .clip-tr { clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%); }
+
+        /* hero stat cell */
+        .stat-cell { position: relative; background: var(--bg); padding: 1.1rem 1.15rem; }
+        .stat-cell::after {
+            content: ''; position: absolute; top: 8px; right: 8px; width: 6px; height: 6px;
+            border-top: 1px solid var(--dim-2); border-right: 1px solid var(--dim-2);
+        }
+
+        /* avatar bracket frame */
+        .ava-frame { position: relative; flex-shrink: 0; padding: 7px; }
+        .ava-frame .b { position: absolute; width: 14px; height: 14px; border: 2px solid var(--accent); }
+        .ava-frame .b.tl { top: 0; left: 0;  border-right: 0; border-bottom: 0; }
+        .ava-frame .b.tr { top: 0; right: 0; border-left: 0;  border-bottom: 0; }
+        .ava-frame .b.bl { bottom: 0; left: 0;  border-right: 0; border-top: 0; }
+        .ava-frame .b.br { bottom: 0; right: 0; border-left: 0;  border-top: 0; }
     </style>
 
-    <div class="space-y-5">
+    <div class="hud space-y-4">
 
         {{-- ══════════════════════════════════════════════════ --}}
-        {{-- ПРОФИЛЬ                                           --}}
+        {{-- OPERATOR STATUS — командная панель (доминирующий блок) --}}
         {{-- ══════════════════════════════════════════════════ --}}
-        <div class="bg-[#161920] border border-gray-800 rounded-2xl p-6">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-                <div class="flex items-start gap-4">
-                    <div class="w-14 h-14 rounded-2xl bg-orange-500 flex items-center justify-center text-black text-2xl font-black flex-shrink-0 overflow-hidden mt-0.5">
-                        @if(auth()->user()->avatar)
-                        <img src="{{ Storage::url(auth()->user()->avatar) }}" alt="Аватар" class="w-full h-full object-cover">
-                        @else
-                        {{ strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}
-                        @endif
+        @php
+            $me = auth()->user();
+            $nameStyle = ($me->cosmetic_nickname_color ? 'color:' . $me->cosmetic_nickname_color . ';' : '')
+                       . ($me->cosmetic_font ? 'font-family:' . $me->cosmetic_font . ';' : '');
+            $xpPct   = min(100, $me->experience > 0 ? (int) round($me->experience / $me->next_level_experience * 100) : 0);
+            $xpTicks = (int) round($xpPct / 5); // 20 сегментов
+            $statCells = [
+                ['l' => 'Уровень',    'v' => $me->level,                      'c' => 'var(--accent)'],
+                ['l' => 'Опыт · XP',  'v' => number_format($me->experience),  'c' => 'var(--text)'],
+                ['l' => 'Коины',      'v' => number_format($me->coins),       'c' => '#f59e0b'],
+                ['l' => 'Достижения', 'v' => $me->achievements->count(),      'c' => 'var(--text)'],
+            ];
+        @endphp
+        <section class="hudpanel hud-corner hud-grid-bg">
+            <div class="flex flex-col lg:flex-row lg:items-stretch">
+
+                {{-- ── Идентификация (доминирует) ── --}}
+                <div class="flex-1 min-w-0 p-6 lg:p-7 flex items-start gap-5">
+                    <div class="ava-frame">
+                        <span class="b tl"></span><span class="b tr"></span><span class="b bl"></span><span class="b br"></span>
+                        <div class="w-16 h-16 bg-orange-500 flex items-center justify-center text-black text-2xl font-black overflow-hidden {{ $me->cosmetic_border === 'rainbow' ? 'avatar-rainbow' : '' }}"
+                             style="{{ $me->cosmetic_border && $me->cosmetic_border !== 'rainbow' ? 'box-shadow:'.$me->cosmetic_border.';' : '' }}">
+                            @if($me->avatar)
+                            <img src="{{ Storage::url($me->avatar) }}" alt="Аватар" class="w-full h-full object-cover">
+                            @else
+                            {{ strtoupper(mb_substr($me->name, 0, 1)) }}
+                            @endif
+                        </div>
                     </div>
-                    <div>
-                        <h1 class="text-2xl font-black leading-tight" style="{{ auth()->user()->cosmetic_nickname_color ? 'color:' . auth()->user()->cosmetic_nickname_color . ';' : '' }}{{ auth()->user()->cosmetic_font ? 'font-family:' . auth()->user()->cosmetic_font . ';' : '' }}">{{ auth()->user()->name }}</h1>
-                        <p class="text-sm text-gray-500 mt-0.5">{{ auth()->user()->email }}</p>
-                        @if(auth()->user()->phone || auth()->user()->gender)
-                        <div class="mt-2 flex flex-wrap gap-2">
-                            @if(auth()->user()->phone)
-                            <span class="flex items-center gap-1.5 text-xs text-gray-400 bg-gray-800/60 rounded-lg px-2.5 py-1">
-                                <svg class="w-3.5 h-3.5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+
+                    <div class="min-w-0 flex-1">
+                        <p class="hud-kicker">RUGEAR // ЛИЧНЫЙ КАБИНЕТ</p>
+                        <h1 class="text-2xl lg:text-3xl font-black leading-tight mt-1.5 t-text" style="{{ $nameStyle }}">{{ $me->name }}</h1>
+                        <p class="hud-mono text-xs t-dim2 mt-1 truncate">{{ $me->email }}</p>
+
+                        @if($me->phone || $me->gender)
+                        <div class="mt-3 flex flex-wrap gap-2">
+                            @if($me->phone)
+                            <span class="inline-flex items-center gap-1.5 text-xs t-dim px-2.5 py-1" style="border:1px solid var(--line);background:var(--inset)">
+                                <svg class="w-3.5 h-3.5 t-dim2 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                 </svg>
-                                {{ auth()->user()->phone }}
+                                <span class="hud-mono">{{ $me->phone }}</span>
                             </span>
                             @endif
-                            @if(auth()->user()->gender)
-                            <span class="text-xs text-gray-400 bg-gray-800/60 rounded-lg px-2.5 py-1">
-                                <span class="text-gray-600">Пол:</span> {{ ['male' => 'Мужской', 'female' => 'Женский'][auth()->user()->gender] ?? '' }}
+                            @if($me->gender)
+                            <span class="inline-flex items-center gap-1.5 text-xs t-dim px-2.5 py-1" style="border:1px solid var(--line);background:var(--inset)">
+                                <span class="hud-label">Пол</span> {{ ['male' => 'Мужской', 'female' => 'Женский'][$me->gender] ?? '' }}
                             </span>
                             @endif
                         </div>
                         @endif
-                        @if(auth()->user()->about)
-                        @php $aboutLong = mb_strlen(auth()->user()->about) > 150; @endphp
-                        <div class="mt-2 max-w-lg">
+
+                        @if($me->about)
+                        @php $aboutLong = mb_strlen($me->about) > 150; @endphp
+                        <div class="mt-3 max-w-lg">
                             <div id="about-wrap"
-                                class="text-sm text-gray-500 leading-relaxed overflow-hidden transition-all duration-300 ease-in-out"
-                                style="{{ $aboutLong ? 'max-height:4.2rem;' : '' }}">{{ auth()->user()->about }}</div>
+                                class="text-sm t-dim leading-relaxed overflow-hidden transition-all duration-300 ease-in-out"
+                                style="{{ $aboutLong ? 'max-height:4.2rem;' : '' }}">{{ $me->about }}</div>
                             @if($aboutLong)
                             <button onclick="toggleAbout(this)" data-open="0"
-                                class="mt-1.5 text-xs font-semibold text-orange-500 hover:text-orange-400 transition">
+                                class="mt-1.5 text-xs font-bold t-acc hover:opacity-80 transition">
                                 Показать ещё ↓
                             </button>
                             @endif
                         </div>
                         @endif
+
+                        <button onclick="document.getElementById('modal-leaderboard').showModal()" class="hud-btn mt-4">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                            </svg>
+                            Рейтинг пользователей
+                        </button>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-6 flex-wrap">
-                    <div class="text-center">
-                        <p class="text-3xl font-black text-orange-500 leading-none">{{ auth()->user()->level }}</p>
-                        <p class="text-xs text-gray-500 uppercase tracking-wider mt-1">Уровень</p>
-                    </div>
-                    <div class="w-px h-12 bg-gray-800"></div>
-                    <div class="text-center">
-                        <p class="text-3xl font-black text-white leading-none">{{ auth()->user()->experience }}</p>
-                        <p class="text-xs text-gray-500 uppercase tracking-wider mt-1">Опыт (XP)</p>
-                    </div>
-                    <div class="w-px h-12 bg-gray-800"></div>
-                    <div class="text-center">
-                        <p class="text-3xl font-black leading-none" style="color:#f59e0b;">{{ number_format(auth()->user()->coins) }}</p>
-                        <p class="text-xs text-gray-500 uppercase tracking-wider mt-1">Коины</p>
-                    </div>
-                    <div class="w-px h-12 bg-gray-800"></div>
-                    <div class="text-center">
-                        <p class="text-3xl font-black text-white leading-none">{{ auth()->user()->achievements->count() }}</p>
-                        <p class="text-xs text-gray-500 uppercase tracking-wider mt-1">Достижений</p>
+                {{-- ── Матрица статов (рецессивная, обрамлённая хайрлайнами) ── --}}
+                <div class="lg:w-[20rem] flex-shrink-0 border-t lg:border-t-0 lg:border-l" style="border-color:var(--line)">
+                    <div class="grid grid-cols-2 h-full" style="gap:1px;background:var(--line)">
+                        @foreach($statCells as $s)
+                        <div class="stat-cell flex flex-col justify-center">
+                            <p class="text-3xl font-black hud-tnum leading-none" style="color:{{ $s['c'] }}">{{ $s['v'] }}</p>
+                            <p class="hud-label mt-2">{{ $s['l'] }}</p>
+                        </div>
+                        @endforeach
                     </div>
                 </div>
             </div>
 
-            <div class="mt-5 flex items-center gap-3">
-                <div class="flex-1 h-2 bg-gray-900 rounded-full overflow-hidden">
-                    <div class="h-full bg-orange-500 rounded-full transition-all duration-700"
-                        style="width: {{ min(100, auth()->user()->experience > 0 ? (int) round(auth()->user()->experience / auth()->user()->next_level_experience * 100) : 0) }}%">
-                    </div>
+            {{-- ── Прогрессия как сегментный tier-bar ── --}}
+            <div class="px-6 lg:px-7 py-4 border-t flex flex-col sm:flex-row sm:items-center gap-4" style="border-color:var(--line)">
+                <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <span class="hud-label">Прогресс</span>
+                    <span class="hud-mono text-xs t-acc font-bold">LV {{ $me->level }} → {{ $me->level + 1 }}</span>
                 </div>
-                <p class="text-sm text-gray-500 flex-shrink-0 whitespace-nowrap">
-                    {{ auth()->user()->next_level_experience - auth()->user()->experienceProgress }} XP до уровня {{ auth()->user()->level + 1 }}
+                <div class="hud-ticks flex-1 w-full">
+                    @for($i = 0; $i < 20; $i++)<i class="{{ $i < $xpTicks ? 'on' : '' }}"></i>@endfor
+                </div>
+                <p class="hud-mono text-xs t-dim flex-shrink-0 whitespace-nowrap">
+                    <span class="t-text font-bold">{{ $me->next_level_experience - $me->experienceProgress }}</span> XP ДО LV {{ $me->level + 1 }}
                 </p>
             </div>
-
-            <div class="mt-5">
-                <button onclick="document.getElementById('modal-leaderboard').showModal()"
-                    class="w-full flex items-center justify-center gap-2.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200"
-                    style="background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);color:#f59e0b;"
-                    onmouseover="this.style.background='rgba(245,158,11,0.14)';this.style.borderColor='rgba(245,158,11,0.4)';"
-                    onmouseout="this.style.background='rgba(245,158,11,0.07)';this.style.borderColor='rgba(245,158,11,0.2)';">
-                    Рейтинг пользователей
-                </button>
-            </div>
-        </div>
+        </section>
 
         {{-- ══════════════════════════════════════════════════ --}}
         {{-- ИГРОВАЯ ЗОНА                                      --}}
         {{-- ══════════════════════════════════════════════════ --}}
-        <div class="game-banner relative overflow-hidden rounded-2xl"
+        <section class="game-banner clip-tr relative overflow-hidden"
             style="background:#0b0b0d url('{{ asset('images/game-bg.jpg') }}') right center/cover no-repeat; border:1px solid rgba(32,248,192,0.18);">
 
             {{-- Gradient: opaque on left (text), semi-transparent on right (bg shows) --}}
@@ -387,9 +494,9 @@
             {{-- Content --}}
             <div class="relative z-10 px-7 py-5 flex items-center justify-between gap-8">
                 <div class="min-w-0">
-                    <div class="flex items-center gap-2 mb-2.5">
-                        <div class="game-banner-dot w-1.5 h-1.5 rounded-full animate-pulse" style="background:#20f8c0;box-shadow:0 0 6px #20f8c0;"></div>
-                        <span class="text-[10px] font-bold uppercase tracking-[0.18em] text-gray-500">Мини-игра</span>
+                    <div class="flex items-center gap-2.5 mb-2.5">
+                        <div class="game-banner-dot w-2 h-2 animate-pulse" style="background:#20f8c0;box-shadow:0 0 6px #20f8c0;"></div>
+                        <span class="hud-mono text-[10px] font-bold uppercase tracking-[0.22em] text-gray-500">МИНИ-ИГРА // ACTIVE</span>
                     </div>
                     <h2 class="game-banner-title text-xl font-black uppercase tracking-widest leading-none"
                         style="color:#20f8c0;text-shadow:0 0 18px rgba(32,248,192,0.6),0 0 4px rgba(32,248,192,0.4);">BUZZWORD BLAST</h2>
@@ -399,7 +506,7 @@
                             <svg class="game-banner-bolt w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:#20f8c0">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
-                            +5 XP за уровень
+                            <span class="hud-mono">+5 XP</span> за уровень
                         </span>
                         <span class="flex items-center gap-1.5 text-xs text-gray-500">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0">
@@ -407,60 +514,62 @@
                                 <circle cx="12" cy="12" r="7.5" fill="#F59E0B" stroke="#D97706" stroke-width="0.5" />
                                 <text x="12" y="16.5" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#78350F" font-family="Georgia,serif">₽</text>
                             </svg>
-                            +1 монета за уровень
+                            <span class="hud-mono">+1</span> монета за уровень
                         </span>
                     </div>
                 </div>
 
                 <button onclick="openGame()"
-                    class="game-banner-btn flex-shrink-0 flex items-center gap-2.5 px-6 py-3 rounded-xl font-black text-sm uppercase tracking-widest transition-all duration-200">
+                    class="game-banner-btn flex-shrink-0 flex items-center gap-2.5 px-6 py-3 font-black text-sm uppercase tracking-widest transition-all duration-200">
                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M8 5v14l11-7z" />
                     </svg>
                     Играть
                 </button>
             </div>
-        </div>
+        </section>
 
         {{-- ══════════════════════════════════════════════════ --}}
         {{-- КОРЗИНА                                           --}}
         {{-- ══════════════════════════════════════════════════ --}}
-        <div class="bg-[#161920] border border-gray-800 rounded-2xl overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-800 flex items-center justify-between">
-                <h2 class="text-base font-bold text-white">Корзина</h2>
-                <span class="text-sm text-gray-500">{{ collect($cartItems)->sum('quantity') }} товаров</span>
+        <section class="hudpanel overflow-hidden">
+            <div class="hud-head">
+                <span class="hud-head__bar"></span>
+                <span class="hud-head__title">Корзина</span>
+                <span class="hud-head__code">{{ collect($cartItems)->sum('quantity') }} ТОВ.</span>
             </div>
-            <div class="p-6">
+            <div class="p-5 lg:p-6">
                 <livewire:profile-cart />
             </div>
-        </div>
+        </section>
 
         {{-- ══════════════════════════════════════════════════ --}}
         {{-- ЗАКАЗЫ                                            --}}
         {{-- ══════════════════════════════════════════════════ --}}
-        <div class="bg-[#161920] border border-gray-800 rounded-2xl overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-800 flex items-center justify-between">
-                <h2 class="text-base font-bold text-white">Мои заказы</h2>
+        <div class="hudpanel hud-corner overflow-hidden">
+            <div class="hud-head">
+                <span class="hud-head__bar"></span>
+                <span class="hud-head__title">Журнал заказов</span>
                 @if(!$userOrders->isEmpty())
-                <span class="text-sm font-medium text-gray-500">{{ $userOrders->total() }} заказов</span>
+                <span class="hud-head__code">{{ $userOrders->total() }} ЗАП.</span>
                 @endif
             </div>
 
             @if($userOrders->isEmpty())
-            <div class="p-10 text-center">
-                <div class="w-14 h-14 rounded-2xl bg-gray-800 flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-7 h-7 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="p-12 text-center">
+                <div class="w-14 h-14 mx-auto mb-4 flex items-center justify-center" style="border:1px solid var(--line);background:var(--inset)">
+                    <svg class="w-7 h-7 t-dim2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
                 </div>
-                <p class="text-base font-semibold text-gray-400">Заказов пока нет</p>
-                <p class="text-sm text-gray-600 mt-1">Добавьте товары в корзину и оформите первый заказ</p>
-                <a href="/" class="inline-block mt-4 bg-orange-500 hover:bg-orange-600 text-black font-bold text-sm px-6 py-2.5 rounded-xl transition">
+                <p class="text-sm font-bold t-dim uppercase tracking-widest">Заказов пока нет</p>
+                <p class="text-xs t-dim2 mt-1.5">Добавьте товары в корзину и оформите первый заказ</p>
+                <a href="/" class="hud-btn mt-5" style="border-color:var(--accent);color:var(--accent)">
                     В каталог
                 </a>
             </div>
             @else
-            <div class="divide-y divide-gray-800">
+            <div>
                 @foreach($userOrders as $order)
                 @php
                 $dlabel = ['courier'=>'Курьер','pickup'=>'Самовывоз','post'=>'Почта / ПВЗ'];
@@ -474,30 +583,30 @@
                 'processing'=>'bg-blue-500','completed'=>'bg-green-500',
                 'cancelled'=>'bg-red-500',default=>'bg-gray-700'};
                 @endphp
-                <div class="relative pl-8 pr-5 py-5 hover:bg-white/[0.02] transition-colors">
+                <div class="hud-row relative pl-6 pr-5 py-5 {{ !$loop->first ? 'border-t' : '' }}" style="border-color:var(--line)">
 
                     {{-- Full-height left accent --}}
-                    <div class="absolute left-0 top-0 bottom-0 w-[3px] rounded-r-sm {{ $accent }}"></div>
+                    <div class="absolute left-0 top-0 bottom-0 w-[3px] {{ $accent }}"></div>
 
                     {{-- Header: ID + badge + date/meta + actions --}}
                     <div class="flex items-start justify-between gap-3 mb-4">
                         <div>
                             <div class="flex items-center gap-2.5 flex-wrap mb-1">
-                                <span class="font-mono text-sm font-black text-white tracking-wider">ORD-{{ $oid }}</span>
-                                <span class="px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wide
+                                <span class="hud-mono text-sm font-black t-text tracking-wider">ORD-{{ $oid }}</span>
+                                <span class="px-2 py-0.5 text-[10px] font-black uppercase tracking-widest hud-mono
                                 @switch($order->status)
                                     @case('pending')    bg-gray-800 text-gray-300 @break
-                                    @case('processing') bg-blue-500/20 text-blue-300 border border-blue-500/30 @break
-                                    @case('completed')  bg-green-500/20 text-green-300 border border-green-500/30 @break
-                                    @case('cancelled')  bg-red-500/20 text-red-300 border border-red-500/30 @break
+                                    @case('processing') bg-blue-500/15 text-blue-300 border border-blue-500/40 @break
+                                    @case('completed')  bg-green-500/15 text-green-300 border border-green-500/40 @break
+                                    @case('cancelled')  bg-red-500/15 text-red-300 border border-red-500/40 @break
                                 @endswitch">
                                     {{ $order->status_label }}
                                 </span>
                             </div>
-                            <p class="text-xs text-gray-600">
+                            <p class="hud-mono text-[11px] t-dim2">
                                 {{ $order->created_at->format('d.m.Y · H:i') }}
-                                @if($order->delivery_type) <span class="mx-1 text-gray-800">·</span> {{ $dlabel[$order->delivery_type] ?? '' }} @endif
-                                @if($order->payment_method) <span class="mx-1 text-gray-800">·</span> {{ $plabel[$order->payment_method] ?? '' }} @endif
+                                @if($order->delivery_type) <span class="mx-1 t-dim2">·</span> {{ $dlabel[$order->delivery_type] ?? '' }} @endif
+                                @if($order->payment_method) <span class="mx-1 t-dim2">·</span> {{ $plabel[$order->payment_method] ?? '' }} @endif
                             </p>
                         </div>
                         <div class="flex items-center gap-1.5 flex-shrink-0">
@@ -506,13 +615,13 @@
                                 onsubmit="return confirm('Отменить заказ ORD-{{ $oid }}?')">
                                 @csrf @method('PATCH')
                                 <button type="submit"
-                                    class="text-xs font-semibold text-gray-600 hover:text-red-400 transition px-1">
+                                    class="hud-mono text-[10px] font-bold uppercase tracking-widest px-2.5 py-1.5 rounded-md bg-red-500/15 text-red-300 border border-red-500/40 hover:bg-red-500/25 hover:text-red-200 transition">
                                     Отменить
                                 </button>
                             </form>
                             @endif
                             <button onclick="toggleDetails({{ $order->id }})"
-                                class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-800 text-gray-500 hover:border-gray-600 hover:text-white transition">
+                                class="w-8 h-8 flex items-center justify-center t-dim hover:text-orange-500 transition" style="border:1px solid var(--line)">
                                 <svg id="btn-icon-{{ $order->id }}" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                 </svg>
@@ -523,15 +632,15 @@
                     {{-- thumbnails (left) | timeline (center) | price (right) --}}
                     <div class="flex items-center gap-4 mb-4">
                         {{-- Left: thumbnails --}}
-                        <div class="flex -space-x-2.5 flex-shrink-0">
+                        <div class="flex gap-1.5 flex-shrink-0">
                             @foreach($order->items->take(3) as $item)
-                            <div class="w-11 h-11 rounded-xl bg-[#0f1115] border-2 border-[#161920] overflow-hidden flex items-center justify-center">
+                            <div class="w-11 h-11 overflow-hidden flex items-center justify-center" style="background:var(--inset);border:1px solid var(--line)">
                                 <img src="{{ asset($item->product->image) }}" class="w-full h-full object-contain p-1">
                             </div>
                             @endforeach
                             @if($cnt > 3)
-                            <div class="w-11 h-11 rounded-xl bg-gray-800/70 border-2 border-[#161920] flex items-center justify-center">
-                                <span class="text-[11px] font-bold text-gray-400">+{{ $cnt - 3 }}</span>
+                            <div class="w-11 h-11 flex items-center justify-center" style="background:var(--inset);border:1px solid var(--line)">
+                                <span class="hud-mono text-[11px] font-bold t-dim">+{{ $cnt - 3 }}</span>
                             </div>
                             @endif
                         </div>
@@ -541,25 +650,25 @@
                         <div class="flex-1 min-w-0 px-2">
                             <div class="flex items-center gap-2">
                                 @for($s = 0; $s < 3; $s++)
-                                    <div class="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center border-2
-                                 {{ $step > $s ? 'bg-orange-500 border-orange-500' : ($step === $s ? 'border-orange-500 bg-transparent' : 'border-gray-800 bg-transparent') }}">
+                                    <div class="w-4 h-4 flex-shrink-0 flex items-center justify-center"
+                                 style="{{ $step > $s ? 'background:var(--accent)' : ($step === $s ? 'border:2px solid var(--accent)' : 'border:1px solid var(--line)') }}">
                                     @if($step > $s)
                                     <svg class="w-2.5 h-2.5 text-black" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                                     </svg>
                                     @elseif($step === $s)
-                                    <div class="w-2 h-2 rounded-full bg-orange-500"></div>
+                                    <div class="w-1.5 h-1.5" style="background:var(--accent)"></div>
                                     @endif
                             </div>
                             @if($s < 2)
-                                <div class="flex-1 h-px {{ $step > $s ? 'bg-orange-500' : 'bg-gray-800' }}">
+                                <div class="flex-1 h-px" style="background:{{ $step > $s ? 'var(--accent)' : 'var(--line)' }}">
                         </div>
                         @endif
                         @endfor
                     </div>
                     <div class="flex mt-1.5">
                         @foreach(['Заказ принят в обработку', 'Заказ едет к вам', 'Заказ доставлен'] as $si => $sl)
-                        <span class="flex-1 text-[9px] leading-tight font-medium {{ $step >= $si ? 'text-orange-400' : 'text-gray-600' }} {{ $si === 0 ? 'text-left' : ($si === 1 ? 'text-center' : 'text-right') }}">{{ $sl }}</span>
+                        <span class="flex-1 text-[9px] leading-tight font-medium {{ $step >= $si ? 't-acc' : 't-dim2' }} {{ $si === 0 ? 'text-left' : ($si === 1 ? 'text-center' : 'text-right') }}">{{ $sl }}</span>
                         @endforeach
                     </div>
                 </div>
@@ -569,32 +678,32 @@
 
                 {{-- Right: price --}}
                 <div class="text-right flex-shrink-0">
-                    <p class="text-2xl font-black text-white tabular-nums leading-none">
-                        {{ number_format($order->total_price, 0, '.', ' ') }}&nbsp;<span class="text-orange-500">₽</span>
+                    <p class="text-2xl font-black t-text hud-tnum leading-none">
+                        {{ number_format($order->total_price, 0, '.', ' ') }}&nbsp;<span class="t-acc">₽</span>
                     </p>
-                    <p class="text-xs text-gray-600 mt-1">{{ $cnt }} {{ $word }}</p>
+                    <p class="hud-mono text-[11px] t-dim2 mt-1">{{ $cnt }} {{ $word }}</p>
                 </div>
             </div>
 
             {{-- Expandable details --}}
-            <div id="det-{{ $order->id }}" class="hidden mt-4 pt-4 border-t border-gray-800/60 space-y-2.5">
+            <div id="det-{{ $order->id }}" class="hidden mt-4 pt-4 border-t space-y-2.5" style="border-color:var(--line)">
                 @foreach($order->items as $item)
                 <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 bg-[#0f1115] border border-gray-800 rounded-xl flex-shrink-0 overflow-hidden flex items-center justify-center">
+                    <div class="w-9 h-9 flex-shrink-0 overflow-hidden flex items-center justify-center" style="background:var(--inset);border:1px solid var(--line)">
                         <img src="{{ asset($item->product->image) }}" alt="{{ $item->product->name }}" class="w-full h-full object-contain p-1">
                     </div>
-                    <span class="text-sm text-gray-400 flex-1 truncate">{{ $item->product->name }}</span>
-                    <span class="text-xs text-gray-600 flex-shrink-0 tabular-nums">{{ $item->quantity }}&times;</span>
-                    <span class="text-sm font-bold text-white flex-shrink-0 tabular-nums">{{ number_format($item->price * $item->quantity, 0, '.', ' ') }} ₽</span>
+                    <span class="text-sm t-dim flex-1 truncate">{{ $item->product->name }}</span>
+                    <span class="hud-mono text-xs t-dim2 flex-shrink-0">{{ $item->quantity }}&times;</span>
+                    <span class="hud-mono text-sm font-bold t-text flex-shrink-0">{{ number_format($item->price * $item->quantity, 0, '.', ' ') }} ₽</span>
                 </div>
                 @endforeach
                 @if($order->address)
-                <div class="flex items-start gap-2 pt-2.5 border-t border-gray-800/60">
-                    <svg class="w-3.5 h-3.5 text-gray-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-start gap-2 pt-2.5 border-t" style="border-color:var(--line)">
+                    <svg class="w-3.5 h-3.5 t-dim2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    <p class="text-xs text-gray-500">{{ $order->address }}</p>
+                    <p class="text-xs t-dim">{{ $order->address }}</p>
                 </div>
                 @endif
             </div>
@@ -603,7 +712,7 @@
     </div>
 
     @if($userOrders->hasPages())
-    <div class="px-6 py-4 border-t border-gray-800 custom-pagination">
+    <div class="px-6 py-4 border-t custom-pagination" style="border-color:var(--line)">
         {{ $userOrders->links() }}
     </div>
     @endif
@@ -649,14 +758,15 @@
     $defaultAchIcon = '
     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />';
     @endphp
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+    <div class="grid grid-cols-1 lg:grid-cols-[1.25fr_1fr] gap-4">
 
         {{-- ДОСТИЖЕНИЯ --}}
-        <div class="bg-[#161920] border border-gray-800 rounded-2xl overflow-hidden flex flex-col">
-            <div class="px-6 py-4 border-b border-gray-800 flex items-center justify-between flex-shrink-0">
-                <h2 class="text-base font-bold text-white">Достижения</h2>
+        <div class="hudpanel hud-corner overflow-hidden flex flex-col">
+            <div class="hud-head flex-shrink-0">
+                <span class="hud-head__bar"></span>
+                <span class="hud-head__title">Достижения</span>
                 <button onclick="document.getElementById('modal-ach').showModal()"
-                    class="text-sm font-semibold text-orange-500 hover:text-orange-400 transition">
+                    class="ml-auto hud-mono text-[11px] font-bold uppercase tracking-widest t-acc hover:opacity-80 transition">
                     Все →
                 </button>
             </div>
@@ -666,20 +776,20 @@
                 @if($achList->count() > 0)
                 <div id="ach-track" class="flex gap-3 overflow-x-auto flex-1 min-h-0" style="scroll-snap-type:x mandatory;scroll-behavior:smooth;">
                     @foreach($achList as $a)
-                    <div class="ach-card flex-shrink-0 bg-gray-900/60 border border-gray-700/60 rounded-xl p-4 flex flex-col items-center justify-center"
-                        style="width:calc(33.333% - 8px);min-width:140px;scroll-snap-align:start;">
+                    <div class="ach-card flex-shrink-0 p-4 flex flex-col items-center justify-center"
+                        style="width:calc(33.333% - 8px);min-width:140px;scroll-snap-align:start;background:var(--inset);border:1px solid var(--line);">
 
-                        <div class="ach-icon-wrap w-9 h-9 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center flex-shrink-0">
-                            <svg class="ach-svg w-4 h-4 text-orange-400" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                        <div class="ach-icon-wrap w-9 h-9 flex items-center justify-center flex-shrink-0" style="background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.28)">
+                            <svg class="ach-svg w-4 h-4 t-acc" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                                 {!! $achIcons[$a->slug] ?? $defaultAchIcon !!}
                             </svg>
                         </div>
 
-                        <p class="ach-title text-sm font-bold text-white leading-snug line-clamp-3 my-3 flex items-center justify-center text-center">{{ $a->title }}</p>
+                        <p class="ach-title text-sm font-bold t-text leading-snug line-clamp-3 my-3 flex items-center justify-center text-center">{{ $a->title }}</p>
 
-                        <p class="ach-desc hidden text-xs text-gray-500 leading-snug line-clamp-3 mb-2 flex items-center justify-center text-center">{{ $a->description }}</p>
+                        <p class="ach-desc hidden text-xs t-dim leading-snug line-clamp-3 mb-2 flex items-center justify-center text-center">{{ $a->description }}</p>
 
-                        <p class="ach-xp text-xs font-bold text-orange-500 flex-shrink-0 flex items-center justify-center text-center">+{{ $a->experience }} XP</p>
+                        <p class="ach-xp hud-mono text-xs font-bold t-acc flex-shrink-0 flex items-center justify-center text-center">+{{ $a->experience }} XP</p>
 
                     </div>
                     @endforeach
@@ -687,13 +797,13 @@
                 @if($achList->count() > 3)
                 <div id="ach-nav-btns" class="flex justify-end gap-2 mt-3 flex-shrink-0">
                     <button onclick="document.getElementById('ach-track').scrollBy({left:-200,behavior:'smooth'})"
-                        class="w-8 h-8 border border-gray-700 rounded-lg flex items-center justify-center text-gray-500 hover:text-white hover:border-gray-600 transition">
+                        class="w-8 h-8 flex items-center justify-center t-dim hover:text-orange-500 transition" style="border:1px solid var(--line)">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
                         </svg>
                     </button>
                     <button onclick="document.getElementById('ach-track').scrollBy({left:200,behavior:'smooth'})"
-                        class="w-8 h-8 border border-gray-700 rounded-lg flex items-center justify-center text-gray-500 hover:text-white hover:border-gray-600 transition">
+                        class="w-8 h-8 flex items-center justify-center t-dim hover:text-orange-500 transition" style="border:1px solid var(--line)">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
                         </svg>
@@ -701,27 +811,28 @@
                 </div>
                 @endif
                 @else
-                <div class="flex-1 flex flex-col items-center justify-center text-center">
-                    <p class="text-sm font-semibold text-gray-500">Нет достижений</p>
-                    <p class="text-xs text-gray-600 mt-1">Первое выдаётся при регистрации</p>
+                <div class="flex-1 flex flex-col items-center justify-center text-center py-6">
+                    <p class="text-sm font-bold t-dim uppercase tracking-widest">Нет достижений</p>
+                    <p class="text-xs t-dim2 mt-1.5">Первое выдаётся при регистрации</p>
                 </div>
                 @endif
             </div>
         </div>
 
         {{-- ПОДДЕРЖКА --}}
-        <div class="bg-[#161920] border border-gray-800 rounded-2xl overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-800 flex items-center justify-between">
-                <h2 class="text-base font-bold text-white">Поддержка</h2>
-                <a href="{{ route('support') }}" class="text-sm font-semibold text-orange-500 hover:text-orange-400 transition">
+        <div class="hudpanel overflow-hidden">
+            <div class="hud-head">
+                <span class="hud-head__bar"></span>
+                <span class="hud-head__title">Поддержка</span>
+                <a href="{{ route('support') }}" class="ml-auto hud-mono text-[11px] font-bold uppercase tracking-widest t-acc hover:opacity-80 transition">
                     + Создать
                 </a>
             </div>
 
             @if($userTickets->isEmpty())
             <div class="p-10 text-center">
-                <p class="text-sm font-semibold text-gray-500">Обращений нет</p>
-                <a href="{{ route('support') }}" class="inline-block mt-3 text-sm font-bold text-orange-500 hover:text-orange-400 transition">
+                <p class="text-sm font-bold t-dim uppercase tracking-widest">Обращений нет</p>
+                <a href="{{ route('support') }}" class="inline-block mt-3 hud-mono text-xs font-bold uppercase tracking-widest t-acc hover:opacity-80 transition">
                     Создать тикет →
                 </a>
             </div>
@@ -736,27 +847,27 @@
                 'pending'=>'На рассмотрении','replied'=>'Получен ответ',
                 'closed'=>'Закрыт',default=>$ticket->status};
                 @endphp
-                <div class="px-6 py-4">
+                <div class="hud-row px-6 py-4">
                     <div class="flex items-start justify-between gap-3">
                         <div class="min-w-0 flex-1">
                             <div class="flex items-center gap-2 mb-1">
-                                <span class="text-xs font-mono text-gray-600">#TC-{{ str_pad($ticket->id,4,'0',STR_PAD_LEFT) }}</span>
-                                <span class="text-xs font-bold {{ $tc }}">{{ $tl }}</span>
+                                <span class="hud-mono text-xs t-dim2">#TC-{{ str_pad($ticket->id,4,'0',STR_PAD_LEFT) }}</span>
+                                <span class="hud-mono text-[10px] font-bold uppercase tracking-widest {{ $tc }}">{{ $tl }}</span>
                             </div>
-                            <p class="text-sm font-semibold text-white line-clamp-1">{{ $ticket->name }}</p>
-                            <p class="text-xs text-gray-500 line-clamp-1 mt-0.5">{{ $ticket->content }}</p>
+                            <p class="text-sm font-bold t-text line-clamp-1">{{ $ticket->name }}</p>
+                            <p class="text-xs t-dim line-clamp-1 mt-0.5">{{ $ticket->content }}</p>
                         </div>
                         <div class="flex items-center gap-1.5 flex-shrink-0">
                             <form action="{{ route('ticket.destroy', $ticket) }}" method="POST" onsubmit="return confirm('Удалить тикет?')">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="p-2 text-gray-600 hover:text-red-400 transition rounded-lg hover:bg-red-500/10">
+                                <button type="submit" class="p-2 t-dim2 hover:text-red-400 transition">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
                                 </button>
                             </form>
                             <button onclick="document.getElementById('tc-{{ $ticket->id }}').showModal()"
-                                class="px-3 py-1.5 text-xs font-semibold text-gray-400 border border-gray-700 hover:border-gray-600 hover:text-white rounded-lg transition">
+                                class="hud-mono px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest t-dim hover:text-orange-500 transition" style="border:1px solid var(--line)">
                                 Открыть
                             </button>
                         </div>
@@ -804,7 +915,7 @@
         </div>
     </div>
 
-    </div>{{-- /space-y-5 --}}
+    </div>{{-- /hud --}}
 
     {{-- ══════════════════════════════════════════════════ --}}
     {{-- DIALOGS                                           --}}
@@ -997,9 +1108,10 @@
     </dialog>
 
     {{-- Game modal --}}
-    <dialog id="mod-game" class="bg-[#111318] border border-gray-800 p-0 rounded-2xl w-[70vw] h-[96vh] shadow-2xl focus:outline-none">
+    <dialog id="mod-game" class="bg-[#111318] border border-gray-800 p-0 shadow-2xl focus:outline-none w-screen h-[100dvh] max-w-none rounded-none md:w-[70vw] md:h-[96vh] md:max-w-[90vw] md:rounded-2xl">
         <div class="flex flex-col h-full">
-            <div class="flex items-center justify-between border-b border-gray-800 px-5 py-4 flex-shrink-0">
+            {{-- Header — hidden on mobile so the game fills the whole screen --}}
+            <div class="hidden md:flex items-center justify-between border-b border-gray-800 px-5 py-4 flex-shrink-0">
                 <h3 class="text-base font-bold text-white">Мини-игра RuGear</h3>
                 <button onclick="closeGame()" class="text-gray-500 hover:text-white text-2xl leading-none transition">×</button>
             </div>
@@ -1007,10 +1119,16 @@
                 <iframe id="game-iframe" src=""
                     class="absolute inset-0 w-full h-full border-0"
                     allow="autoplay; keyboard; fullscreen"></iframe>
+                {{-- Floating close button — mobile only, overlays the game --}}
+                <button onclick="closeGame()"
+                    class="md:hidden absolute top-3 right-3 z-[60] w-10 h-10 rounded-full bg-black/60 border border-gray-700 text-white text-2xl leading-none flex items-center justify-center backdrop-blur-sm">
+                    ×
+                </button>
                 <div id="game-toast-wrap"
                     class="absolute bottom-5 right-5 z-50 flex flex-col-reverse gap-3 items-end pointer-events-none"></div>
             </div>
-            <div class="border-t border-gray-800 px-4 py-3 flex-shrink-0">
+            {{-- Footer — hidden on mobile (floating close button replaces it) --}}
+            <div class="hidden md:block border-t border-gray-800 px-4 py-3 flex-shrink-0">
                 <button onclick="closeGame()"
                     class="w-full py-2 text-sm font-semibold border border-gray-700 text-gray-500 hover:text-white rounded-xl transition">
                     Закрыть

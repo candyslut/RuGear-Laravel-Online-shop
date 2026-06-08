@@ -162,7 +162,7 @@
                         <i class="fa-solid fa-cubes text-lg
     {{ request()->routeIs('admin.products.*') ? 'text-orange-500' : '' }}"></i>
 
-                        Товарооборот
+                        Товары
                     </a>
 
                     <a href="{{ route('admin.orders.index') }}"
@@ -190,7 +190,7 @@
                         <i class="fa-solid fa-headset text-lg
         {{ request()->routeIs('admin.tickets.*') ? 'text-orange-500' : '' }}"></i>
 
-                        Заявки техподдержки
+                        Заявки
                     </a>
 
 

@@ -121,6 +121,91 @@
         @keyframes mkToastIn { from { transform: translateX(420px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes spotIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .spot__info, .spot__art { animation: spotIn .3s ease both; }
+
+        /* ════════════════════════════════════════════════════════════
+           СТИКЕРПАКИ · «в разработке» (teaser-секция)
+           Функции стикеров ещё нет — это витрина запланированного
+           геймплея: gacha-вскрытие паков, осколки за дубликаты,
+           ежедневный пак, коллекционные награды.
+           ──────────────────────────────────────────────────────────── */
+        .stk {
+            position: relative;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 1.5rem;
+        }
+
+        .stk-badge {
+            display: inline-flex; align-items: center; gap: .4rem;
+            font-size: .6rem; font-weight: 900; letter-spacing: .16em; text-transform: uppercase;
+            color: #c084fc; background: rgba(168,85,247,.14);
+            border: 1px solid rgba(168,85,247,.45); padding: .3rem .65rem; border-radius: .55rem;
+        }
+        .stk-badge .dot { width: .42rem; height: .42rem; border-radius: 999px; background: #c084fc; }
+
+        /* Сетка паков */
+        .pack-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr)); gap: 1rem; }
+        .pack {
+            position: relative;
+            border-radius: 1.15rem;
+            padding: 1.25rem 1.1rem 1.1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid rgba(var(--rgb), .38);
+            box-shadow: 0 10px 26px rgba(0,0,0,.18);
+            overflow: hidden;
+            transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+        }
+        .pack:hover { transform: translateY(-2px); border-color: rgba(var(--rgb), .6); }
+
+        .pack__box {
+            position: relative; z-index: 1;
+            width: 100%; height: 6.5rem; border-radius: .9rem;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--bg-secondary);
+            border: 1px solid rgba(var(--rgb), .3);
+            margin-bottom: .9rem;
+        }
+        /* «Стикеры» внутри пака — 4 затемнённые фигуры-заглушки (контент скрыт) */
+        .pack__stickers { display: grid; grid-template-columns: repeat(2, 1fr); gap: .5rem; place-items: center; }
+        .pack__stickers i { display: block; width: 1.7rem; height: 1.7rem; background: rgba(0,0,0,.38); border: 1px solid rgba(var(--rgb), .22); }
+        [data-theme="light"] .pack__stickers i { background: rgba(31,41,55,.28); }
+        .pack__stickers i:nth-child(1) { border-radius: .4rem; }
+        .pack__stickers i:nth-child(2) { border-radius: 999px; }
+        .pack__stickers i:nth-child(3) { border-radius: 999px; }
+        .pack__stickers i:nth-child(4) { border-radius: .4rem; }
+        .pack__tier {
+            position: absolute; top: .6rem; right: .6rem;
+            font-size: .56rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+            color: rgb(var(--rgb)); background: rgba(var(--rgb), .16);
+            border: 1px solid rgba(var(--rgb), .45); padding: .2rem .45rem; border-radius: .4rem; z-index: 2;
+        }
+        .pack__name { position: relative; z-index: 1; font-size: .95rem; font-weight: 800; color: var(--text-primary); }
+        .pack__sub  { position: relative; z-index: 1; font-size: .72rem; color: var(--text-secondary); margin-top: .15rem; }
+        .pack__foot { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; margin-top: .9rem; }
+        .pack__price { display: inline-flex; align-items: center; gap: .35rem; font-size: .82rem; font-weight: 800; color: #fbbf24; }
+        [data-theme="light"] .pack__price { color: #b45309; }
+        .pack__count { font-size: .66rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: .06em; }
+
+        /* «Замок» поверх пака, пока раздел в разработке */
+        .pack__lock {
+            position: absolute; inset: 0; z-index: 3;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .4rem;
+            background: rgba(8,10,14,.55);
+            backdrop-filter: blur(2.5px); -webkit-backdrop-filter: blur(2.5px);
+            opacity: 0; transition: opacity .25s ease;
+        }
+        [data-theme="light"] .pack__lock { background: rgba(255,255,255,.6); }
+        .pack:hover .pack__lock { opacity: 1; }
+        .pack__lock svg { width: 1.6rem; height: 1.6rem; color: var(--text-secondary); }
+        .pack__lock span { font-size: .62rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--text-secondary); }
+
+        .stk-cta {
+            display: inline-flex; align-items: center; gap: .5rem;
+            padding: .7rem 1.3rem; border-radius: .8rem; font-size: .82rem; font-weight: 800;
+            color: #c084fc; background: rgba(168,85,247,.14); border: 1px solid rgba(168,85,247,.5);
+            cursor: pointer; transition: background .2s ease;
+        }
+        .stk-cta:hover { background: rgba(168,85,247,.22); }
     </style>
 
     @php
@@ -333,6 +418,69 @@
                 @endforeach
             </div>
         </div>
+
+        {{-- ═══════════════════ СТИКЕРПАКИ · В РАЗРАБОТКЕ ═══════════════════ --}}
+        @php
+            // Чисто презентационный тизер: бэкенда стикеров пока нет.
+            // Цвета редкости переиспользуем из $rarityMeta выше.
+            $packs = [
+                ['name' => 'Стартовый пак', 'sub' => '5 базовых стикеров',   'price' => 50,  'count' => '12 стикеров', 'rarity' => 'common'],
+                ['name' => 'Необычный пак',  'sub' => 'Железо и гаджеты',      'price' => 120, 'count' => '18 стикеров', 'rarity' => 'rare'],
+                ['name' => 'Редкий пак',     'sub' => 'Анимированные стикеры', 'price' => 220, 'count' => '15 стикеров', 'rarity' => 'epic'],
+                ['name' => 'Мифический пак', 'sub' => 'Гарантия редкого+',     'price' => 400, 'count' => '10 стикеров', 'rarity' => 'mythic'],
+                ['name' => 'Легендарный пак',  'sub' => 'Редкие коллекционные',  'price' => 320, 'count' => '12 стикеров', 'rarity' => 'legendary'],
+            ];
+        @endphp
+        <section class="stk px-6 sm:px-8 py-7">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                <div>
+                    <div class="flex items-center gap-3 mb-2">
+                        <h2 class="text-2xl font-black text-[var(--text-primary)]">Стикерпаки</h2>
+                        <span class="stk-badge"><span class="dot"></span>Скоро</span>
+                    </div>
+                    <p class="text-sm text-[var(--text-secondary)] max-w-xl">
+                        Новый слой коллекционирования: вскрывай паки, собирай редкие стикеры и реагируй
+                        ими в комментариях.
+                    </p>
+                </div>
+                <button type="button" class="stk-cta self-start" onclick="stickerNotify()">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    </svg>
+                    Уведомить о запуске
+                </button>
+            </div>
+
+            {{-- Превью паков (заблокированы, пока функции нет) --}}
+            <div class="pack-grid">
+                @foreach($packs as $p)
+                @php $m = $rarityMeta[$p['rarity']]; @endphp
+                <article class="pack" style="--rgb: {{ $m['rgb'] }};" title="Скоро">
+                    <span class="pack__tier">{{ $m['l'] }}</span>
+                    <div class="pack__box"><span class="pack__stickers"><i></i><i></i><i></i><i></i></span></div>
+                    <p class="pack__name">{{ $p['name'] }}</p>
+                    <p class="pack__sub">{{ $p['sub'] }}</p>
+                    <div class="pack__foot">
+                        <span class="pack__price">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="12" r="10" fill="#FBBF24" stroke="#D97706" stroke-width="1.5"/>
+                                <circle cx="12" cy="12" r="7.5" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/>
+                            </svg>
+                            {{ number_format($p['price']) }}
+                        </span>
+                        <span class="pack__count">{{ $p['count'] }}</span>
+                    </div>
+                    <div class="pack__lock">
+                        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            <rect x="5" y="11" width="14" height="9" rx="2"/>
+                            <path stroke-linecap="round" d="M8 11V8a4 4 0 018 0v3"/>
+                        </svg>
+                        <span>Скоро</span>
+                    </div>
+                </article>
+                @endforeach
+            </div>
+        </section>
     </div>
 
     {{-- Toast --}}
@@ -494,6 +642,14 @@
             const textColor = ok ? '#4ade80' : '#f87171';
             t.innerHTML = `<div style="background:var(--bg-secondary);border:1px solid ${color};border-radius:14px;padding:14px 18px;color:${textColor};font-size:13px;font-weight:600;box-shadow:0 12px 32px rgba(0,0,0,.35);animation:mkToastIn .3s cubic-bezier(.34,1.56,.64,1) forwards;">${esc(msg)}</div>`;
             setTimeout(() => { t.innerHTML = ''; }, 3500);
+        }
+
+        // Стикерпаки ещё в разработке — кнопка просто подтверждает интерес.
+        let stickerNotified = false;
+        function stickerNotify() {
+            if (stickerNotified) { marketToast('Мы уже сообщим вам о запуске стикеров 🙌'); return; }
+            stickerNotified = true;
+            marketToast('Готово! Уведомим, когда стикерпаки заработают.');
         }
 
         // Инициализация: спотлайт показывает надетый предмет (или первый)

@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             ProductSeeder::class,
             CommentSeeder::class,
+            OrderSeeder::class,
             AdminSeeder::class,
             TicketSeeder::class,
         ]);

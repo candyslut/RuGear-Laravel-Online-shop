@@ -103,6 +103,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware('admin')->prefix('admin')->group(function () {
 
     Route::get('statistics', [AdminStatsController::class, 'index'])->name('admin.statistics');
+    Route::get('statistics/export', [AdminStatsController::class, 'export'])->name('admin.statistics.export');
 
     Route::get('orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');
     Route::get('orders/{order}', [AdminOrderController::class, 'show'])->name('admin.orders.show');

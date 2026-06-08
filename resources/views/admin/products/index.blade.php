@@ -1,175 +1,126 @@
-<style>
-    .custom-pagination p {
-        color: #6b7280 !important;
-        font-style: italic !important;
-        font-size: 0.875rem !important;
-    }
-
-    .custom-pagination nav a,
-    .custom-pagination nav span[aria-disabled="true"] span,
-    .custom-pagination nav span[aria-current="page"] span {
-        background-color: #161920 !important;
-        border-color: #1f2937 !important;
-        color: #9ca3af !important;
-        border-radius: 0.75rem;
-        margin: 0 2px;
-    }
-
-    .custom-pagination nav span[aria-current="page"] span {
-        background-color: #f97316 !important;
-        border-color: #f97316 !important;
-        color: #000000 !important;
-        font-weight: 900 !important;
-    }
-
-    .custom-pagination nav a:hover {
-        background-color: #1f2937 !important;
-        color: #f97316 !important;
-        border-color: #f97316 !important;
-    }
-
-    /* Плавное появление модалок */
-    .modal-backdrop {
-        transition: opacity 0.25s ease-out;
-    }
-    .modal-content {
-        transition: transform 0.25s ease-out, opacity 0.25s ease-out;
-    }
-    
-    /* Тонкий кастомный скроллбар для форм внутри модалок */
-    .modal-scroll::-webkit-scrollbar {
-        width: 6px;
-    }
-    .modal-scroll::-webkit-scrollbar-track {
-        background: #090b0f;
-        border-radius: 8px;
-    }
-    .modal-scroll::-webkit-scrollbar-thumb {
-        background: #1f2937;
-        border-radius: 8px;
-    }
-    .modal-scroll::-webkit-scrollbar-thumb:hover {
-        background: #f97316;
-    }
-</style>
-
 <x-admin-layout>
-    <x-slot:title>RuGear Admin | Управление товарами</x-slot:title>
+    <x-slot:title>RuGear Admin | Товары</x-slot:title>
 
-    <div class="mb-4">
-        <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-orange-500 transition-colors group">
-            <i class="fa-solid fa-arrow-left transition-transform group-hover:-translate-x-1"></i>
-            <span>Вернуться в личный кабинет</span>
-        </a>
-    </div>
+    @include('admin.partials.hud')
 
-    {{-- Header --}}
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <div>
-            <h1 class="text-2xl font-black uppercase tracking-wider text-white">Каталог товаров</h1>
-            <p class="text-sm text-gray-500 mt-0.5">{{ $products->total() }} товаров найдено</p>
+    <style>
+        .prod-card { transition: border-color .12s ease, background .12s ease; }
+        .prod-card:hover { border-color: var(--accent); background: var(--bg-2); }
+
+        .modal-backdrop { transition: opacity .25s ease-out; }
+        .modal-content { transition: transform .25s ease-out, opacity .25s ease-out; }
+        .modal-scroll::-webkit-scrollbar { width: 6px; }
+        .modal-scroll::-webkit-scrollbar-track { background: var(--inset); }
+        .modal-scroll::-webkit-scrollbar-thumb { background: var(--line-2); }
+        .modal-scroll::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        .custom-pagination p { color: var(--dim) !important; font-size: .8rem !important; }
+        .custom-pagination nav a, .custom-pagination nav span[aria-disabled="true"] span, .custom-pagination nav span[aria-current="page"] span {
+            background-color: var(--bg) !important; border: 1px solid var(--line) !important; color: var(--dim) !important; border-radius: 0; margin: 0 2px;
+        }
+        .custom-pagination nav span[aria-current="page"] span { background-color: var(--accent) !important; border-color: var(--accent) !important; color: #0a0a0a !important; font-weight: 900 !important; }
+        .custom-pagination nav a:hover { border-color: var(--accent) !important; color: var(--accent) !important; }
+    </style>
+
+<div class="hud space-y-5">
+
+    <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 text-xs font-bold t-dim hover:t-acc transition-colors group">
+        <svg class="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        НАЗАД В ПРОФИЛЬ
+    </a>
+
+    {{-- ══ Command header ══ --}}
+    <div class="hud-panel hud-corner hud-grid-bg flex flex-col sm:flex-row sm:items-stretch">
+        <div class="flex-1 p-6">
+            <p class="hud-mono text-[10px] tracking-[0.3em] t-dim2">RUGEAR // ТОВАРЫ</p>
+            <h1 class="text-3xl font-black uppercase tracking-tight t-text mt-2">Товары</h1>
+            <p class="text-sm t-dim mt-1">Каталог · всего {{ $products->total() }}</p>
         </div>
-        <button type="button" id="open-create-modal-btn"
-                class="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-500 hover:bg-orange-400 text-black font-black uppercase text-xs tracking-widest rounded-xl transition-all active:scale-95 flex-shrink-0">
-            <i class="fa-solid fa-plus"></i> Добавить девайс
-        </button>
+        <div class="flex items-center p-6 border-t sm:border-t-0 sm:border-l" style="border-color: var(--line)">
+            <button type="button" id="open-create-modal-btn" class="hud-btn hud-btn--solid px-5 py-3 gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14"/></svg>
+                Добавить товар
+            </button>
+        </div>
     </div>
 
-    {{-- Search + Sort + Category filter --}}
-    <form method="GET" action="{{ route('admin.products.index') }}" id="filter-form" class="flex flex-col gap-3 mb-6">
+    {{-- ══ Control bar ══ --}}
+    <form method="GET" action="{{ route('admin.products.index') }}" id="filter-form" class="space-y-3">
         <div class="flex flex-col sm:flex-row gap-3">
-            {{-- Search --}}
             <div class="relative flex-1">
-                <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
-                <input type="text" name="search" value="{{ $search ?? '' }}"
-                       placeholder="Поиск по названию..."
-                       oninput="debounceSubmit()"
-                       class="w-full bg-[#161920] border border-gray-800 rounded-xl pl-10 pr-9 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-orange-500 transition">
+                <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 t-dim2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <input type="text" name="search" value="{{ $search ?? '' }}" oninput="debounceSubmit()"
+                       placeholder="ПОИСК ПО НАЗВАНИЮ"
+                       class="hud-input hud-mono w-full pl-10 pr-9 py-2.5 text-xs tracking-wider">
                 @if($search)
-                <a href="{{ route('admin.products.index', ['sort' => $sort, 'category' => $category]) }}"
-                   class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-white transition text-lg leading-none">×</a>
+                <a href="{{ route('admin.products.index', ['sort' => $sort, 'category' => $category]) }}" class="absolute right-3 top-1/2 -translate-y-1/2 t-dim2 hover:t-text transition text-lg leading-none">×</a>
                 @endif
             </div>
-
-            {{-- Sort --}}
             <input type="hidden" name="sort" id="sort-input" value="{{ $sort }}">
             <input type="hidden" name="category" id="category-input" value="{{ $category }}">
-            <div class="flex items-center gap-1.5 bg-[#161920] border border-gray-800 rounded-xl p-1 flex-shrink-0">
+            <div class="hud-seg flex-shrink-0">
                 @foreach(['newest' => 'Новые', 'oldest' => 'Старые', 'price_asc' => 'Дешевле', 'price_desc' => 'Дороже', 'stock' => 'Остаток'] as $key => $label)
-                <button type="button" onclick="setSort('{{ $key }}')"
-                        class="px-3 py-1.5 rounded-lg text-xs font-semibold transition whitespace-nowrap sort-btn {{ $sort === $key ? 'bg-orange-500 text-black' : 'text-gray-500 hover:text-white' }}"
-                        data-sort="{{ $key }}">{{ $label }}</button>
+                <button type="button" onclick="setSort('{{ $key }}')" class="hud-seg__btn {{ $sort === $key ? 'hud-seg__btn--on' : '' }}">{{ $label }}</button>
                 @endforeach
             </div>
         </div>
 
-        {{-- Category tabs --}}
-        <div class="flex items-center gap-1.5 flex-wrap">
+        <div class="flex items-center flex-wrap gap-2">
+            @php $catOn = $category === 'all'; @endphp
             <button type="button" onclick="setCategory('all')"
-                    class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition border cat-btn
-                           {{ $category === 'all' ? 'bg-white/10 text-white border-white/20' : 'text-gray-600 hover:text-gray-400 border-transparent' }}"
-                    data-cat="all">
-                Все ({{ $counts['all'] }})
+                    class="px-3.5 py-2 text-[11px] font-bold uppercase tracking-wider transition"
+                    style="border: 1px solid {{ $catOn ? 'var(--accent)' : 'var(--line)' }}; color: {{ $catOn ? 'var(--accent)' : 'var(--dim)' }}; background: {{ $catOn ? 'color-mix(in srgb, var(--accent) 12%, transparent)' : 'transparent' }}">
+                Все <span class="hud-mono t-dim2">{{ $counts['all'] }}</span>
             </button>
             @foreach($categories as $cat)
+            @php $on = $category === $cat->name; @endphp
             <button type="button" onclick="setCategory('{{ $cat->name }}')"
-                    class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition border cat-btn
-                           {{ $category === $cat->name ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' : 'text-gray-600 hover:text-gray-400 border-transparent' }}"
-                    data-cat="{{ $cat->name }}">
-                {{ $cat->name }} ({{ $counts[$cat->name] ?? 0 }})
+                    class="px-3.5 py-2 text-[11px] font-bold uppercase tracking-wider transition"
+                    style="border: 1px solid {{ $on ? 'var(--accent)' : 'var(--line)' }}; color: {{ $on ? 'var(--accent)' : 'var(--dim)' }}; background: {{ $on ? 'color-mix(in srgb, var(--accent) 12%, transparent)' : 'transparent' }}">
+                {{ $cat->name }} <span class="hud-mono t-dim2">{{ $counts[$cat->name] ?? 0 }}</span>
             </button>
             @endforeach
         </div>
     </form>
 
     @if(session('success'))
-    <div class="mb-6 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-6 py-4 rounded-2xl text-sm flex items-center gap-3 shadow-xl">
-        <i class="fa-solid fa-circle-check text-lg"></i>
-        <span class="font-medium">{{ session('success') }}</span>
+    <div class="hud-panel flex items-center gap-3 px-5 py-3.5" style="border-color: #22c55e">
+        <span class="hud-state" style="background: #22c55e"></span><span class="text-sm t-text">{{ session('success') }}</span>
     </div>
     @endif
 
+    {{-- ══ Catalog grid ══ --}}
     @if($products->isEmpty())
-    <div class="bg-[#161920] border border-gray-800 rounded-[2rem] p-16 text-center space-y-4">
-        <div class="w-16 h-16 bg-gray-900 text-gray-600 rounded-2xl flex items-center justify-center text-2xl mx-auto border border-gray-800">
-            <i class="fa-solid fa-box-open"></i>
-        </div>
-        <h3 class="text-md font-bold text-white uppercase tracking-wider">Каталог товаров пуст</h3>
+    <div class="hud-panel py-20 flex flex-col items-center justify-center">
+        <svg class="w-10 h-10 t-dim2 mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        <p class="text-xs uppercase tracking-widest t-dim">Товаров нет</p>
     </div>
     @else
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         @foreach($products as $product)
-        <div class="bg-[#161920] border border-gray-800 rounded-3xl p-6 flex flex-col justify-between hover:border-gray-700/60 transition-all group relative overflow-hidden">
-            <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-orange-500/40 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
-
+        <div class="prod-card hud-panel p-5 flex flex-col justify-between group">
             <div class="space-y-4">
                 <div class="flex items-start justify-between gap-3">
-                    <div class="w-12 h-12 bg-gray-900 border border-gray-800 rounded-2xl flex items-center justify-center font-black text-orange-500 text-sm overflow-hidden p-2">
+                    <div class="w-12 h-12 hud-inset flex items-center justify-center overflow-hidden p-2 flex-shrink-0">
                         <img src="{{ asset($product->image) }}" alt="" class="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity" onerror="this.style.display='none'">
                     </div>
-                    <span class="text-[9px] bg-gray-900 text-gray-400 px-2 py-0.5 rounded-md border border-gray-800 font-bold uppercase tracking-widest">
+                    <span class="text-[9px] px-2 py-0.5 font-bold uppercase tracking-widest" style="border: 1px solid var(--line-2); color: var(--dim)">
                         {{ $product->category->name ?? 'Без категории' }}
                     </span>
                 </div>
 
                 <div>
-                    <h3 class="text-md font-black text-white group-hover:text-orange-400 transition-colors line-clamp-1">
-                        {{ $product->name }}
-                    </h3>
-                    <div class="flex items-center justify-between mt-1">
-                        <span class="text-lg font-mono font-black text-white">{{ number_format($product->price, 0, '.', ' ') }} ₽</span>
-                        <span class="text-xs font-mono {{ $product->quantity > 0 ? 'text-gray-500' : 'text-red-500 font-bold' }}">
-                            {{ $product->quantity }} шт.
-                        </span>
+                    <h3 class="text-md font-black t-text group-hover:t-acc transition-colors line-clamp-1">{{ $product->name }}</h3>
+                    <div class="flex items-center justify-between mt-1.5">
+                        <span class="text-lg hud-mono font-black t-text">{{ number_format($product->price, 0, '.', ' ') }} ₽</span>
+                        <span class="text-xs hud-mono font-bold" style="color: {{ $product->quantity > 0 ? 'var(--dim)' : '#ef4444' }}">{{ $product->quantity }} шт</span>
                     </div>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2 mt-6 pt-4 border-t border-gray-900">
+            <div class="flex items-center gap-2 mt-6 pt-4 border-t" style="border-color: var(--line)">
                 <button type="button"
-                    class="open-edit-modal-btn p-2.5 bg-gray-900 hover:bg-orange-500/10 text-gray-500 hover:text-orange-500 rounded-xl transition-all border border-gray-800 hover:border-orange-500/20 active:scale-95 cursor-pointer"
+                    class="open-edit-modal-btn hud-btn flex-1"
                     data-id="{{ $product->id }}"
                     data-name="{{ $product->name }}"
                     data-price="{{ $product->price }}"
@@ -177,15 +128,16 @@
                     data-description="{{ $product->description }}"
                     data-category-type="{{ match($product->category->name ?? '') { 'Мыши'=>'mouse', 'Клавиатуры'=>'keyboard', 'Наушники'=>'headphone', 'Ковры'=>'pad', default=>'' } }}"
                     data-specs="{{ json_encode($product->specification) }}"
-                    title="Редактировать девайс">
-                    <i class="fa-solid fa-pen-to-square text-xs"></i>
+                    title="Редактировать">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+                    Изменить
                 </button>
 
-                <form action="{{ route('admin.products.destroy', $product) }}" method="POST" onsubmit="return confirm('Вы действительно хотите удалить товар {{ $product->name }} из каталога?')">
+                <form action="{{ route('admin.products.destroy', $product) }}" method="POST" onsubmit="return confirm('Удалить товар {{ $product->name }} из каталога?')">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="p-2.5 bg-gray-900 hover:bg-red-500/10 text-gray-500 hover:text-red-400 rounded-xl transition-all border border-gray-800 hover:border-red-500/20 active:scale-95 group/btn cursor-pointer" title="Удалить товар">
-                        <i class="fa-solid fa-trash-can text-xs transition-transform group-hover/btn:scale-110"></i>
+                    <button type="submit" class="hud-btn hud-btn--danger px-2.5" title="Удалить">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.9 12.1a2 2 0 01-2 1.9H7.9a2 2 0 01-2-1.9L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16"/></svg>
                     </button>
                 </form>
             </div>
@@ -193,54 +145,49 @@
         @endforeach
     </div>
 
-    <div class="mt-16 custom-pagination">
-        {{ $products->onEachSide(1)->links() }}
-    </div>
+    <div class="custom-pagination mt-10">{{ $products->onEachSide(1)->links() }}</div>
     @endif
 
+    {{-- ════════ CREATE MODAL ════════ --}}
     <div id="create-product-modal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 modal-backdrop opacity-0">
-        <div class="max-w-2xl w-full max-h-[90vh] bg-[#161920] border border-gray-800 rounded-3xl shadow-2xl flex flex-col relative modal-content scale-95 opacity-0 overflow-hidden">
-            
-            <div class="p-6 border-b border-gray-900 flex justify-between items-center bg-[#161920]">
-                <h2 class="text-xl font-black uppercase tracking-tight text-white">
-                    Добавление девайса
-                </h2>
-                <button type="button" id="close-create-modal-btn" class="text-gray-500 hover:text-white transition-colors cursor-pointer text-xl">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+        <div class="max-w-2xl w-full max-h-[90vh] flex flex-col relative modal-content scale-95 opacity-0 overflow-hidden" style="background: var(--bg); border: 1px solid var(--line)">
+            <div class="hud-head flex-shrink-0">
+                <span class="hud-head__bar"></span>
+                <span class="hud-head__title">Новый товар</span>
+                <button type="button" id="close-create-modal-btn" class="ml-auto t-dim2 hover:t-text text-2xl leading-none transition">×</button>
             </div>
 
-            <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data" class="flex-1 overflow-y-auto p-6 space-y-6 modal-scroll bg-gray-950/20">
+            <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data" class="flex-1 overflow-y-auto p-6 space-y-5 modal-scroll">
                 @csrf
                 <div class="space-y-1.5">
-                    <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest block">Название девайса</label>
-                    <input type="text" name="name" value="{{ old('name') }}" required class="w-full bg-gray-950 border border-gray-900 focus:border-orange-500 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
+                    <label class="hud-colhead block">Название</label>
+                    <input type="text" name="name" value="{{ old('name') }}" required class="hud-input w-full px-4 py-3 text-sm">
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="space-y-1.5">
-                        <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest block">Цена (₽)</label>
-                        <input type="number" name="price" value="{{ old('price') }}" required class="w-full bg-gray-950 border border-gray-900 focus:border-orange-500 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
+                        <label class="hud-colhead block">Цена (₽)</label>
+                        <input type="number" name="price" value="{{ old('price') }}" required class="hud-input w-full px-4 py-3 text-sm">
                     </div>
                     <div class="space-y-1.5">
-                        <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest block">Количество (шт.)</label>
-                        <input type="number" name="quantity" value="{{ old('quantity', 0) }}" required class="w-full bg-gray-950 border border-gray-900 focus:border-orange-500 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
+                        <label class="hud-colhead block">Количество (шт)</label>
+                        <input type="number" name="quantity" value="{{ old('quantity', 0) }}" required class="hud-input w-full px-4 py-3 text-sm">
                     </div>
                 </div>
 
                 <div class="space-y-1.5">
-                    <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest block">Описание</label>
-                    <textarea name="description" rows="3" class="w-full bg-gray-950 border border-gray-900 focus:border-orange-500 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-0 resize-none transition-colors">{{ old('description') }}</textarea>
+                    <label class="hud-colhead block">Описание</label>
+                    <textarea name="description" rows="3" class="hud-input w-full px-4 py-3 text-sm resize-none">{{ old('description') }}</textarea>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="space-y-1.5">
-                        <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest block">Фото девайса</label>
-                        <input type="file" name="image" accept="image/*" required class="w-full bg-gray-950 border border-gray-900 rounded-xl px-4 py-2 text-sm text-gray-400 file:mr-3 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-orange-500 file:text-black hover:file:bg-orange-400 cursor-pointer">
+                        <label class="hud-colhead block">Изображение</label>
+                        <input type="file" name="image" accept="image/*" required class="hud-input w-full px-4 py-2 text-sm file:mr-3 file:py-1 file:px-3 file:border-0 file:text-xs file:font-bold file:bg-orange-500 file:text-black hover:file:bg-orange-400 cursor-pointer">
                     </div>
                     <div class="space-y-1.5">
-                        <label class="text-[10px] text-orange-500 font-bold uppercase tracking-widest block">Категория девайса</label>
-                        <select id="create_category_type" name="category_type" required class="w-full bg-gray-950 border border-gray-900 focus:border-orange-500 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-0 cursor-pointer transition-colors">
+                        <label class="hud-colhead block t-acc">Категория</label>
+                        <select id="create_category_type" name="category_type" required class="hud-input w-full px-4 py-3 text-sm cursor-pointer">
                             <option value="" disabled selected>Выберите категорию...</option>
                             <option value="mouse">Мыши</option>
                             <option value="keyboard">Клавиатуры</option>
@@ -250,156 +197,148 @@
                     </div>
                 </div>
 
-                <div id="create-spec-fields" class="pt-2">
-                    <div id="create-spec-mouse" class="create-spec-group hidden grid grid-cols-1 sm:grid-cols-2 gap-3 bg-gray-950 border border-gray-900 p-5 rounded-2xl">
-                        <h3 class="col-span-full text-xs font-black text-gray-400 uppercase tracking-wider mb-1 flex items-center gap-2"><i class="fa-solid fa-computer-mouse text-orange-500"></i> Спецификация мыши</h3>
-                        <input type="text" name="sensor" placeholder="Сенсор" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors" disabled>
-                        <input type="number" name="max_dpi" placeholder="Макс. DPI" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors" disabled>
-                        <input type="number" name="polling_rate" placeholder="Частота опроса (Гц)" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors" disabled>
-                        <input type="text" name="switches" placeholder="Переключатели" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors" disabled>
-                        <input type="text" name="connection" placeholder="Подключение" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors" disabled>
-                        <input type="number" name="battery_life" placeholder="Батарея (часов)" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors" disabled>
-                        <input type="number" name="weight" placeholder="Вес (г)" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors" disabled>
+                <div id="create-spec-fields" class="pt-1">
+                    <div id="create-spec-mouse" class="create-spec-group hidden grid grid-cols-1 sm:grid-cols-2 gap-3 hud-inset p-5">
+                        <h3 class="col-span-full hud-colhead mb-1">Спецификация · мышь</h3>
+                        <input type="text" name="sensor" placeholder="Сенсор" class="hud-input px-4 py-2.5 text-sm" disabled>
+                        <input type="number" name="max_dpi" placeholder="Макс. DPI" class="hud-input px-4 py-2.5 text-sm" disabled>
+                        <input type="number" name="polling_rate" placeholder="Частота опроса (Гц)" class="hud-input px-4 py-2.5 text-sm" disabled>
+                        <input type="text" name="switches" placeholder="Переключатели" class="hud-input px-4 py-2.5 text-sm" disabled>
+                        <input type="text" name="connection" placeholder="Подключение" class="hud-input px-4 py-2.5 text-sm" disabled>
+                        <input type="number" name="battery_life" placeholder="Батарея (часов)" class="hud-input px-4 py-2.5 text-sm" disabled>
+                        <input type="number" name="weight" placeholder="Вес (г)" class="hud-input px-4 py-2.5 text-sm" disabled>
                     </div>
 
-                    <div id="create-spec-keyboard" class="create-spec-group hidden grid grid-cols-1 sm:grid-cols-2 gap-3 bg-gray-950 border border-gray-900 p-5 rounded-2xl">
-                        <h3 class="col-span-full text-xs font-black text-gray-400 uppercase tracking-wider mb-1 flex items-center gap-2"><i class="fa-solid fa-keyboard text-orange-500"></i> Спецификация клавиатуры</h3>
-                        <input type="text" name="switch_type" placeholder="Свитчи" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors" disabled>
-                        <input type="text" name="form_factor" placeholder="Форм-фактор" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors" disabled>
-                        <input type="text" name="keycap_material" placeholder="Материал кейкапов" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors" disabled>
-                        <input type="text" name="hotswap" placeholder="Hot-swap" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors" disabled>
-                        <input type="text" name="connection" placeholder="Интерфейс" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors" disabled>
-                        <input type="text" name="illumination" placeholder="Подсветка" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors" disabled>
-                        <input type="text" name="construction" placeholder="Строение" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors" disabled>
+                    <div id="create-spec-keyboard" class="create-spec-group hidden grid grid-cols-1 sm:grid-cols-2 gap-3 hud-inset p-5">
+                        <h3 class="col-span-full hud-colhead mb-1">Спецификация · клавиатура</h3>
+                        <input type="text" name="switch_type" placeholder="Свитчи" class="hud-input px-4 py-2.5 text-sm" disabled>
+                        <input type="text" name="form_factor" placeholder="Форм-фактор" class="hud-input px-4 py-2.5 text-sm" disabled>
+                        <input type="text" name="keycap_material" placeholder="Материал кейкапов" class="hud-input px-4 py-2.5 text-sm" disabled>
+                        <input type="text" name="hotswap" placeholder="Hot-swap" class="hud-input px-4 py-2.5 text-sm" disabled>
+                        <input type="text" name="connection" placeholder="Интерфейс" class="hud-input px-4 py-2.5 text-sm" disabled>
+                        <input type="text" name="illumination" placeholder="Подсветка" class="hud-input px-4 py-2.5 text-sm" disabled>
+                        <input type="text" name="construction" placeholder="Строение" class="hud-input px-4 py-2.5 text-sm" disabled>
                     </div>
 
-                    <div id="create-spec-headphone" class="create-spec-group hidden grid grid-cols-1 sm:grid-cols-2 gap-3 bg-gray-950 border border-gray-900 p-5 rounded-2xl">
-                        <h3 class="col-span-full text-xs font-black text-gray-400 uppercase tracking-wider mb-1 flex items-center gap-2"><i class="fa-solid fa-headphones text-orange-500"></i> Спецификация наушников</h3>
-                        <input type="text" name="sound_type" placeholder="Звук" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors" disabled>
-                        <input type="text" name="drivers" placeholder="Динамики" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors" disabled>
-                        <input type="text" name="frequency" placeholder="Частотный диапазон" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors" disabled>
-                        <input type="text" name="impedance" placeholder="Сопротивление" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors" disabled>
-                        <input type="text" name="connection" placeholder="Подключение" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors" disabled>
-                        <input type="text" name="microphone" placeholder="Микрофон" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors" disabled>
+                    <div id="create-spec-headphone" class="create-spec-group hidden grid grid-cols-1 sm:grid-cols-2 gap-3 hud-inset p-5">
+                        <h3 class="col-span-full hud-colhead mb-1">Спецификация · наушники</h3>
+                        <input type="text" name="sound_type" placeholder="Звук" class="hud-input px-4 py-2.5 text-sm" disabled>
+                        <input type="text" name="drivers" placeholder="Динамики" class="hud-input px-4 py-2.5 text-sm" disabled>
+                        <input type="text" name="frequency" placeholder="Частотный диапазон" class="hud-input px-4 py-2.5 text-sm" disabled>
+                        <input type="text" name="impedance" placeholder="Сопротивление" class="hud-input px-4 py-2.5 text-sm" disabled>
+                        <input type="text" name="connection" placeholder="Подключение" class="hud-input px-4 py-2.5 text-sm" disabled>
+                        <input type="text" name="microphone" placeholder="Микрофон" class="hud-input px-4 py-2.5 text-sm" disabled>
                     </div>
 
-                    <div id="create-spec-pad" class="create-spec-group hidden grid grid-cols-1 sm:grid-cols-2 gap-3 bg-gray-950 border border-gray-900 p-5 rounded-2xl">
-                        <h3 class="col-span-full text-xs font-black text-gray-400 uppercase tracking-wider mb-1 flex items-center gap-2"><i class="fa-solid fa-scroll text-orange-500"></i> Спецификация коврика</h3>
-                        <input type="text" name="surface" placeholder="Тип поверхности" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors" disabled>
-                        <input type="text" name="material" placeholder="Материал покрытия" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors" disabled>
-                        <input type="text" name="base_material" placeholder="Основание" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors" disabled>
-                        <input type="text" name="dimensions" placeholder="Размеры (ШхВ)" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors" disabled>
-                        <input type="text" name="thickness" placeholder="Толщина (мм)" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors" disabled>
-                        <input type="text" name="edges" placeholder="Обработка краев" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors" disabled>
+                    <div id="create-spec-pad" class="create-spec-group hidden grid grid-cols-1 sm:grid-cols-2 gap-3 hud-inset p-5">
+                        <h3 class="col-span-full hud-colhead mb-1">Спецификация · коврик</h3>
+                        <input type="text" name="surface" placeholder="Тип поверхности" class="hud-input px-4 py-2.5 text-sm" disabled>
+                        <input type="text" name="material" placeholder="Материал покрытия" class="hud-input px-4 py-2.5 text-sm" disabled>
+                        <input type="text" name="base_material" placeholder="Основание" class="hud-input px-4 py-2.5 text-sm" disabled>
+                        <input type="text" name="dimensions" placeholder="Размеры (ШхВ)" class="hud-input px-4 py-2.5 text-sm" disabled>
+                        <input type="text" name="thickness" placeholder="Толщина (мм)" class="hud-input px-4 py-2.5 text-sm" disabled>
+                        <input type="text" name="edges" placeholder="Обработка краёв" class="hud-input px-4 py-2.5 text-sm" disabled>
                     </div>
                 </div>
             </form>
 
-            <div class="p-4 border-t border-gray-900 bg-[#161920] px-6">
-                <button type="button" id="submit-create-form" class="w-full py-3.5 bg-orange-500 hover:bg-orange-400 text-black font-black uppercase text-xs tracking-widest rounded-xl transition-all cursor-pointer">
-                    Сохранить девайс
-                </button>
+            <div class="p-4 px-6 border-t flex-shrink-0" style="border-color: var(--line)">
+                <button type="button" id="submit-create-form" class="hud-btn hud-btn--solid w-full py-3.5">Сохранить</button>
             </div>
         </div>
     </div>
 
+    {{-- ════════ EDIT MODAL ════════ --}}
     <div id="edit-product-modal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 modal-backdrop opacity-0">
-        <div class="max-w-2xl w-full max-h-[90vh] bg-[#161920] border border-gray-800 rounded-3xl shadow-2xl flex flex-col relative modal-content scale-95 opacity-0 overflow-hidden">
-            
-            <div class="p-6 border-b border-gray-900 flex justify-between items-center bg-[#161920]">
-                <h2 class="text-xl font-black uppercase tracking-tight text-white line-clamp-1">
-                    Редактирование: <span id="edit-modal-title-name" class="text-orange-500">Девайс</span>
-                </h2>
-                <button type="button" id="close-edit-modal-btn" class="text-gray-500 hover:text-white transition-colors cursor-pointer text-xl">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+        <div class="max-w-2xl w-full max-h-[90vh] flex flex-col relative modal-content scale-95 opacity-0 overflow-hidden" style="background: var(--bg); border: 1px solid var(--line)">
+            <div class="hud-head flex-shrink-0">
+                <span class="hud-head__bar"></span>
+                <span class="hud-head__title line-clamp-1">Изменить: <span id="edit-modal-title-name" class="t-acc">Товар</span></span>
+                <button type="button" id="close-edit-modal-btn" class="ml-auto t-dim2 hover:t-text text-2xl leading-none transition">×</button>
             </div>
 
-            <form id="edit-product-form" action="" method="POST" enctype="multipart/form-data" class="flex-1 overflow-y-auto p-6 space-y-6 modal-scroll bg-gray-950/20">
+            <form id="edit-product-form" action="" method="POST" enctype="multipart/form-data" class="flex-1 overflow-y-auto p-6 space-y-5 modal-scroll">
                 @csrf
                 @method('PUT')
 
                 <div class="space-y-1.5">
-                    <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest block">Название девайса</label>
-                    <input type="text" id="edit-name" name="name" required class="w-full bg-gray-950 border border-gray-900 focus:border-orange-500 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
+                    <label class="hud-colhead block">Название</label>
+                    <input type="text" id="edit-name" name="name" required class="hud-input w-full px-4 py-3 text-sm">
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="space-y-1.5">
-                        <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest block">Цена (₽)</label>
-                        <input type="number" id="edit-price" name="price" required class="w-full bg-gray-950 border border-gray-900 focus:border-orange-500 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
+                        <label class="hud-colhead block">Цена (₽)</label>
+                        <input type="number" id="edit-price" name="price" required class="hud-input w-full px-4 py-3 text-sm">
                     </div>
                     <div class="space-y-1.5">
-                        <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest block">Количество (шт.)</label>
-                        <input type="number" id="edit-quantity" name="quantity" required class="w-full bg-gray-950 border border-gray-900 focus:border-orange-500 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
+                        <label class="hud-colhead block">Количество (шт)</label>
+                        <input type="number" id="edit-quantity" name="quantity" required class="hud-input w-full px-4 py-3 text-sm">
                     </div>
                 </div>
 
                 <div class="space-y-1.5">
-                    <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest block">Описание</label>
-                    <textarea id="edit-description" name="description" rows="3" class="w-full bg-gray-950 border border-gray-900 focus:border-orange-500 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-0 resize-none transition-colors"></textarea>
+                    <label class="hud-colhead block">Описание</label>
+                    <textarea id="edit-description" name="description" rows="3" class="hud-input w-full px-4 py-3 text-sm resize-none"></textarea>
                 </div>
 
                 <div class="space-y-1.5">
-                    <label class="text-[10px] text-gray-500 font-bold uppercase tracking-widest block">Изменить фото девайса (необязательно)</label>
-                    <input type="file" name="image" accept="image/*" class="w-full bg-gray-950 border border-gray-900 rounded-xl px-4 py-2 text-sm text-gray-400 file:mr-3 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-orange-500 file:text-black hover:file:bg-orange-400 cursor-pointer">
+                    <label class="hud-colhead block">Изменить изображение (необязательно)</label>
+                    <input type="file" name="image" accept="image/*" class="hud-input w-full px-4 py-2 text-sm file:mr-3 file:py-1 file:px-3 file:border-0 file:text-xs file:font-bold file:bg-orange-500 file:text-black hover:file:bg-orange-400 cursor-pointer">
                 </div>
 
-                <div id="edit-spec-container" class="bg-gray-950 border border-gray-900 p-5 rounded-2xl space-y-4 hidden">
-                    <h3 class="text-xs font-black text-gray-400 uppercase tracking-wider border-b border-gray-900 pb-2 flex items-center gap-2">
-                        <i class="fa-solid fa-sliders text-orange-500"></i> Спецификация: <span id="edit-spec-category-title" class="text-orange-400">Спецификация</span>
-                    </h3>
+                <div id="edit-spec-container" class="hud-inset p-5 space-y-4 hidden">
+                    <h3 class="hud-colhead border-b pb-2" style="border-color: var(--line)">Спецификация: <span id="edit-spec-category-title" class="t-acc">—</span></h3>
 
                     <div id="edit-fields-mouse" class="edit-spec-fields-group hidden grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <input type="text" name="sensor" placeholder="Сенсор" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
-                        <input type="number" name="max_dpi" placeholder="Макс. DPI" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
-                        <input type="number" name="polling_rate" placeholder="Частота опроса (Гц)" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
-                        <input type="text" name="switches" placeholder="Переключатели" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
-                        <input type="text" name="connection" placeholder="Подключение" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
-                        <input type="number" name="battery_life" placeholder="Батарея (часов)" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
-                        <input type="number" name="weight" placeholder="Вес (г)" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
+                        <input type="text" name="sensor" placeholder="Сенсор" class="hud-input px-4 py-2.5 text-sm">
+                        <input type="number" name="max_dpi" placeholder="Макс. DPI" class="hud-input px-4 py-2.5 text-sm">
+                        <input type="number" name="polling_rate" placeholder="Частота опроса (Гц)" class="hud-input px-4 py-2.5 text-sm">
+                        <input type="text" name="switches" placeholder="Переключатели" class="hud-input px-4 py-2.5 text-sm">
+                        <input type="text" name="connection" placeholder="Подключение" class="hud-input px-4 py-2.5 text-sm">
+                        <input type="number" name="battery_life" placeholder="Батарея (часов)" class="hud-input px-4 py-2.5 text-sm">
+                        <input type="number" name="weight" placeholder="Вес (г)" class="hud-input px-4 py-2.5 text-sm">
                     </div>
 
                     <div id="edit-fields-keyboard" class="edit-spec-fields-group hidden grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <input type="text" name="switch_type" placeholder="Свитчи" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
-                        <input type="text" name="form_factor" placeholder="Форм-фактор" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
-                        <input type="text" name="keycap_material" placeholder="Материал кейкапов" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
-                        <input type="text" name="hotswap" placeholder="Hot-swap" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
-                        <input type="text" name="connection" placeholder="Интерфейс" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
-                        <input type="text" name="illumination" placeholder="Подсветка" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
-                        <input type="text" name="construction" placeholder="Строение" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
+                        <input type="text" name="switch_type" placeholder="Свитчи" class="hud-input px-4 py-2.5 text-sm">
+                        <input type="text" name="form_factor" placeholder="Форм-фактор" class="hud-input px-4 py-2.5 text-sm">
+                        <input type="text" name="keycap_material" placeholder="Материал кейкапов" class="hud-input px-4 py-2.5 text-sm">
+                        <input type="text" name="hotswap" placeholder="Hot-swap" class="hud-input px-4 py-2.5 text-sm">
+                        <input type="text" name="connection" placeholder="Интерфейс" class="hud-input px-4 py-2.5 text-sm">
+                        <input type="text" name="illumination" placeholder="Подсветка" class="hud-input px-4 py-2.5 text-sm">
+                        <input type="text" name="construction" placeholder="Строение" class="hud-input px-4 py-2.5 text-sm">
                     </div>
 
                     <div id="edit-fields-headphone" class="edit-spec-fields-group hidden grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <input type="text" name="sound_type" placeholder="Звук" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
-                        <input type="text" name="drivers" placeholder="Динамики" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
-                        <input type="text" name="frequency" placeholder="Частоты" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
-                        <input type="text" name="impedance" placeholder="Сопротивление" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
-                        <input type="text" name="connection" placeholder="Подключение" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
-                        <input type="text" name="microphone" placeholder="Микрофон" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
+                        <input type="text" name="sound_type" placeholder="Звук" class="hud-input px-4 py-2.5 text-sm">
+                        <input type="text" name="drivers" placeholder="Динамики" class="hud-input px-4 py-2.5 text-sm">
+                        <input type="text" name="frequency" placeholder="Частоты" class="hud-input px-4 py-2.5 text-sm">
+                        <input type="text" name="impedance" placeholder="Сопротивление" class="hud-input px-4 py-2.5 text-sm">
+                        <input type="text" name="connection" placeholder="Подключение" class="hud-input px-4 py-2.5 text-sm">
+                        <input type="text" name="microphone" placeholder="Микрофон" class="hud-input px-4 py-2.5 text-sm">
                     </div>
 
                     <div id="edit-fields-pad" class="edit-spec-fields-group hidden grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <input type="text" name="surface" placeholder="Тип поверхности" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
-                        <input type="text" name="material" placeholder="Материал покрытия" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
-                        <input type="text" name="base_material" placeholder="Основание" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
-                        <input type="text" name="dimensions" placeholder="Размеры" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
-                        <input type="text" name="thickness" placeholder="Толщина" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
-                        <input type="text" name="edges" placeholder="Края" class="bg-gray-900/60 border border-gray-800 focus:border-orange-500 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-0 transition-colors">
+                        <input type="text" name="surface" placeholder="Тип поверхности" class="hud-input px-4 py-2.5 text-sm">
+                        <input type="text" name="material" placeholder="Материал покрытия" class="hud-input px-4 py-2.5 text-sm">
+                        <input type="text" name="base_material" placeholder="Основание" class="hud-input px-4 py-2.5 text-sm">
+                        <input type="text" name="dimensions" placeholder="Размеры" class="hud-input px-4 py-2.5 text-sm">
+                        <input type="text" name="thickness" placeholder="Толщина" class="hud-input px-4 py-2.5 text-sm">
+                        <input type="text" name="edges" placeholder="Края" class="hud-input px-4 py-2.5 text-sm">
                     </div>
                 </div>
             </form>
 
-            <div class="p-4 border-t border-gray-900 bg-[#161920] px-6">
-                <button type="button" id="submit-edit-form" class="w-full py-3.5 bg-orange-500 hover:bg-orange-400 text-black font-black uppercase text-xs tracking-widest rounded-xl transition-all cursor-pointer">
-                    Обновить девайс
-                </button>
+            <div class="p-4 px-6 border-t flex-shrink-0" style="border-color: var(--line)">
+                <button type="button" id="submit-edit-form" class="hud-btn hud-btn--solid w-full py-3.5">Обновить</button>
             </div>
         </div>
     </div>
 
+</div>
+
     <script>
-        // Функция управления анимацией окон при закрытии/открытии
         function toggleModalVisibility(modalElement, show = true) {
             if (show) {
                 modalElement.classList.remove('hidden');
@@ -506,7 +445,6 @@
             });
         });
 
-        // Закрытие кликом по серой области бэкдропа для обоих окон
         [createModal, editModal].forEach(modal => {
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) {
@@ -515,7 +453,7 @@
             });
         });
 
-        // ── Search / sort / filter ──────────────────────────────
+        // ── Search / sort / filter ──
         let _searchTimer;
         function debounceSubmit() {
             clearTimeout(_searchTimer);
@@ -523,11 +461,6 @@
         }
         function setSort(val) {
             document.getElementById('sort-input').value = val;
-            document.querySelectorAll('.sort-btn').forEach(btn => {
-                const active = btn.dataset.sort === val;
-                btn.className = btn.className.replace('bg-orange-500 text-black','').replace('text-gray-500 hover:text-white','').trim();
-                btn.classList.add(...(active ? ['bg-orange-500','text-black'] : ['text-gray-500','hover:text-white']));
-            });
             document.getElementById('filter-form').submit();
         }
         function setCategory(val) {

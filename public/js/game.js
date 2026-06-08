@@ -1417,6 +1417,28 @@ if (typeof window.yodorada === 'undefined') {
 		var GRID_SIZE = 60;
 
 
+		// ---- Mobile: size the play-field to fill the screen (portrait) ----
+		// On touch devices we expand the fixed 700×700 board to the full
+		// viewport so the game is genuinely full-screen and vertical. This
+		// must run before the canvas dimensions are read below, because the
+		// collision grid and wrap-around borders are derived from them.
+		var IS_TOUCH = (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) ||
+			('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+		if (IS_TOUCH) {
+			document.body.classList.add('mobile-play');
+			// basic.css sets html { height:101%; overflow:auto } which leaves a
+			// phantom scroll — pin it so the board fills the viewport exactly.
+			document.documentElement.style.height = '100%';
+			document.documentElement.style.overflow = 'hidden';
+			var vw = Math.max(300, window.innerWidth);
+			var vh = Math.max(420, window.innerHeight);
+			var canvasEl  = document.getElementById('game');
+			var containerEl = document.querySelector('#buzzwordBlast .gameContainer');
+			var screensEl = document.getElementById('screens');
+			if (canvasEl)    { canvasEl.width = vw; canvasEl.height = vh; }
+			if (containerEl) { containerEl.style.width = vw + 'px'; containerEl.style.height = vh + 'px'; }
+			if (screensEl)   { screensEl.style.width = vw + 'px'; screensEl.style.height = vh + 'px'; }
+		}
 
 		var canvas = $("#game");
 		Game.canvasWidth = canvas.width();
@@ -1616,6 +1638,57 @@ if (typeof window.yodorada === 'undefined') {
 		}, 100);
 
 
+		// ---- Mobile touch controls ----
+		// On touch devices there is no keyboard, so map the on-screen buttons
+		// onto the same KEY_STATUS flags the keyboard handler drives. The
+		// play-field is sized to fill the screen earlier (see IS_TOUCH above).
+		(function() {
+			if (!document.body.classList.contains('mobile-play')) return;
+			var controls = document.getElementById('touch-controls');
+			if (!controls) return;
+
+			var KEY_CODES_VALUES = [];
+			for (var c in KEY_CODES) { KEY_CODES_VALUES.push(KEY_CODES[c]); }
+
+			var setKey = function(btn, on) {
+				var key = btn.getAttribute('data-key');
+				if (KEY_CODES_VALUES.indexOf(key) === -1) return;
+				KEY_STATUS[key] = on;
+				btn.classList.toggle('tc-active', on);
+			};
+
+			var btns = controls.querySelectorAll('.tc-btn');
+			for (var b = 0; b < btns.length; b++) {
+				(function(btn) {
+					var press = function(e) { e.preventDefault(); setKey(btn, true); };
+					var release = function(e) { e.preventDefault(); setKey(btn, false); };
+					if (window.PointerEvent) {
+						btn.addEventListener('pointerdown', press);
+						btn.addEventListener('pointerup', release);
+						btn.addEventListener('pointercancel', release);
+						btn.addEventListener('pointerleave', release);
+					} else {
+						btn.addEventListener('touchstart', press, { passive: false });
+						btn.addEventListener('touchend', release);
+						btn.addEventListener('touchcancel', release);
+					}
+					// stop the canvas/start click from firing under the button
+					btn.addEventListener('click', function(e) { e.preventDefault(); });
+				})(btns[b]);
+			}
+
+			// Re-word the keyboard-centric prompts for touch players. The fire
+			// button drives KEY_STATUS.space, which both starts and continues.
+			var startOv = document.getElementById('overlay-start');
+			if (startOv) startOv.innerHTML =
+				'<p>КНОПКИ СЛЕВА — ПОВОРОТ</p>' +
+				'<p>ВВЕРХ — УСКОРЕНИЕ · ⬤ — ОГОНЬ</p>' +
+				'<p>НАЖМИТЕ ⬤ ДЛЯ СТАРТА</p>';
+			var cont = document.getElementById('continue');
+			if (cont) cont.textContent = '⬤ — ПРОДОЛЖИТЬ';
+			var rest = document.getElementById('restart');
+			if (rest) rest.textContent = '⬤ — СНОВА';
+		})();
 
 	};
 })(jQuery);
