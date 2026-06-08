@@ -275,10 +275,6 @@
             <h1 class="hud-title">На витрине</h1>
             <p class="hud-subtitle">Твоё преимущество в катке. Сделано в России.</p>
         </div>
-        <div class="hud-readout">
-            <span class="hud-readout__label mono">Единиц в базе</span>
-            <span class="hud-readout__value">{{ $products->total() }}</span>
-        </div>
     </header>
 
     {{-- ═══════════════ ПОИСКОВЫЙ ТЕРМИНАЛ ═══════════════ --}}
