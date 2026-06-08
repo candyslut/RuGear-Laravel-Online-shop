@@ -131,7 +131,7 @@
 
             @foreach($orders as $order)
             @php $rail = $railOf($order->status); $m = $statusMeta[$order->status] ?? ['label' => $order->status_label, 'c' => '#6b7280']; @endphp
-            <div class="led-row grid gap-4 px-5 py-3.5 items-center" style="grid-template-columns: 7rem 1fr 6.5rem 8rem 9rem 5.5rem 5.5rem">
+            <div class="led-row flex flex-col gap-3 px-5 py-4 md:grid md:gap-4 md:py-3.5 md:items-center" style="grid-template-columns: 7rem 1fr 6.5rem 8rem 9rem 5.5rem 5.5rem">
                 <span class="led-rail" style="background: {{ $rail }}"></span>
 
                 {{-- code --}}
@@ -143,39 +143,51 @@
                     <p class="text-xs t-dim2 truncate hud-mono">{{ $order->user->email }}</p>
                 </div>
 
-                {{-- items --}}
-                <div class="flex items-center gap-1.5">
-                    @foreach($order->items->take(3) as $item)
-                    <div class="led-thumb w-8 h-8 overflow-hidden flex-shrink-0 flex items-center justify-center">
-                        <img src="{{ asset($item->product->image ?? '') }}" class="w-full h-full object-contain p-0.5" onerror="this.style.display='none'">
+                {{-- secondary: на мобильном — сетка 2×2 с подписями; на desktop — отдельные колонки --}}
+                <div class="grid grid-cols-2 gap-3 border-t border-b py-3 md:contents" style="border-color: var(--line)">
+
+                    {{-- items --}}
+                    <div>
+                        <span class="md:hidden hud-colhead block mb-1.5">Товары</span>
+                        <div class="flex items-center gap-1.5">
+                            @foreach($order->items->take(3) as $item)
+                            <div class="led-thumb w-8 h-8 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                                <img src="{{ asset($item->product->image ?? '') }}" class="w-full h-full object-contain p-0.5" onerror="this.style.display='none'">
+                            </div>
+                            @endforeach
+                            @if($order->items->count() > 3)
+                            <span class="text-[10px] t-dim2 hud-mono">+{{ $order->items->count() - 3 }}</span>
+                            @endif
+                        </div>
                     </div>
-                    @endforeach
-                    @if($order->items->count() > 3)
-                    <span class="text-[10px] t-dim2 hud-mono">+{{ $order->items->count() - 3 }}</span>
-                    @endif
-                </div>
 
-                {{-- amount --}}
-                <div class="text-right">
-                    <p class="text-sm font-black t-text hud-tnum">{{ number_format($order->total_price, 0, '.', ' ') }} ₽</p>
-                    <p class="text-[10px] t-dim2 hud-mono">{{ $order->items->count() }} ПОЗ</p>
-                </div>
+                    {{-- amount --}}
+                    <div class="md:text-right">
+                        <span class="md:hidden hud-colhead block mb-1.5">Сумма</span>
+                        <p class="text-sm font-black t-text hud-tnum">{{ number_format($order->total_price, 0, '.', ' ') }} ₽</p>
+                        <p class="text-[10px] t-dim2 hud-mono">{{ $order->items->count() }} ПОЗ</p>
+                    </div>
 
-                {{-- status --}}
-                <div class="flex items-center gap-2">
-                    <span class="hud-state" style="background: {{ $m['c'] }}"></span>
-                    <span class="text-[11px] font-bold uppercase tracking-wider" style="color: {{ $m['c'] }}">{{ $order->status_label }}</span>
-                </div>
+                    {{-- status --}}
+                    <div>
+                        <span class="md:hidden hud-colhead block mb-1.5">Статус</span>
+                        <div class="flex items-center gap-2">
+                            <span class="hud-state" style="background: {{ $m['c'] }}"></span>
+                            <span class="text-[11px] font-bold uppercase tracking-wider" style="color: {{ $m['c'] }}">{{ $order->status_label }}</span>
+                        </div>
+                    </div>
 
-                {{-- date --}}
-                <div class="text-center">
-                    <p class="text-xs t-dim hud-mono">{{ $order->created_at->format('d.m.y') }}</p>
-                    <p class="text-[10px] t-dim2 hud-mono">{{ $order->created_at->format('H:i') }}</p>
+                    {{-- date --}}
+                    <div class="md:text-center">
+                        <span class="md:hidden hud-colhead block mb-1.5">Дата</span>
+                        <p class="text-xs t-dim hud-mono">{{ $order->created_at->format('d.m.y') }}</p>
+                        <p class="text-[10px] t-dim2 hud-mono">{{ $order->created_at->format('H:i') }}</p>
+                    </div>
                 </div>
 
                 {{-- action --}}
-                <div class="flex justify-end">
-                    <a href="{{ route('admin.orders.show', $order) }}" class="hud-btn">Открыть</a>
+                <div class="flex md:justify-end">
+                    <a href="{{ route('admin.orders.show', $order) }}" class="hud-btn w-full md:w-auto">Открыть</a>
                 </div>
             </div>
             @endforeach

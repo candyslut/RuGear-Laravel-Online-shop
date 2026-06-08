@@ -119,10 +119,10 @@
             $rail      = $isAdmin ? 'var(--accent)' : 'var(--line-2)';
             $tierFill  = max(1, min(8, (int) $user->level));
         @endphp
-        <div class="reg-row grid gap-4 px-5 py-3.5 items-center" style="grid-template-columns: 3.5rem 1fr 7rem 5.5rem 4.5rem 5.5rem 7rem">
+        <div class="reg-row flex flex-col gap-3 px-5 py-4 md:grid md:gap-4 md:py-3.5 md:items-center" style="grid-template-columns: 3.5rem 1fr 7rem 5.5rem 4.5rem 5.5rem 7rem">
             <span class="reg-rail" style="background: {{ $rail }}"></span>
 
-            <span class="hud-mono text-xs t-dim2">{{ str_pad($user->id, 3, '0', STR_PAD_LEFT) }}</span>
+            <span class="hidden md:block hud-mono text-xs t-dim2">{{ str_pad($user->id, 3, '0', STR_PAD_LEFT) }}</span>
 
             {{-- entity --}}
             <div class="flex items-center gap-3 min-w-0">
@@ -143,28 +143,40 @@
                 </div>
             </div>
 
-            {{-- tier --}}
-            <div class="flex flex-col items-center gap-1.5">
-                <span class="text-sm font-black t-acc hud-tnum">{{ $user->level }}</span>
-                <div class="hud-ticks">
-                    @for($t = 1; $t <= 8; $t++)<span class="{{ $t <= $tierFill ? 'on' : '' }}"></span>@endfor
+            {{-- secondary stats: на мобильном — одна строка с подписями; на desktop — отдельные колонки --}}
+            <div class="flex items-stretch justify-between gap-2 border-t border-b py-3 md:contents" style="border-color: var(--line)">
+
+                {{-- tier --}}
+                <div class="flex flex-col items-center gap-1.5">
+                    <span class="md:hidden hud-colhead">Уровень</span>
+                    <span class="text-sm font-black t-acc hud-tnum">{{ $user->level }}</span>
+                    <div class="hud-ticks">
+                        @for($t = 1; $t <= 8; $t++)<span class="{{ $t <= $tierFill ? 'on' : '' }}"></span>@endfor
+                    </div>
+                </div>
+
+                {{-- coins --}}
+                <div class="flex flex-col items-center gap-1 text-center md:block">
+                    <span class="md:hidden hud-colhead">Монеты</span>
+                    <p class="text-sm font-black hud-tnum" style="color: #f59e0b">{{ number_format($user->coins) }}</p>
+                </div>
+
+                {{-- orders --}}
+                <div class="flex flex-col items-center gap-1 text-center md:block">
+                    <span class="md:hidden hud-colhead">Заказы</span>
+                    <p class="text-sm font-bold t-text hud-tnum">{{ $user->orders_count }}</p>
+                </div>
+
+                {{-- achievements --}}
+                <div class="flex flex-col items-center gap-1 text-center md:block">
+                    <span class="md:hidden hud-colhead">Ачивки</span>
+                    <p class="text-sm font-bold t-text hud-tnum">{{ $user->achievements->count() }}</p>
                 </div>
             </div>
 
-            {{-- coins --}}
-            <div class="text-center">
-                <p class="text-sm font-black hud-tnum" style="color: #f59e0b">{{ number_format($user->coins) }}</p>
-            </div>
-
-            {{-- orders --}}
-            <div class="text-center"><p class="text-sm font-bold t-text hud-tnum">{{ $user->orders_count }}</p></div>
-
-            {{-- achievements --}}
-            <div class="text-center"><p class="text-sm font-bold t-text hud-tnum">{{ $user->achievements->count() }}</p></div>
-
             {{-- actions --}}
-            <div class="flex items-center justify-end gap-1.5">
-                <button onclick="openUserModal({{ $user->id }})" class="hud-btn">Подробнее</button>
+            <div class="flex items-center gap-1.5 md:justify-end">
+                <button onclick="openUserModal({{ $user->id }})" class="hud-btn flex-1 md:flex-none">Подробнее</button>
                 <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('Удалить {{ addslashes($user->name) }}?')">
                     @csrf @method('DELETE')
                     <button type="submit" class="hud-btn hud-btn--danger px-2 {{ auth()->id() === $user->id ? 'opacity-30 pointer-events-none' : '' }}" title="Удалить">

@@ -125,7 +125,7 @@
 
             @foreach($tickets as $ticket)
             @php $m = $tmeta[$ticket->status] ?? ['label' => $ticket->status, 'c' => '#6b7280']; @endphp
-            <div class="tkt-row grid gap-4 px-5 py-3.5 items-center" style="grid-template-columns: 5rem 1fr 11rem 8rem 5.5rem 6rem">
+            <div class="tkt-row flex flex-col gap-3 px-5 py-4 md:grid md:gap-4 md:py-3.5 md:items-center" style="grid-template-columns: 5rem 1fr 11rem 8rem 5.5rem 6rem">
                 <span class="tkt-rail" style="background: {{ $m['c'] }}"></span>
 
                 <span class="hud-mono text-xs t-dim2">#TC-{{ str_pad($ticket->id, 4, '0', STR_PAD_LEFT) }}</span>
@@ -140,7 +140,7 @@
                 </div>
 
                 {{-- user --}}
-                <div class="flex items-center gap-2 min-w-0">
+                <div class="flex items-center gap-2 min-w-0 border-t pt-3 md:border-t-0 md:pt-0" style="border-color: var(--line)">
                     <div class="w-7 h-7 flex-shrink-0 flex items-center justify-center text-xs font-black overflow-hidden" style="background: var(--track); color: var(--text)">
                         @if($ticket->user?->avatar)<img src="{{ Storage::url($ticket->user->avatar) }}" class="w-full h-full object-cover">@else{{ strtoupper(mb_substr($ticket->user->name ?? 'А', 0, 1)) }}@endif
                     </div>
@@ -150,21 +150,29 @@
                     </div>
                 </div>
 
-                {{-- status --}}
-                <div class="flex items-center gap-2">
-                    <span class="hud-state" style="background: {{ $m['c'] }}"></span>
-                    <span class="text-[11px] font-bold uppercase tracking-wider" style="color: {{ $m['c'] }}">{{ $m['label'] }}</span>
-                </div>
+                {{-- secondary: на мобильном — две колонки с подписями; на desktop — отдельные колонки --}}
+                <div class="grid grid-cols-2 gap-3 border-t border-b py-3 md:contents" style="border-color: var(--line)">
 
-                {{-- date --}}
-                <div class="text-center">
-                    <p class="text-xs t-dim hud-mono">{{ $ticket->created_at->format('d.m.y') }}</p>
-                    <p class="text-[10px] t-dim2 hud-mono">{{ $ticket->created_at->format('H:i') }}</p>
+                    {{-- status --}}
+                    <div>
+                        <span class="md:hidden hud-colhead block mb-1.5">Статус</span>
+                        <div class="flex items-center gap-2">
+                            <span class="hud-state" style="background: {{ $m['c'] }}"></span>
+                            <span class="text-[11px] font-bold uppercase tracking-wider" style="color: {{ $m['c'] }}">{{ $m['label'] }}</span>
+                        </div>
+                    </div>
+
+                    {{-- date --}}
+                    <div class="md:text-center">
+                        <span class="md:hidden hud-colhead block mb-1.5">Дата</span>
+                        <p class="text-xs t-dim hud-mono">{{ $ticket->created_at->format('d.m.y') }}</p>
+                        <p class="text-[10px] t-dim2 hud-mono">{{ $ticket->created_at->format('H:i') }}</p>
+                    </div>
                 </div>
 
                 {{-- action --}}
-                <div class="flex justify-end">
-                    <button onclick="document.getElementById('reply-modal-{{ $ticket->id }}').showModal()" class="hud-btn {{ $ticket->reply ? '' : 'hud-btn--solid' }}">
+                <div class="flex md:justify-end">
+                    <button onclick="document.getElementById('reply-modal-{{ $ticket->id }}').showModal()" class="hud-btn w-full md:w-auto {{ $ticket->reply ? '' : 'hud-btn--solid' }}">
                         {{ $ticket->reply ? 'Изменить' : 'Ответить' }}
                     </button>
                 </div>

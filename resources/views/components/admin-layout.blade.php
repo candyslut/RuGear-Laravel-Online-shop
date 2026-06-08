@@ -104,15 +104,45 @@
         [data-theme="dark"] .ti-sun { display: inline-block; }
         [data-theme="light"] .ti-moon { display: inline-block; }
     </style>
+    <script>
+        // Бургер-меню для мобильной версии: показываем/прячем боковую панель.
+        // На md+ панель всегда видна (md:flex перебивает hidden), поэтому
+        // переключение влияет только на мобильную раскладку.
+        function toggleSidebar() {
+            document.getElementById('admin-sidebar')?.classList.toggle('hidden');
+        }
+    </script>
 </head>
 
 <body class="bg-[#0b0c10] text-gray-200 font-sans antialiased selection:bg-orange-500 selection:text-black">
 
+    {{-- ── Мобильная верхняя панель (только < md) ── --}}
+    <div class="md:hidden sticky top-0 z-40 flex items-center justify-between gap-3 bg-[#111318] border-b border-gray-900 px-4 py-3">
+        <div class="flex items-center gap-2.5">
+            <div class="w-2.5 h-6 bg-orange-500 rounded-full shadow-[0_0_15px_rgba(249,115,22,0.5)]"></div>
+            <span class="text-lg font-black uppercase tracking-wider text-white">Ru<span class="text-orange-500">Gear</span></span>
+            <span class="text-[9px] bg-orange-500/10 text-orange-500 px-2 py-0.5 rounded-md border border-orange-500/20 font-bold uppercase tracking-widest">Admin</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="toggleTheme()" type="button"
+                class="w-9 h-9 rounded-lg flex items-center justify-center border border-gray-800 bg-gray-950 text-gray-400 hover:text-orange-500 hover:border-orange-500/40 transition-colors"
+                aria-label="Переключить тему" title="Переключить тему">
+                <svg class="ti-sun w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5" /><path stroke-linecap="round" d="M12 2v2.5M12 19.5V22M4.22 4.22l1.77 1.77M18.01 18.01l1.77 1.77M2 12h2.5M19.5 12H22M4.22 19.78l1.77-1.77M18.01 5.99l1.77-1.77" /></svg>
+                <svg class="ti-moon w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M21.64 13a1 1 0 0 0-1.05-.14 8 8 0 0 1-9.45-9.45 1 1 0 0 0-1.19-1.19A10 10 0 1 0 22 14.05a1 1 0 0 0-.36-1.05z" /></svg>
+            </button>
+            <button onclick="toggleSidebar()" type="button"
+                class="w-9 h-9 rounded-lg flex items-center justify-center border border-gray-800 bg-gray-950 text-gray-300 hover:text-orange-500 hover:border-orange-500/40 transition-colors"
+                aria-label="Меню" title="Меню">
+                <i class="fa-solid fa-bars text-base"></i>
+            </button>
+        </div>
+    </div>
+
     <div class="min-h-screen flex flex-col md:flex-row">
 
-        <aside class="w-full md:w-64 bg-[#111318] border-b md:border-b-0 md:border-r border-gray-900 p-6 flex flex-col justify-between">
+        <aside id="admin-sidebar" class="hidden md:flex w-full md:w-64 flex-shrink-0 bg-[#111318] border-b md:border-b-0 md:border-r border-gray-900 p-6 flex-col justify-between">
             <div class="space-y-8">
-                <div class="flex items-center justify-between gap-3">
+                <div class="hidden md:flex items-center justify-between gap-3">
                     <div class="flex items-center gap-3">
                         <div class="w-3 h-7 bg-orange-500 rounded-full shadow-[0_0_15px_rgba(249,115,22,0.5)]"></div>
                         <span class="text-xl font-black uppercase tracking-wider text-white">Ru<span class="text-orange-500">Gear</span></span>
