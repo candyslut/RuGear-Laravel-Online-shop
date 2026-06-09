@@ -165,6 +165,22 @@
         }
         [data-theme="light"] .to-\[\#0f1115\] { --tw-gradient-to: #f3f4f6 var(--tw-gradient-to-position); }
 
+        /* — Стикер-пикер (всплывающее меню в комментариях) — */
+        /* Корпус поповера: тёмный градиент → белый с лёгким понижением книзу */
+        [data-theme="light"] .from-\[\#13161d\] {
+            --tw-gradient-from: #ffffff var(--tw-gradient-from-position);
+            --tw-gradient-to: rgb(255 255 255 / 0) var(--tw-gradient-to-position);
+            --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+        }
+        [data-theme="light"] .to-\[\#0d0f15\] { --tw-gradient-to: #f3f4f6 var(--tw-gradient-to-position); }
+        /* Панель вкладок сверху */
+        [data-theme="light"] .bg-\[\#0b0d12\] { background-color: #f3f4f6; }
+        /* Липкие заголовки секций (полупрозрачные поверх грида) */
+        [data-theme="light"] .bg-\[\#0d0f15\]\/95 { background-color: rgba(255, 255, 255, .95); }
+        /* hover-фон ячеек/вкладок, ещё не покрытый общими правилами */
+        [data-theme="light"] .hover\:bg-gray-800\/80:hover { background-color: #e9ebef; }
+        [data-theme="light"] .hover\:bg-gray-800\/70:hover { background-color: #ebedf1; }
+
         /* — Пагинация (постраничные стили задают тёмный фон через !important) — */
         [data-theme="light"] .custom-pagination a,
         [data-theme="light"] .custom-pagination nav a,
@@ -339,12 +355,29 @@
                     {{-- Бургер-меню — строго между логотипом и аватаром.
                          Сюда свёрнуты: Каталог, Поддержка, Админ панель,
                          колокольчик уведомлений и переключатель темы. --}}
-                    <div class="relative" x-data="{ open: false }" @keydown.escape.window="open = false">
+                    <div
+                        class="relative"
+                        x-data="{
+                            open: false,
+                            unread: false,
+                            syncUnread() { this.unread = !!document.querySelector('[data-bell-badge]'); },
+                        }"
+                        x-init="
+                            syncUnread();
+                            $nextTick(() => syncUnread());
+                            const host = document.getElementById('notif-bell-host');
+                            if (host) {
+                                const mo = new MutationObserver(() => syncUnread());
+                                mo.observe(host, { childList: true, subtree: true });
+                            }
+                        "
+                        @keydown.escape.window="open = false"
+                    >
                         <button
                             type="button"
                             @click="open = !open"
                             :aria-expanded="open.toString()"
-                            class="w-9 h-9 rounded-lg flex items-center justify-center border border-[var(--border-color)] bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-orange-500 hover:border-orange-500/40 transition-colors"
+                            class="relative w-9 h-9 rounded-lg flex items-center justify-center border border-[var(--border-color)] bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-orange-500 hover:border-orange-500/40 transition-colors"
                             aria-label="Меню"
                             title="Меню"
                         >
@@ -356,6 +389,16 @@
                             <svg x-show="open" x-cloak style="display: none;" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
+                            {{-- Индикатор непрочитанных уведомлений: дублирует бейдж
+                                 колокольчика (который спрятан внутри меню), чтобы он был
+                                 виден и при закрытом меню. Видимостью управляет JS,
+                                 синхронизирующий его с бейджем колокольчика. --}}
+                            @auth
+                            <span x-show="unread && !open" x-cloak style="display: none;" class="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                                <span class="absolute inline-flex h-full w-full rounded-full bg-orange-500 opacity-60 animate-ping"></span>
+                                <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-orange-500 ring-2 ring-[var(--bg-secondary)]"></span>
+                            </span>
+                            @endauth
                         </button>
 
                         <div
@@ -383,14 +426,20 @@
                             </div>
                             @endguest
 
-                            {{-- Уведомления и переключатель темы --}}
+                            {{-- Уведомления — на своей строке (это не «оформление») --}}
+                            @auth
+                            <div class="flex items-center justify-between gap-3 px-4 py-3 border-t border-[var(--border-color-light)]">
+                                <span class="text-sm text-[var(--text-secondary)]">Уведомления</span>
+                                <div id="notif-bell-host" class="flex items-center">
+                                    @livewire('notification-bell')
+                                </div>
+                            </div>
+                            @endauth
+
+                            {{-- Переключатель темы --}}
                             <div class="flex items-center justify-between gap-3 px-4 py-3 border-t border-[var(--border-color-light)]">
                                 <span class="text-sm text-[var(--text-secondary)]">Оформление</span>
                                 <div class="flex items-center gap-3">
-                                    @auth
-                                    {{-- Notification bell --}}
-                                    @livewire('notification-bell')
-                                    @endauth
                                     {{-- Theme Toggle Button --}}
                                     <button
                                         id="theme-toggle"
@@ -618,7 +667,7 @@
                 `</svg>`;
         }
 
-        function showToast(type, data) {
+        function showToast(type, data, updateCoins = true) {
             const wrap = document.getElementById('toast-wrap');
             if (!wrap) return;
             const id = 'dyn-toast-' + Date.now();
@@ -680,9 +729,12 @@
             wrap.prepend(el);
             setTimeout(() => closeToast(id), 5000);
 
-            // Update header coin counter
+            // Update header coin counter — only for live AJAX awards (comment form),
+            // where the balance hasn't been re-rendered yet. The achievements queue
+            // replays awards that were already persisted *and* already reflected in the
+            // server-rendered counter, so it must NOT increment again (double-count).
             const coinEl = document.getElementById('coin-count');
-            if (coinEl && data.coins) {
+            if (updateCoins && coinEl && data.coins) {
                 const cur = parseInt(coinEl.textContent.replace(/\D/g, ''), 10) || 0;
                 coinEl.textContent = (cur + data.coins).toLocaleString('ru-RU');
             }
@@ -702,7 +754,7 @@
                         title: ach.title,
                         experience: ach.experience,
                         coins: ach.coins
-                    });
+                    }, false);
                 }, idx * 600);
             });
         }

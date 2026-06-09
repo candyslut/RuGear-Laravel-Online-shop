@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ShopItem;
+use App\Models\StickerPack;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -11,10 +12,61 @@ class ShopController extends Controller
     public function index()
     {
         $user  = Auth::user();
-        $items = ShopItem::where('category', '!=', 'font')->get()->groupBy('category');
+
+        // Cosmetics live in the spotlight grid; sticker packs get their own section.
+        $items = ShopItem::whereNotIn('category', ['font', 'sticker_pack'])
+            ->get()
+            ->groupBy('category');
         $owned = $user->shopItems()->pluck('shop_item_id')->toArray();
 
-        return view('market', compact('items', 'owned'));
+        // Imported Telegram sets get a curated rarity tier that drives the
+        // showcase styling (glow, gem, stars).
+        $rarityBySlug  = [
+            'catsunicmass'              => 'mythic',     // 120 video stickers — the showpiece
+            'cherryblack'               => 'legendary',
+            'prettysailormoon'          => 'epic',
+            'jjks2_pt2'                 => 'mythic',
+            'skalddealsex_by_fstikbot'  => 'epic',
+            'biscvit_vk'                => 'rare',
+            'sti_586dd_by_tgemodzibot'  => 'rare',
+        ];
+        // Fallback rarity (for any future imported pack) derived from price.
+        // Floored at "rare": the common tier was retired with the Noto packs.
+        $priceRarity = fn ($p) => ($p = (int) $p) >= 400 ? 'legendary'
+            : ($p >= 300 ? 'mythic' : ($p >= 200 ? 'epic' : 'rare'));
+
+        $stickerPacks = StickerPack::active()
+            ->with(['stickers', 'shopItem'])
+            ->orderBy('sort_order')
+            ->get()
+            ->map(function (StickerPack $pack) use ($owned, $rarityBySlug, $priceRarity) {
+                $shopItem = $pack->shopItem;
+                return [
+                    'slug'         => $pack->slug,
+                    'name'         => $pack->name,
+                    'count'        => $pack->stickers->count(),
+                    'preview'      => $pack->stickers->take(4)
+                        ->map(fn ($s) => \Illuminate\Support\Facades\Storage::url($s->file_path))
+                        ->values()->all(),
+                    // Full sticker list (url + render type) for the pre-purchase
+                    // preview modal.
+                    'stickers'     => $pack->stickers->map(fn ($s) => [
+                        'url'  => \Illuminate\Support\Facades\Storage::url($s->file_path),
+                        'type' => \Illuminate\Support\Str::endsWith($s->file_path, '.json') ? 'lottie'
+                                : (\Illuminate\Support\Str::endsWith($s->file_path, '.webm') ? 'video' : 'image'),
+                    ])->values()->all(),
+                    'shop_item_id' => $shopItem?->id,
+                    'price'        => $shopItem?->price,
+                    'description'  => $shopItem?->description,
+                    // Free packs (no shop listing) are owned by everyone.
+                    'owned'        => $shopItem === null || in_array($shopItem->id, $owned),
+                    'animated'     => $pack->stickers->contains(fn ($s) => $s->is_animated),
+                    // Premium packs use their curated tier (or a price-derived fallback).
+                    'rarity'       => $rarityBySlug[$pack->slug] ?? $priceRarity($shopItem?->price),
+                ];
+            });
+
+        return view('market', compact('items', 'owned', 'stickerPacks'));
     }
 
     public function buy(ShopItem $item)

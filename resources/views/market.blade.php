@@ -143,69 +143,92 @@
         }
         .stk-badge .dot { width: .42rem; height: .42rem; border-radius: 999px; background: #c084fc; }
 
-        /* Сетка паков */
-        .pack-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr)); gap: 1rem; }
-        .pack {
-            position: relative;
-            border-radius: 1.15rem;
-            padding: 1.25rem 1.1rem 1.1rem;
+        /* ── Стикерпаки · ровная «полка» карточек ──
+              Чисто и сдержанно: нейтральные рамки, без сияний, градиентов и
+              лишних обводок. Редкость показываем самоцветом и звёздами. */
+        .pkx-rail { display: grid; grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr)); gap: 1rem; }
+
+        .pkx {
+            --rgb: 148,163,184;
+            display: flex; flex-direction: column; gap: .75rem;
+            padding: 1.1rem; border-radius: 1.1rem;
             background: var(--bg-tertiary);
-            border: 1px solid rgba(var(--rgb), .38);
-            box-shadow: 0 10px 26px rgba(0,0,0,.18);
-            overflow: hidden;
-            transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+            border: 1px solid var(--border-color);
+            transition: transform .18s ease, border-color .18s ease;
         }
-        .pack:hover { transform: translateY(-2px); border-color: rgba(var(--rgb), .6); }
+        .pkx:hover { transform: translateY(-2px); border-color: var(--text-tertiary); }
 
-        .pack__box {
-            position: relative; z-index: 1;
-            width: 100%; height: 6.5rem; border-radius: .9rem;
+        /* сцена-превью — ровный нейтральный фон, без градиента */
+        .pkx__stage {
+            height: 6.5rem; flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
-            background: var(--bg-secondary);
-            border: 1px solid rgba(var(--rgb), .3);
-            margin-bottom: .9rem;
+            border-radius: .85rem; background: var(--bg-secondary);
         }
-        /* «Стикеры» внутри пака — 4 затемнённые фигуры-заглушки (контент скрыт) */
-        .pack__stickers { display: grid; grid-template-columns: repeat(2, 1fr); gap: .5rem; place-items: center; }
-        .pack__stickers i { display: block; width: 1.7rem; height: 1.7rem; background: rgba(0,0,0,.38); border: 1px solid rgba(var(--rgb), .22); }
-        [data-theme="light"] .pack__stickers i { background: rgba(31,41,55,.28); }
-        .pack__stickers i:nth-child(1) { border-radius: .4rem; }
-        .pack__stickers i:nth-child(2) { border-radius: 999px; }
-        .pack__stickers i:nth-child(3) { border-radius: 999px; }
-        .pack__stickers i:nth-child(4) { border-radius: .4rem; }
-        .pack__tier {
-            position: absolute; top: .6rem; right: .6rem;
-            font-size: .56rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
-            color: rgb(var(--rgb)); background: rgba(var(--rgb), .16);
-            border: 1px solid rgba(var(--rgb), .45); padding: .2rem .45rem; border-radius: .4rem; z-index: 2;
-        }
-        .pack__name { position: relative; z-index: 1; font-size: .95rem; font-weight: 800; color: var(--text-primary); }
-        .pack__sub  { position: relative; z-index: 1; font-size: .72rem; color: var(--text-secondary); margin-top: .15rem; }
-        .pack__foot { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; margin-top: .9rem; }
-        .pack__price { display: inline-flex; align-items: center; gap: .35rem; font-size: .82rem; font-weight: 800; color: #fbbf24; }
-        [data-theme="light"] .pack__price { color: #b45309; }
-        .pack__count { font-size: .66rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: .06em; }
+        .pkx__stage canvas, .pkx__stage video, .pkx__stage img { display: block; }
 
-        /* «Замок» поверх пака, пока раздел в разработке */
-        .pack__lock {
-            position: absolute; inset: 0; z-index: 3;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .4rem;
-            background: rgba(8,10,14,.55);
-            backdrop-filter: blur(2.5px); -webkit-backdrop-filter: blur(2.5px);
-            opacity: 0; transition: opacity .25s ease;
-        }
-        [data-theme="light"] .pack__lock { background: rgba(255,255,255,.6); }
-        .pack:hover .pack__lock { opacity: 1; }
-        .pack__lock svg { width: 1.6rem; height: 1.6rem; color: var(--text-secondary); }
-        .pack__lock span { font-size: .62rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--text-secondary); }
+        /* самоцвет редкости (без свечения) */
+        .gem { display: inline-flex; align-items: center; gap: .4rem; font-size: .58rem; font-weight: 900;
+            letter-spacing: .12em; text-transform: uppercase; color: rgb(var(--rgb)); }
+        .gem::before { content: ''; width: .55rem; height: .55rem; border-radius: 2px; transform: rotate(45deg); background: rgb(var(--rgb)); }
 
-        .stk-cta {
-            display: inline-flex; align-items: center; gap: .5rem;
-            padding: .7rem 1.3rem; border-radius: .8rem; font-size: .82rem; font-weight: 800;
-            color: #c084fc; background: rgba(168,85,247,.14); border: 1px solid rgba(168,85,247,.5);
-            cursor: pointer; transition: background .2s ease;
+        /* Fixed 2-line height so the gem/stars row and the buy/owned footer sit on
+           the same Y across every card, regardless of how long the name is. */
+        .pkx__name {
+            font-size: .98rem; font-weight: 800; color: var(--text-primary); line-height: 1.15;
+            min-height: 2.3rem;
+            display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
         }
-        .stk-cta:hover { background: rgba(168,85,247,.22); }
+
+        /* ряд: звёзды слева, ярлык анимации справа — в потоке, без перекрытий */
+        .pkx__metarow { display: flex; align-items: center; gap: .5rem; min-height: 1.1rem; }
+        .pkx__stars { font-size: .8rem; letter-spacing: 1px; line-height: 1; }
+        .anim-pill { display: inline-flex; align-items: center; gap: .3rem; margin-left: auto;
+            font-size: .56rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--text-secondary); }
+        .anim-pill .dot { width: .36rem; height: .36rem; border-radius: 999px; background: #10b981; }
+
+        /* подвал */
+        .pkx__foot { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: .6rem; padding-top: .25rem; }
+        .pkx__price { display: inline-flex; align-items: center; gap: .35rem; font-size: .9rem; font-weight: 900; color: #fbbf24; }
+        [data-theme="light"] .pkx__price { color: #b45309; }
+        .pkx__owned { display: inline-flex; align-items: center; gap: .3rem; font-size: .62rem; font-weight: 800;
+            text-transform: uppercase; letter-spacing: .06em; color: #10b981; }
+        .pkx__count { font-size: .64rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: .05em; }
+
+        .pkx-buy { padding: .5rem 1.05rem; border-radius: .65rem; font-size: .76rem; font-weight: 800; cursor: pointer;
+            white-space: nowrap; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary);
+            transition: border-color .18s ease, color .18s ease; }
+        .pkx-buy:hover { border-color: #f97316; color: #f97316; }
+
+        /* превью-кнопка пака (вся сцена кликабельна) */
+        .pkx__stage--btn { position: relative; width: 100%; border: none; cursor: pointer; padding: 0;
+            transition: background .18s ease; }
+        .pkx__stage--btn:hover { background: var(--bg-tertiary); }
+        .pkx__peek { position: absolute; bottom: .3rem; left: 50%; transform: translateX(-50%);
+            font-size: .54rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+            color: rgb(var(--rgb)); background: rgba(var(--rgb), .14); border: 1px solid rgba(var(--rgb), .35);
+            padding: .12rem .45rem; border-radius: .4rem; opacity: 0; transition: opacity .18s ease; pointer-events: none; }
+        .pkx__stage--btn:hover .pkx__peek { opacity: 1; }
+
+        /* ── Модалка-предпросмотр стикерпака ── */
+        .pkm { position: fixed; inset: 0; z-index: 60; display: none; align-items: center; justify-content: center; padding: 1rem; }
+        .pkm.is-open { display: flex; }
+        .pkm__backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.6); backdrop-filter: blur(2px); }
+        .pkm__panel { position: relative; z-index: 1; width: min(40rem, 100%); max-height: 86vh; display: flex; flex-direction: column;
+            background: var(--bg-secondary); border: 1px solid rgba(var(--rgb), .4); border-radius: 1.25rem;
+            box-shadow: 0 24px 60px rgba(0,0,0,.45); overflow: hidden; animation: spotIn .25s ease both; }
+        .pkm__head { display: flex; align-items: flex-start; gap: 1rem; padding: 1.25rem 1.4rem; border-bottom: 1px solid var(--border-color); }
+        .pkm__close { margin-left: auto; flex-shrink: 0; width: 2rem; height: 2rem; border-radius: .6rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 1.1rem; line-height: 1;
+            color: var(--text-secondary); background: var(--bg-tertiary); border: 1px solid var(--border-color); transition: all .18s ease; }
+        .pkm__close:hover { color: #ef4444; border-color: rgba(239,68,68,.45); }
+        .pkm__title { font-size: 1.3rem; font-weight: 900; color: var(--text-primary); line-height: 1.1; }
+        .pkm__grid { padding: 1.1rem 1.4rem; overflow-y: auto; display: grid; gap: .5rem;
+            grid-template-columns: repeat(auto-fill, minmax(4.5rem, 1fr)); }
+        .pkm__cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; padding: .35rem;
+            border-radius: .7rem; background: var(--bg-tertiary); border: 1px solid var(--border-color); }
+        .pkm__cell canvas, .pkm__cell video, .pkm__cell img { width: 100%; height: 100%; object-fit: contain; display: block; }
+        .pkm__foot { display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+            padding: 1.1rem 1.4rem; border-top: 1px solid var(--border-color); }
     </style>
 
     @php
@@ -219,16 +242,15 @@
 
         $rarityMeta = [
             'common'    => ['l' => 'Обычный',     'rgb' => '148,163,184', 'stars' => 1],
-            'uncommon'  => ['l' => 'Необычный',   'rgb' => '34,197,94',   'stars' => 2],
-            'rare'      => ['l' => 'Редкий',      'rgb' => '59,130,246',  'stars' => 3],
-            'epic'      => ['l' => 'Эпический',   'rgb' => '168,85,247',  'stars' => 4],
+            'rare'      => ['l' => 'Редкий',      'rgb' => '59,130,246',  'stars' => 2],
+            'epic'      => ['l' => 'Эпический',   'rgb' => '168,85,247',  'stars' => 3],
+            'mythic'    => ['l' => 'Мифический',  'rgb' => '236,72,153',  'stars' => 4],
             'legendary' => ['l' => 'Легендарный', 'rgb' => '245,158,11',  'stars' => 5],
-            'mythic'    => ['l' => 'Мифический',  'rgb' => '236,72,153',  'stars' => 5],
         ];
         $rarityOf = function ($item) {
             if ($item->css_value === 'rainbow') return 'mythic';
             $p = (int) $item->price;
-            return $p >= 250 ? 'legendary' : ($p >= 160 ? 'epic' : ($p >= 120 ? 'rare' : ($p >= 80 ? 'uncommon' : 'common')));
+            return $p >= 250 ? 'legendary' : ($p >= 160 ? 'mythic' : ($p >= 120 ? 'epic' : ($p >= 80 ? 'rare' : 'common')));
         };
 
         // Статистика коллекции
@@ -238,9 +260,36 @@
             foreach ($group as $it) { if (in_array($it->id, $ownedIds)) $own++; }
             $catStats[$cat] = ['total' => count($group), 'owned' => $own];
         }
-        $totalCount = array_sum(array_column($catStats, 'total'));
-        $ownedCount = array_sum(array_column($catStats, 'owned'));
+
+        // Стикерпаки тоже часть коллекции.
+        $packTotal = $stickerPacks->count();
+        $packOwned = $stickerPacks->filter(fn ($p) => $p['owned'])->count();
+
+        $totalCount = array_sum(array_column($catStats, 'total')) + $packTotal;
+        $ownedCount = array_sum(array_column($catStats, 'owned')) + $packOwned;
         $pct = $totalCount ? (int) round($ownedCount / $totalCount * 100) : 0;
+        $packPct = $packTotal ? (int) round($packOwned / $packTotal * 100) : 0;
+
+        // Данные паков для JS (модалка-предпросмотр + живое обновление коллекции),
+        // ключ — slug.
+        $packsForJs = [];
+        foreach ($stickerPacks as $p) {
+            $rk = $p['rarity'] ?? 'common';
+            $m  = $rarityMeta[$rk] ?? $rarityMeta['common'];
+            $packsForJs[$p['slug']] = [
+                'slug'        => $p['slug'],
+                'name'        => $p['name'],
+                'rarityLabel' => $m['l'],
+                'rgb'         => $m['rgb'],
+                'stars'       => $m['stars'],
+                'animated'    => !empty($p['animated']),
+                'owned'       => (bool) $p['owned'],
+                'price'       => (int) ($p['price'] ?? 0),
+                'shopItemId'  => $p['shop_item_id'],
+                'count'       => (int) $p['count'],
+                'stickers'    => $p['stickers'] ?? [],
+            ];
+        }
 
         // Данные для JS-спотлайта
         $catData = [];
@@ -333,25 +382,32 @@
                 <div class="mk-panel p-5">
                     <div class="flex items-center justify-between mb-3">
                         <p class="text-xs uppercase tracking-widest font-black text-[var(--text-secondary)]">Коллекция</p>
-                        <span class="text-xs font-black {{ $pct === 100 ? 'text-emerald-400' : 'text-orange-400' }}">{{ $ownedCount }}/{{ $totalCount }}</span>
+                        <span data-collection-fraction class="text-xs font-black {{ $pct === 100 ? 'text-emerald-400' : 'text-orange-400' }}">{{ $ownedCount }}/{{ $totalCount }}</span>
                     </div>
-                    <div class="mk-bar mb-1"><span style="width: {{ $pct }}%"></span></div>
-                    <p class="text-[11px] text-[var(--text-tertiary)] mb-4">{{ $pct }}% собрано</p>
+                    <div class="mk-bar mb-1"><span data-collection-bar style="width: {{ $pct }}%"></span></div>
+                    <p class="text-[11px] text-[var(--text-tertiary)] mb-4"><span data-collection-pct>{{ $pct }}</span>% собрано</p>
                     <div class="space-y-3">
                         @foreach($catStats as $cat => $st)
                         @php $cp = $st['total'] ? (int) round($st['owned'] / $st['total'] * 100) : 0; @endphp
-                        <div style="--rgb: 249,115,22;">
+                        <div style="--rgb: 249,115,22;" data-cat-stat="{{ $cat }}">
                             <div class="flex items-center justify-between text-[11px] mb-1">
                                 <span class="text-[var(--text-secondary)] font-semibold">{{ $catLabels[$cat] ?? $cat }}</span>
-                                <span class="text-[var(--text-tertiary)] font-bold tabular-nums">{{ $st['owned'] }}/{{ $st['total'] }}</span>
+                                <span data-catstat-fraction class="text-[var(--text-tertiary)] font-bold tabular-nums">{{ $st['owned'] }}/{{ $st['total'] }}</span>
                             </div>
-                            <div class="mk-bar mk-bar--mini"><span style="width: {{ $cp }}%"></span></div>
+                            <div class="mk-bar mk-bar--mini"><span data-catstat-bar style="width: {{ $cp }}%"></span></div>
                         </div>
                         @endforeach
+
+                        {{-- Стикерпаки --}}
+                        <div style="--rgb: 168,85,247;" data-pack-stat>
+                            <div class="flex items-center justify-between text-[11px] mb-1">
+                                <span class="text-[var(--text-secondary)] font-semibold">Стикерпаки</span>
+                                <span data-packstat-fraction class="text-[var(--text-tertiary)] font-bold tabular-nums">{{ $packOwned }}/{{ $packTotal }}</span>
+                            </div>
+                            <div class="mk-bar mk-bar--mini"><span data-packstat-bar style="width: {{ $packPct }}%"></span></div>
+                        </div>
                     </div>
-                    @if($pct === 100)
-                    <div class="mt-4 text-center text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-xl py-2.5">🏆 Коллекция собрана полностью!</div>
-                    @endif
+                    <div data-collection-trophy class="mt-4 text-center text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-xl py-2.5 {{ $pct === 100 ? '' : 'hidden' }}">🏆 Коллекция собрана полностью!</div>
                 </div>
 
                 <div class="mk-panel p-5">
@@ -373,7 +429,8 @@
                 <section data-cat="{{ $category }}">
                     <div class="flex items-center gap-3 mb-4">
                         <h2 class="text-sm font-black uppercase tracking-widest text-[var(--text-primary)]">{{ $catLabels[$category] ?? $category }}</h2>
-                        <span class="text-[11px] font-bold text-[var(--text-tertiary)] bg-[var(--bg-tertiary)] border border-[var(--border-color)] rounded-full px-2.5 py-0.5">
+                        <span class="text-[11px] font-bold text-[var(--text-tertiary)] bg-[var(--bg-tertiary)] border border-[var(--border-color)] rounded-full px-2.5 py-0.5"
+                              data-section-count="{{ $category }}">
                             {{ $catStats[$category]['owned'] }}/{{ $catStats[$category]['total'] }}
                         </span>
                         <div class="h-px flex-1 bg-[var(--border-color)]"></div>
@@ -383,7 +440,7 @@
                     <div class="spot" id="spot-{{ $category }}"></div>
 
                     {{-- Лоток-селектор --}}
-                    <div class="orb-rail">
+                    <div class="orb-rail" data-cat="{{ $category }}">
                         @foreach($group as $i => $item)
                         @php
                             $r = $rarityOf($item);
@@ -419,76 +476,63 @@
             </div>
         </div>
 
-        {{-- ═══════════════════ СТИКЕРПАКИ · В РАЗРАБОТКЕ ═══════════════════ --}}
+        {{-- ═══════════════════ СТИКЕРПАКИ · ВИТРИНА ═══════════════════ --}}
         @php
-            // Чисто презентационный тизер: бэкенда стикеров пока нет.
-            // Цвета редкости переиспользуем из $rarityMeta выше.
-            $packs = [
-                ['name' => 'Стартовый пак', 'sub' => '5 базовых стикеров',   'price' => 50,  'count' => '12 стикеров', 'rarity' => 'common'],
-                ['name' => 'Необычный пак',  'sub' => 'Железо и гаджеты',      'price' => 120, 'count' => '18 стикеров', 'rarity' => 'rare'],
-                ['name' => 'Редкий пак',     'sub' => 'Анимированные стикеры', 'price' => 220, 'count' => '15 стикеров', 'rarity' => 'epic'],
-                ['name' => 'Мифический пак', 'sub' => 'Гарантия редкого+',     'price' => 400, 'count' => '10 стикеров', 'rarity' => 'mythic'],
-                ['name' => 'Легендарный пак',  'sub' => 'Редкие коллекционные',  'price' => 320, 'count' => '12 стикеров', 'rarity' => 'legendary'],
-            ];
+            // Иерархия качества (от низшего к высшему).
+            $rarityRank = ['common' => 1, 'rare' => 2, 'epic' => 3, 'mythic' => 4, 'legendary' => 5];
+            $sortedPacks = $stickerPacks
+                ->sortBy(fn ($p) => $rarityRank[$p['rarity']] ?? 0)
+                ->values();
+
+            // Звёзды редкости (1–5), как в спотлайте косметики.
+            $stars = function ($n, $rgb) {
+                $out = '';
+                for ($i = 1; $i <= 5; $i++) {
+                    $on = $i <= $n;
+                    $out .= '<span style="color:' . ($on ? 'rgb(' . $rgb . ')' : 'var(--text-tertiary)') . ';' . ($on ? '' : 'opacity:.32;') . '">★</span>';
+                }
+                return $out;
+            };
         @endphp
         <section class="stk px-6 sm:px-8 py-7">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                 <div>
                     <div class="flex items-center gap-3 mb-2">
                         <h2 class="text-2xl font-black text-[var(--text-primary)]">Стикерпаки</h2>
-                        <span class="stk-badge"><span class="dot"></span>Скоро</span>
+                        <span class="stk-badge"><span class="dot"></span>{{ $stickerPacks->count() }} наборов</span>
                     </div>
                     <p class="text-sm text-[var(--text-secondary)] max-w-xl">
-                        Новый слой коллекционирования: вскрывай паки, собирай редкие стикеры и реагируй
-                        ими в комментариях.
+                        Собирай редкие наборы и реагируй стикерами в комментариях.
                     </p>
                 </div>
-                <button type="button" class="stk-cta self-start" onclick="stickerNotify()">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
-                    </svg>
-                    Уведомить о запуске
-                </button>
             </div>
 
-            {{-- Превью паков (заблокированы, пока функции нет) --}}
-            <div class="pack-grid">
-                @foreach($packs as $p)
-                @php $m = $rarityMeta[$p['rarity']]; @endphp
-                <article class="pack" style="--rgb: {{ $m['rgb'] }};" title="Скоро">
-                    <span class="pack__tier">{{ $m['l'] }}</span>
-                    <div class="pack__box"><span class="pack__stickers"><i></i><i></i><i></i><i></i></span></div>
-                    <p class="pack__name">{{ $p['name'] }}</p>
-                    <p class="pack__sub">{{ $p['sub'] }}</p>
-                    <div class="pack__foot">
-                        <span class="pack__price">
-                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
-                                <circle cx="12" cy="12" r="10" fill="#FBBF24" stroke="#D97706" stroke-width="1.5"/>
-                                <circle cx="12" cy="12" r="7.5" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/>
-                            </svg>
-                            {{ number_format($p['price']) }}
-                        </span>
-                        <span class="pack__count">{{ $p['count'] }}</span>
-                    </div>
-                    <div class="pack__lock">
-                        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                            <rect x="5" y="11" width="14" height="9" rx="2"/>
-                            <path stroke-linecap="round" d="M8 11V8a4 4 0 018 0v3"/>
-                        </svg>
-                        <span>Скоро</span>
-                    </div>
-                </article>
-                @endforeach
-            </div>
+            @if($stickerPacks->isEmpty())
+                <p class="text-sm text-[var(--text-tertiary)]">Стикерпаки скоро появятся.</p>
+            @else
+                <div class="pkx-rail">
+                    @foreach($sortedPacks as $pack)
+                        @include('partials.pack-card', ['pack' => $pack])
+                    @endforeach
+                </div>
+            @endif
         </section>
     </div>
 
     {{-- Toast --}}
     <div id="market-toast" class="fixed bottom-6 right-6 z-50 pointer-events-none" style="min-width:260px;max-width:340px;"></div>
 
+    {{-- Модалка-предпросмотр стикерпака (наполняется JS) --}}
+    <div id="pack-modal" class="pkm" onclick="if (event.target === this || event.target.classList.contains('pkm__backdrop')) closePackPreview()">
+        <div class="pkm__backdrop"></div>
+        <div class="pkm__panel" id="pack-modal-panel"></div>
+    </div>
+
     <script>
         const csrf = document.querySelector('meta[name="csrf-token"]').content;
         const market = @json($catData);
+        const packData = @json($packsForJs);
+        const packCollection = { owned: {{ $packOwned }}, total: {{ $packTotal }} };
         const selected = {};   // индекс предмета в спотлайте
         const locked = {};     // примерка «зафиксирована» кликом
 
@@ -501,6 +545,97 @@
         const COIN_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#FBBF24" stroke="#D97706" stroke-width="1.5"/><circle cx="12" cy="12" r="7.5" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/></svg>';
 
         function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+        // ── Live-update helpers (no page reload) ──
+        function setCoins(value) {
+            const formatted = Number(value).toLocaleString('ru-RU');
+            const el = document.getElementById('market-coins');
+            if (el) el.textContent = formatted;
+            const g = document.getElementById('coin-count');
+            if (g) g.textContent = formatted;
+        }
+
+        function idxOf(cat, id) { return market[cat].findIndex(i => i.id === id); }
+
+        // Mark exactly one item as equipped in a category (id=null → none).
+        function markEquipped(cat, id) {
+            market[cat].forEach(it => { it.equipped = (it.id === id); });
+        }
+
+        function orbColorFor(item) {
+            if (item.category === 'nickname_color') return item.css;
+            const m = String(item.css).match(/#[0-9a-fA-F]{6}/);
+            return m ? m[0] : '#f97316';
+        }
+
+        // Rebuild a category's swatch tray from the data model. `is-active`
+        // tracks the spotlight selection; the corner badge tracks equip/own.
+        function renderOrbs(cat) {
+            const rail = document.querySelector(`.orb-rail[data-cat="${cat}"]`);
+            if (!rail) return;
+            const sel = selected[cat] ?? 0;
+            rail.innerHTML = market[cat].map((item, i) => {
+                const dot = item.css === 'rainbow'
+                    ? `<span class="orb__rainbow"><span></span></span>`
+                    : `<span class="orb__dot" style="background:${orbColorFor(item)};"></span>`;
+                const badge = item.equipped ? `<span class="orb__check">✓</span>`
+                    : (item.owned ? `<span class="orb__own"></span>` : '');
+                return `<button type="button" class="orb ${i === sel ? 'is-active' : ''}" data-cat="${cat}" data-idx="${i}" style="--rgb:${item.rgb};" title="${esc(item.name)}" onclick="selectItem('${cat}',${i})" onmouseenter="hoverItem('${cat}',${i})" onmouseleave="unhoverItem('${cat}')">${dot}${badge}</button>`;
+            }).join('');
+        }
+
+        // Re-render spotlight + tray for a category after a state change.
+        function refreshCategory(cat) {
+            const idx = selected[cat] ?? 0;
+            renderSpotlight(cat, idx);
+            renderOrbs(cat);
+        }
+
+        // Recompute the sidebar collection panel + per-section counters from data.
+        function updateCollectionStats() {
+            let total = 0, owned = 0;
+            Object.keys(market).forEach(cat => {
+                const items = market[cat];
+                const o = items.filter(i => i.owned).length;
+                total += items.length; owned += o;
+
+                const cp = items.length ? Math.round(o / items.length * 100) : 0;
+                const wrap = document.querySelector(`[data-cat-stat="${cat}"]`);
+                if (wrap) {
+                    const f = wrap.querySelector('[data-catstat-fraction]');
+                    const b = wrap.querySelector('[data-catstat-bar]');
+                    if (f) f.textContent = `${o}/${items.length}`;
+                    if (b) b.style.width = cp + '%';
+                }
+                const sc = document.querySelector(`[data-section-count="${cat}"]`);
+                if (sc) sc.textContent = `${o}/${items.length}`;
+            });
+
+            // Sticker packs are part of the collection too.
+            total += packCollection.total; owned += packCollection.owned;
+            const ppct = packCollection.total ? Math.round(packCollection.owned / packCollection.total * 100) : 0;
+            const pwrap = document.querySelector('[data-pack-stat]');
+            if (pwrap) {
+                const pf = pwrap.querySelector('[data-packstat-fraction]');
+                const pb = pwrap.querySelector('[data-packstat-bar]');
+                if (pf) pf.textContent = `${packCollection.owned}/${packCollection.total}`;
+                if (pb) pb.style.width = ppct + '%';
+            }
+
+            const pct = total ? Math.round(owned / total * 100) : 0;
+            const frac = document.querySelector('[data-collection-fraction]');
+            if (frac) {
+                frac.textContent = `${owned}/${total}`;
+                frac.classList.toggle('text-emerald-400', pct === 100);
+                frac.classList.toggle('text-orange-400', pct !== 100);
+            }
+            const bar = document.querySelector('[data-collection-bar]');
+            if (bar) bar.style.width = pct + '%';
+            const pctEl = document.querySelector('[data-collection-pct]');
+            if (pctEl) pctEl.textContent = pct;
+            const trophy = document.querySelector('[data-collection-trophy]');
+            if (trophy) trophy.classList.toggle('hidden', pct !== 100);
+        }
 
         function bigArt(item) {
             if (item.category === 'border') {
@@ -607,33 +742,45 @@
             const data = await res.json();
             if (!res.ok) { marketToast(data.error === 'not_enough_coins' ? 'Недостаточно монет!' : 'Ошибка транзакции', false); return; }
 
-            const formatted = data.coins.toLocaleString('ru-RU');
-            coinsEl.textContent = formatted;
-            const globalCoin = document.getElementById('coin-count');
-            if (globalCoin) globalCoin.textContent = formatted;
+            setCoins(data.coins);
+
+            // Buying a cosmetic also equips it: own it, equip it, unequip siblings.
+            const item = market[category][idxOf(category, id)];
+            if (item) item.owned = true;
+            markEquipped(category, id);
+            selected[category] = idxOf(category, id);
+            locked[category] = true;
 
             equipped[category] = css;
             applyPreview(category, css);
+            refreshCategory(category);
+            updateCollectionStats();
             marketToast('Куплено и надето!');
-            setTimeout(() => location.reload(), 650);
         }
 
         async function marketEquip(id, category, css) {
             const res = await fetch(`/market/equip/${id}`, { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' } });
             if (!res.ok) { marketToast('Ошибка при экипировке', false); return; }
+
+            markEquipped(category, id);
+            selected[category] = idxOf(category, id);
+            locked[category] = true;
+
             equipped[category] = css;
             applyPreview(category, css);
+            refreshCategory(category);
             marketToast('Экипировано успешно!');
-            setTimeout(() => location.reload(), 650);
         }
 
         async function marketUnequip(category) {
             const res = await fetch('/market/unequip', { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf, 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({ category }) });
             if (!res.ok) { marketToast('Ошибка при снятии', false); return; }
+
+            markEquipped(category, null);
             equipped[category] = null;
             restorePreview(category);
+            refreshCategory(category);
             marketToast('Снято с профиля');
-            setTimeout(() => location.reload(), 650);
         }
 
         function marketToast(msg, ok = true) {
@@ -644,12 +791,87 @@
             setTimeout(() => { t.innerHTML = ''; }, 3500);
         }
 
-        // Стикерпаки ещё в разработке — кнопка просто подтверждает интерес.
-        let stickerNotified = false;
-        function stickerNotify() {
-            if (stickerNotified) { marketToast('Мы уже сообщим вам о запуске стикеров 🙌'); return; }
-            stickerNotified = true;
-            marketToast('Готово! Уведомим, когда стикерпаки заработают.');
+        // ── Стикерпаки: предпросмотр + покупка (без перезагрузки) ──
+
+        // Build one preview cell mirroring partials/pack-preview (lottie/video/image).
+        function stickerCellHTML(s) {
+            if (s.type === 'lottie')
+                return `<div class="pkm__cell"><canvas data-lottie-src="${s.url}" data-lottie-hover width="200" height="200"></canvas></div>`;
+            if (s.type === 'video')
+                return `<div class="pkm__cell"><video src="${s.url}#t=0.001" muted playsinline loop preload="metadata" onmouseenter="this.play()" onmouseleave="this.pause()"></video></div>`;
+            return `<div class="pkm__cell"><img src="${s.url}" loading="lazy" alt=""></div>`;
+        }
+
+        function packFootHTML(pack) {
+            if (pack.owned)
+                return `<span class="pkx__owned">✓ В коллекции</span><span class="pkx__count">${pack.count} шт.</span>`;
+            return `<span class="pkx__price">${COIN_SVG} ${pack.price.toLocaleString('ru-RU')}</span>` +
+                   `<button type="button" class="rbtn rbtn--buy" onclick="purchasePack('${pack.slug}')">Купить</button>`;
+        }
+
+        function renderPackModal(pack) {
+            const panel = document.getElementById('pack-modal-panel');
+            panel.style.setProperty('--rgb', pack.rgb);
+            const cells = pack.stickers.map(stickerCellHTML).join('') ||
+                `<p style="grid-column:1/-1;text-align:center;color:var(--text-tertiary);font-size:.85rem;padding:1.5rem 0;">В наборе пока нет стикеров.</p>`;
+            panel.innerHTML =
+                `<div class="pkm__head">` +
+                    `<div>` +
+                        `<div class="spot__meta" style="--rgb:${pack.rgb};"><span class="spot__tier">${esc(pack.rarityLabel)}</span><span class="spot__stars">${starsHTML(pack.stars, pack.rgb)}</span></div>` +
+                        `<h3 class="pkm__title" style="margin-top:.4rem;">${esc(pack.name)}</h3>` +
+                        `<p style="font-size:.78rem;color:var(--text-tertiary);margin-top:.25rem;">${pack.count} стикеров${pack.animated ? ' · анимированные' : ''}</p>` +
+                    `</div>` +
+                    `<button type="button" class="pkm__close" onclick="closePackPreview()" title="Закрыть">✕</button>` +
+                `</div>` +
+                `<div class="pkm__grid">${cells}</div>` +
+                `<div class="pkm__foot" id="pack-modal-foot">${packFootHTML(pack)}</div>`;
+            // Mount the lazy Lottie cells we just injected (video/image self-render).
+            window.scanLottieCanvases?.(panel);
+        }
+
+        let modalPackSlug = null;
+        function openPackPreview(slug) {
+            const pack = packData[slug];
+            if (!pack) return;
+            modalPackSlug = slug;
+            renderPackModal(pack);
+            document.getElementById('pack-modal').classList.add('is-open');
+            document.body.style.overflow = 'hidden';
+        }
+        function closePackPreview() {
+            modalPackSlug = null;
+            document.getElementById('pack-modal').classList.remove('is-open');
+            document.body.style.overflow = '';
+            document.getElementById('pack-modal-panel').innerHTML = '';
+        }
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePackPreview(); });
+
+        // Покупка стикерпака — переиспользует тот же endpoint, что и косметика.
+        async function purchasePack(slug) {
+            const pack = packData[slug];
+            if (!pack || pack.owned) return;
+
+            const coinsEl = document.getElementById('market-coins');
+            const current = parseInt(coinsEl.textContent.replace(/\s/g, '').replace(/,/g, ''), 10);
+            if (current < pack.price) { marketToast('Недостаточно монет!', false); return; }
+
+            const res = await fetch(`/market/buy/${pack.shopItemId}`, { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' } });
+            const data = await res.json();
+            if (!res.ok) { marketToast(data.error === 'not_enough_coins' ? 'Недостаточно монет!' : 'Ошибка транзакции', false); return; }
+
+            setCoins(data.coins);
+            pack.owned = true;
+            packCollection.owned = Math.min(packCollection.owned + 1, packCollection.total);
+
+            // Swap the card footer to the "owned" state in place.
+            const foot = document.getElementById('pack-foot-' + pack.shopItemId);
+            if (foot) foot.innerHTML = `<span class="pkx__owned">✓ В коллекции</span><span class="pkx__count">${pack.count} шт.</span>`;
+            // Refresh the modal footer if it's open for this pack.
+            const modalFoot = document.getElementById('pack-modal-foot');
+            if (modalFoot && modalPackSlug === slug) modalFoot.innerHTML = packFootHTML(pack);
+
+            updateCollectionStats();
+            marketToast('Стикерпак куплен!');
         }
 
         // Инициализация: спотлайт показывает надетый предмет (или первый)

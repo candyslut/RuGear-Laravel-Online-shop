@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\User;
 use App\Models\Commentary;
 use App\Models\Achievement;
+use App\Models\StickerUsage;
 use App\Services\NotificationService;
 
 use App\Http\Requests\CommentaryRequest;
@@ -16,19 +17,31 @@ class CommentaryService
      * @param  string|CommentaryRequest  $contentOrRequest
      * @param  array  $photos  Array of uploaded image files (TemporaryUploadedFile|UploadedFile)
      * @param  int|null  $parentId  When set, the comment is a reply to that commentary
+     * @param  int|null  $stickerId  When set, the comment is an animated sticker
      */
-    public function addComment($contentOrRequest, Product $product, User $user, array $photos = [], ?int $parentId = null): ?array
+    public function addComment($contentOrRequest, Product $product, User $user, array $photos = [], ?int $parentId = null, ?int $stickerId = null): ?array
     {
         $content = is_string($contentOrRequest)
             ? $contentOrRequest
             : $contentOrRequest->content;
+
+        $content = $content !== null && $content !== '' ? $content : null;
 
         $commentary = Commentary::create([
            'content'    => $content,
            'user_id'    => $user->id,
            'product_id' => $product->id,
            'parent_id'  => $parentId,
+           'sticker_id' => $stickerId,
         ]);
+
+        // Track usage so the picker can show a "Recent" tab (bump timestamp on re-use).
+        if ($stickerId !== null) {
+            StickerUsage::updateOrCreate(
+                ['user_id' => $user->id, 'sticker_id' => $stickerId],
+                ['used_at' => now()],
+            );
+        }
 
         foreach ($photos as $photo) {
             if (!$photo) {
@@ -48,6 +61,8 @@ class CommentaryService
             return null;
         }
 
+        // Every top-level comment counts toward review milestones — including
+        // sticker-only comments (a sticker is still a valid comment).
         $count = $user->commentaries()->whereNull('parent_id')->count();
 
         $slugMap = [

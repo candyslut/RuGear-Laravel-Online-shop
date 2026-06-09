@@ -5,12 +5,14 @@ namespace App\Livewire;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Product;
+use App\Livewire\Concerns\InteractsWithStickerPicker;
 use App\Services\CommentaryService;
 use Illuminate\Support\Facades\Auth;
 
 class CommentsList extends Component
 {
     use WithFileUploads;
+    use InteractsWithStickerPicker;
 
     public Product $product;
     public $comments = [];
@@ -19,6 +21,7 @@ class CommentsList extends Component
     public ?int $replyingTo = null;
     public string $replyContent = '';
     public array $replyPhotos = [];
+    public ?int $replyStickerId = null;
 
     #[\Livewire\Attributes\Locked]
     public $listId;
@@ -35,7 +38,7 @@ class CommentsList extends Component
         $this->product->refresh();
         $this->comments = $this->product->commentaries()
             ->whereNull('parent_id')
-            ->with(['user', 'photos', 'replies.user', 'replies.photos'])
+            ->with(['user', 'photos', 'sticker', 'replies.user', 'replies.photos', 'replies.sticker'])
             ->orderByDesc('created_at')
             ->get()
             ->toArray();
@@ -46,6 +49,7 @@ class CommentsList extends Component
         $this->replyingTo = $commentId;
         $this->replyContent = '';
         $this->replyPhotos = [];
+        $this->replyStickerId = null;
         $this->resetErrorBag();
     }
 
@@ -54,6 +58,7 @@ class CommentsList extends Component
         $this->replyingTo = null;
         $this->replyContent = '';
         $this->replyPhotos = [];
+        $this->replyStickerId = null;
     }
 
     public function removeReplyPhoto(int $index)
@@ -74,7 +79,9 @@ class CommentsList extends Component
         }
 
         $this->validate([
-            'replyContent' => 'required|string|min:1|max:1000',
+            // A reply may be text, a sticker, or both.
+            'replyContent'  => 'required_without:replyStickerId|nullable|string|min:1|max:1000',
+            'replyStickerId' => 'nullable|exists:stickers,id',
             'replyPhotos'   => 'array|max:4',
             'replyPhotos.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
@@ -90,8 +97,15 @@ class CommentsList extends Component
             Auth::user(),
             $this->replyPhotos,
             $parent->id,
+            $this->replyStickerId,
         );
 
+        // Tell the picker to prepend this sticker to its "Recent" tab live.
+        if ($payload = $this->stickerUsedPayload($this->replyStickerId)) {
+            $this->dispatch('sticker-used', sticker: $payload);
+        }
+
+        unset($this->recentStickers);
         $this->cancelReply();
         $this->loadComments();
     }

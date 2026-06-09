@@ -39,4 +39,8 @@ return [
         'token' => env('DADATA_TOKEN'),
     ],
 
+    'telegram' => [
+        'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+    ],
+
 ];

@@ -5,16 +5,19 @@ namespace App\Livewire;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Product;
+use App\Livewire\Concerns\InteractsWithStickerPicker;
 use App\Services\CommentaryService;
 use Illuminate\Support\Facades\Auth;
 
 class CommentForm extends Component
 {
     use WithFileUploads;
+    use InteractsWithStickerPicker;
 
     public Product $product;
     public string $content = '';
     public array $photos = [];
+    public ?int $stickerId = null;
 
     public function mount(Product $product)
     {
@@ -35,18 +38,28 @@ class CommentForm extends Component
         }
 
         $this->validate([
-            'content' => 'required|string|min:3|max:1000',
-            'photos'   => 'array|max:4',
-            'photos.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
+            // Either text or a sticker is required (or both).
+            'content'   => 'required_without:stickerId|nullable|string|min:3|max:1000',
+            'stickerId' => 'nullable|exists:stickers,id',
+            'photos'    => 'array|max:4',
+            'photos.*'  => 'image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $user = Auth::user();
         $commentaryService = app(CommentaryService::class);
-        $awarded = $commentaryService->addComment($this->content, $this->product, $user, $this->photos);
+        $awarded = $commentaryService->addComment($this->content, $this->product, $user, $this->photos, null, $this->stickerId);
+
+        // Tell the picker to prepend this sticker to its "Recent" tab live.
+        if ($payload = $this->stickerUsedPayload($this->stickerId)) {
+            $this->dispatch('sticker-used', sticker: $payload);
+        }
 
         $this->content = '';
         $this->photos = [];
+        $this->stickerId = null;
+        unset($this->recentStickers);
         $this->dispatch('comment-added')->to('comments-list');
+        $this->dispatch('sticker-sent'); // clears the client-side staged preview
 
         if ($awarded) {
             $this->dispatch('show-achievement', $awarded['achievement']);

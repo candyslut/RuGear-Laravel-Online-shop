@@ -810,7 +810,7 @@
                 @if($achList->count() > 0)
                 <div id="ach-track" class="flex gap-3 overflow-x-auto flex-1 min-h-0" style="scroll-snap-type:x mandatory;scroll-behavior:smooth;">
                     @foreach($achList as $a)
-                    <div class="ach-card flex-shrink-0 p-4 flex flex-col items-center justify-start"
+                    <div class="ach-card flex-shrink-0 p-4 flex flex-col items-center justify-center"
                         style="width:calc(33.333% - 8px);min-width:140px;scroll-snap-align:start;background:var(--inset);border:1px solid var(--line);">
 
                         <div class="ach-icon-wrap w-9 h-9 flex items-center justify-center flex-shrink-0" style="background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.28)">
@@ -823,7 +823,7 @@
 
                         <p class="ach-desc hidden text-xs t-dim leading-snug line-clamp-3 mb-2 flex items-center justify-center text-center">{{ $a->description }}</p>
 
-                        <p class="ach-xp hud-mono text-xs font-bold t-acc flex-shrink-0 mt-auto flex items-center justify-center text-center">+{{ $a->experience }} XP</p>
+                        <p class="ach-xp hud-mono text-xs font-bold t-acc flex-shrink-0 mt-1 flex items-center justify-center text-center">+{{ $a->experience }} XP</p>
 
                     </div>
                     @endforeach

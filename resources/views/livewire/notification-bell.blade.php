@@ -51,7 +51,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 0 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5m6 0v1a3 3 0 0 1-6 0v-1"/>
         </svg>
         @if($unreadCount > 0)
-            <span class="absolute -top-1.5 -right-1.5 flex items-center justify-center">
+            <span data-bell-badge class="absolute -top-1.5 -right-1.5 flex items-center justify-center">
                 <span class="absolute inline-flex h-full w-full rounded-full bg-orange-500 opacity-60 animate-ping"></span>
                 <span class="relative min-w-[18px] h-[18px] px-1 rounded-full bg-orange-500 text-white text-[10px] font-black flex items-center justify-center leading-none ring-2 ring-[var(--bg-secondary)]">
                     {{ $unreadCount > 9 ? '9+' : $unreadCount }}

@@ -31,6 +31,8 @@ class DatabaseSeeder extends Seeder
             OrderSeeder::class,
             AdminSeeder::class,
             TicketSeeder::class,
+            StickerSeeder::class,
+            TelegramPackSeeder::class,
         ]);
     }
 }

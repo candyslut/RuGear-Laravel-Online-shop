@@ -1,4 +1,9 @@
-<div class="space-y-4">
+<div
+    class="space-y-4"
+    x-data="{ staged: null }"
+    x-init="$wire.on('sticker-sent', () => staged = null)"
+    @stage-sticker="staged = $event.detail; $wire.set('stickerId', $event.detail.id, false)"
+>
     <form wire:submit="submitComment" class="space-y-3">
         <div>
             <textarea
@@ -37,6 +42,30 @@
             <p class="text-red-400 text-xs">{{ $message }}</p>
         @enderror
 
+        {{-- Staged sticker preview (client-side; sent only on submit) --}}
+        <div x-show="staged" class="flex items-center gap-2" style="display:none;">
+            <div wire:ignore class="relative w-20 h-20 rounded-lg border border-gray-800 bg-[#0f1117] flex items-center justify-center">
+                <template x-if="staged && staged.type === 'lottie'">
+                    <canvas x-lottie.loop="staged.url" class="w-16 h-16" width="160" height="160"></canvas>
+                </template>
+                <template x-if="staged && staged.type === 'video'">
+                    <video :src="staged.url" class="w-16 h-16 object-contain" autoplay loop muted playsinline></video>
+                </template>
+                <template x-if="staged && staged.type === 'image'">
+                    <img :src="staged.url" class="w-16 h-16 object-contain">
+                </template>
+                <button
+                    type="button"
+                    @click="staged = null; $wire.set('stickerId', null, false)"
+                    class="absolute top-0.5 right-0.5 w-5 h-5 flex items-center justify-center rounded-full bg-black/70 text-white text-xs hover:bg-red-500 transition-colors"
+                >&times;</button>
+            </div>
+            <span class="text-xs text-gray-500">Стикер прикреплён — отправится с комментарием</span>
+        </div>
+        @error('stickerId')
+            <p class="text-red-400 text-xs">{{ $message }}</p>
+        @enderror
+
         <div class="flex items-center gap-2">
             {{-- Attach photos --}}
             <label
@@ -54,8 +83,13 @@
                 @endif
             </label>
 
-            {{-- Emoji picker --}}
-            <x-emoji-picker :target="'comment-textarea-' . $product->id" />
+            {{-- Animated sticker picker --}}
+            @auth
+                @include('partials.sticker-picker', [
+                    'recent' => $this->recentStickers,
+                    'packs'  => $this->stickerPacks,
+                ])
+            @endauth
 
             <span wire:loading wire:target="photos" class="text-xs text-gray-500 font-mono">Загрузка…</span>
         </div>

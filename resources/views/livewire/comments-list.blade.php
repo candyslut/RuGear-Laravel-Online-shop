@@ -7,9 +7,15 @@
         >
             @include('partials.commentary-author', ['author' => $comment['user'], 'createdAt' => $comment['created_at']])
 
-            <p class="text-gray-400 font-light text-sm italic pl-11">
-                « {{ $comment['content'] }} »
-            </p>
+            @if(!empty($comment['content']))
+                <p class="text-gray-400 font-light text-sm italic pl-11">
+                    « {{ $comment['content'] }} »
+                </p>
+            @endif
+
+            @if(!empty($comment['sticker']))
+                @include('partials.commentary-sticker', ['sticker' => $comment['sticker'], 'size' => 'md', 'wkey' => 'c' . $comment['id']])
+            @endif
 
             {{-- Review photos --}}
             @if(!empty($comment['photos']))
@@ -37,7 +43,10 @@
             {{-- Inline reply form --}}
             @auth
                 @if($replyingTo === $comment['id'])
-                    <form wire:submit="submitReply" class="pl-11 mt-3 space-y-2" wire:key="reply-form-{{ $comment['id'] }}">
+                    <form wire:submit="submitReply" class="pl-11 mt-3 space-y-2" wire:key="reply-form-{{ $comment['id'] }}"
+                        x-data="{ staged: null }"
+                        @stage-sticker="staged = $event.detail; $wire.set('replyStickerId', $event.detail.id, false)"
+                    >
                         <textarea
                             wire:model="replyContent"
                             id="reply-textarea-{{ $comment['id'] }}"
@@ -69,6 +78,30 @@
                             <p class="text-red-400 text-xs">{{ $message }}</p>
                         @enderror
 
+                        {{-- Staged sticker preview (client-side; sent only on submit) --}}
+                        <div x-show="staged" class="flex items-center gap-2" style="display:none;">
+                            <div wire:ignore class="relative w-16 h-16 rounded-lg border border-gray-800 bg-[#0f1117] flex items-center justify-center">
+                                <template x-if="staged && staged.type === 'lottie'">
+                                    <canvas x-lottie.loop="staged.url" class="w-12 h-12" width="120" height="120"></canvas>
+                                </template>
+                                <template x-if="staged && staged.type === 'video'">
+                                    <video :src="staged.url" class="w-12 h-12 object-contain" autoplay loop muted playsinline></video>
+                                </template>
+                                <template x-if="staged && staged.type === 'image'">
+                                    <img :src="staged.url" class="w-12 h-12 object-contain">
+                                </template>
+                                <button
+                                    type="button"
+                                    @click="staged = null; $wire.set('replyStickerId', null, false)"
+                                    class="absolute top-0.5 right-0.5 w-4 h-4 flex items-center justify-center rounded-full bg-black/70 text-white text-[10px] hover:bg-red-500 transition-colors"
+                                >&times;</button>
+                            </div>
+                            <span class="text-[11px] text-gray-500">Стикер прикреплён</span>
+                        </div>
+                        @error('replyStickerId')
+                            <p class="text-red-400 text-xs">{{ $message }}</p>
+                        @enderror
+
                         <div class="flex items-center gap-2">
                             <label
                                 class="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg border border-gray-800 bg-[#0f1117] text-gray-400 hover:border-orange-500 hover:text-orange-400 active:scale-95 transition-all cursor-pointer"
@@ -84,7 +117,11 @@
                                 @endif
                             </label>
 
-                            <x-emoji-picker :target="'reply-textarea-' . $comment['id']" />
+                            {{-- Sticker picker for replies --}}
+                            @include('partials.sticker-picker', [
+                                'recent' => $this->recentStickers,
+                                'packs'  => $this->stickerPacks,
+                            ])
 
                             <span wire:loading wire:target="replyPhotos" class="text-xs text-gray-500 font-mono">Загрузка…</span>
 
@@ -115,9 +152,14 @@
                     @foreach($comment['replies'] as $reply)
                         <div wire:key="reply-{{ $reply['id'] }}" class="pt-1">
                             @include('partials.commentary-author', ['author' => $reply['user'], 'createdAt' => $reply['created_at'], 'size' => 'sm'])
-                            <p class="text-gray-400 font-light text-sm pl-9">
-                                {{ $reply['content'] }}
-                            </p>
+                            @if(!empty($reply['content']))
+                                <p class="text-gray-400 font-light text-sm pl-9">
+                                    {{ $reply['content'] }}
+                                </p>
+                            @endif
+                            @if(!empty($reply['sticker']))
+                                @include('partials.commentary-sticker', ['sticker' => $reply['sticker'], 'size' => 'sm', 'wkey' => 'r' . $reply['id']])
+                            @endif
                             @if(!empty($reply['photos']))
                                 <div class="flex flex-wrap gap-2 mt-2 pl-9">
                                     @foreach($reply['photos'] as $photo)

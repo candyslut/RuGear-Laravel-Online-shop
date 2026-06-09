@@ -10,10 +10,14 @@ class Commentary extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['content', 'user_id', 'product_id', 'parent_id'];
+    protected $fillable = ['content', 'user_id', 'product_id', 'parent_id', 'sticker_id'];
 
     public function user() {
         return $this->belongsTo(User::class);
+    }
+
+    public function sticker() {
+        return $this->belongsTo(Sticker::class);
     }
 
     public function product() {
