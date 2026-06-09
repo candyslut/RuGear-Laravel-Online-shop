@@ -412,6 +412,13 @@
                             {{-- Навигация --}}
                             <div class="py-1.5">
                                 <a href="/" class="block px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition">Каталог</a>
+                                @auth
+                                <button type="button"
+                                        @click="open = false; Livewire.dispatch('open-quests')"
+                                        class="w-full text-left block px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition">
+                                    Ежедневные задания
+                                </button>
+                                @endauth
                                 <a href="{{ route('support') }}" class="block px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition">Поддержка</a>
                                 @if(auth()->user() && auth()->user()->role === 'admin')
                                 <a href="{{ route('admin.tickets.index') }}" class="block px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition">Админ панель</a>
@@ -650,6 +657,66 @@
         </div>
         @endif
 
+        {{-- ─── Streak toast — same reward-toast style ────────────────────── --}}
+        @if(session('streak_awarded'))
+        @php $st = session('streak_awarded'); @endphp
+        <div id="t-streak" class="w-80 bg-[#1a1d24] border border-orange-500/30 rounded-2xl p-4 shadow-2xl toast pointer-events-auto">
+            <div class="flex gap-3 items-start">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:rgba(249,115,22,0.15)">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" style="color:#fb923c"><path d="M12.5 2c.4 2.8 2.3 4.4 3.6 6 1.2 1.5 1.9 3 1.9 4.8a6 6 0 11-12 0c0-1.6.6-3 1.6-4.2.2.9.9 1.5 1.8 1.5 1.2 0 1.8-1 1.3-2.5C11.8 5.4 12 3.6 12.5 2z"/></svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs font-bold uppercase tracking-widest" style="color:#fb923c">Серия входов</p>
+                    <p class="text-sm font-bold text-white mt-0.5">День {{ $st['streak'] }} подряд!</p>
+                    <div class="flex items-center gap-3 mt-1">
+                        <span class="text-xs text-gray-400">+{{ $st['xp'] }} XP</span>
+                        <span class="flex items-center gap-1 text-xs font-bold" style="color:#f59e0b;">
+                            <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="12" r="10" fill="#FBBF24" stroke="#D97706" stroke-width="1.5"/>
+                                <circle cx="12" cy="12" r="7.5" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/>
+                                <text x="12" y="16.5" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#78350F" font-family="Georgia, serif">₽</text>
+                            </svg>
+                            +{{ $st['coins'] }} монет
+                        </span>
+                    </div>
+                </div>
+                <button onclick="closeToast('t-streak')" class="text-gray-600 hover:text-white text-lg leading-none flex-shrink-0">×</button>
+            </div>
+        </div>
+        @endif
+
+        {{-- ─── Rank-up toast ──────────────────────────────────────────────── --}}
+        @if(session('rank_up'))
+        @php $rk = session('rank_up'); @endphp
+        <div id="t-rank" class="w-80 bg-[#1a1d24] rounded-2xl p-4 shadow-2xl toast pointer-events-auto" style="border:1px solid {{ $rk['color'] ?? '#fbbf24' }}66;">
+            <div class="flex gap-3 items-start">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:{{ $rk['color'] ?? '#fbbf24' }}26;color:{{ $rk['color'] ?? '#fbbf24' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5 3.4 7.7 8 9 4.6-1.3 8-4 8-9V5l-8-3z"/><polyline points="8.5 11.5 11 14 15.5 9.5"/></svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs font-bold uppercase tracking-widest" style="color:{{ $rk['color'] ?? '#fbbf24' }}">Новый ранг!</p>
+                    <p class="text-sm font-bold text-white mt-0.5">{{ $rk['name'] ?? '' }}</p>
+                    @if(($rk['coins'] ?? 0) > 0)
+                    <span class="flex items-center gap-1 text-xs font-bold mt-1" style="color:#f59e0b;">
+                        <svg class="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" fill="#FBBF24" stroke="#D97706" stroke-width="1.5"/>
+                            <circle cx="12" cy="12" r="7.5" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/>
+                            <text x="12" y="16.5" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#78350F" font-family="Georgia, serif">₽</text>
+                        </svg>
+                        +{{ $rk['coins'] }} монет
+                    </span>
+                    @endif
+                </div>
+                <button onclick="closeToast('t-rank')" class="text-gray-600 hover:text-white text-lg leading-none flex-shrink-0">×</button>
+            </div>
+        </div>
+        @endif
+
+        {{-- ─── Quest-completed queue (replayed by JS like achievements) ───── --}}
+        @if(session('quests_completed'))
+        <div id="quests-queue" data-quests="{{ json_encode(session('quests_completed')) }}" class="hidden"></div>
+        @endif
+
     </div>
 
     <script>
@@ -724,6 +791,41 @@
                         `</div>` +
                         `<button onclick="closeToast('${id}')" class="text-gray-600 hover:text-white text-lg leading-none flex-shrink-0">×</button>` +
                     `</div>`;
+            } else if (type === 'rankup') {
+                const c = data.color || '#fbbf24';
+                el.style.border = '1px solid ' + c + '66';
+                const coinLine = data.coins > 0
+                    ? `<span class="flex items-center gap-1 text-xs font-bold mt-1" style="color:#f59e0b">${_coinSvg(14)} +${data.coins} монет</span>`
+                    : '';
+                el.innerHTML =
+                    `<div class="flex gap-3 items-start">` +
+                        `<div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:${c}26;color:${c}">` +
+                            `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5 3.4 7.7 8 9 4.6-1.3 8-4 8-9V5l-8-3z"/><polyline points="8.5 11.5 11 14 15.5 9.5"/></svg>` +
+                        `</div>` +
+                        `<div class="flex-1 min-w-0">` +
+                            `<p class="text-xs font-bold uppercase tracking-widest" style="color:${c}">Новый ранг!</p>` +
+                            `<p class="text-sm font-bold text-white mt-0.5">${data.name || ''}</p>` +
+                            coinLine +
+                        `</div>` +
+                        `<button onclick="closeToast('${id}')" class="text-gray-600 hover:text-white text-lg leading-none flex-shrink-0">×</button>` +
+                    `</div>`;
+            } else if (type === 'quest') {
+                el.style.border = '1px solid rgba(16,185,129,0.4)';
+                el.innerHTML =
+                    `<div class="flex gap-3 items-start">` +
+                        `<div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:rgba(16,185,129,0.15);color:#34d399">` +
+                            `<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>` +
+                        `</div>` +
+                        `<div class="flex-1 min-w-0">` +
+                            `<p class="text-xs font-bold uppercase tracking-widest" style="color:#34d399">Задание выполнено</p>` +
+                            `<p class="text-sm font-bold text-white mt-0.5">${data.title || ''}</p>` +
+                            `<div class="flex items-center gap-3 mt-1">` +
+                                `<span class="text-xs text-gray-400">+${data.xp} XP</span>` +
+                                `<span class="flex items-center gap-1 text-xs font-bold" style="color:#f59e0b">${_coinSvg(14)} +${data.coins} монет</span>` +
+                            `</div>` +
+                        `</div>` +
+                        `<button onclick="closeToast('${id}')" class="text-gray-600 hover:text-white text-lg leading-none flex-shrink-0">×</button>` +
+                    `</div>`;
             }
 
             // prepend = первый в DOM = внизу контейнера (flex-col-reverse)
@@ -743,7 +845,35 @@
 
         @if(session('achievement_awarded')) setTimeout(() => closeToast('t-ach'), 5000); @endif
         @if(session('level_up'))            setTimeout(() => closeToast('t-lvl'), 5500); @endif
+        @if(session('streak_awarded'))      setTimeout(() => closeToast('t-streak'), 6000); @endif
+        @if(session('rank_up'))             setTimeout(() => closeToast('t-rank'), 6500); @endif
         @if(session('success'))             setTimeout(() => closeToast('t-ok'),  4000); @endif
+
+        // ── Replay quest-completed toasts queued on a full page load ──────────
+        const questQueue = document.getElementById('quests-queue');
+        if (questQueue) {
+            const quests = JSON.parse(questQueue.getAttribute('data-quests') || '[]');
+            quests.forEach((q, idx) => {
+                setTimeout(() => showToast('quest', q, false), idx * 600);
+            });
+        }
+
+        // ── Live rank-up / quest toasts (Livewire-driven, no page reload) ─────
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('hud-rankup', (payload) => {
+                const d = Array.isArray(payload) ? payload[0] : payload;
+                if (d) showToast('rankup', d, false);
+            });
+            Livewire.on('quests-completed', (payload) => {
+                const d = Array.isArray(payload) ? payload[0] : payload;
+                const list = d && d.quests ? d.quests : (Array.isArray(d) ? d : []);
+                list.forEach((q, idx) => setTimeout(() => showToast('quest', q, false), idx * 600));
+            });
+            // Body scroll-lock for overlay modals (e.g. the global quests modal),
+            // so it works on pages other than the dashboard too.
+            Livewire.on('lock-body',   () => { document.body.style.overflow = 'hidden'; });
+            Livewire.on('unlock-body', () => { document.body.style.overflow = ''; });
+        });
 
         // ── Показываем несколько достижений поочередно ──────────────────────
         const achQueue = document.getElementById('achievements-queue');
@@ -850,6 +980,9 @@
             </div>
         </div>
     </dialog>
+
+    {{-- Global daily-quests modal (opened from the burger menu on any page) --}}
+    @livewire('quests-modal')
     @endauth
 
     {{-- ─── Image lightbox (фото в отзывах и т.п.) ──────────────────────

@@ -15,7 +15,9 @@
     ];
 @endphp
 
-<section wire:poll.4s="refresh" class="hudpanel hud-corner hud-grid-bg">
+<section wire:poll.4s="refresh" x-data="{ streakOpen: false }"
+         @keydown.escape.window="streakOpen = false"
+         class="hudpanel hud-corner hud-grid-bg">
     <div class="flex flex-col lg:flex-row lg:items-stretch">
 
         {{-- ── Идентификация ── --}}
@@ -140,6 +142,270 @@
         <p class="hud-mono text-xs t-dim flex-shrink-0 whitespace-nowrap">
             <span class="t-text font-bold">{{ $xpToNext }}</span> XP ДО LV {{ $u->level + 1 }}
         </p>
+    </div>
+
+    {{-- ── Серия входов (streak) ── --}}
+    @php
+        $cycleDay = Gamification::streakCycleDay($u->streak);
+        $weekDay  = $cycleDay === 0 ? 0 : (($cycleDay - 1) % 7) + 1; // прогресс к недельной награде
+    @endphp
+    <div class="px-6 lg:px-7 py-4 border-t flex flex-col sm:flex-row sm:items-center gap-4" style="border-color:var(--line)">
+        <div class="flex items-center gap-3 flex-shrink-0">
+            <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg flex-shrink-0" aria-hidden="true"
+                  style="{{ $u->streak > 0
+                        ? 'color:#fb923c;background:rgba(249,115,22,.14);box-shadow:0 0 16px rgba(249,115,22,.25);'
+                        : 'color:var(--dim-2);background:var(--inset);' }}">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12.5 2c.4 2.8 2.3 4.4 3.6 6 1.2 1.5 1.9 3 1.9 4.8a6 6 0 11-12 0c0-1.6.6-3 1.6-4.2.2.9.9 1.5 1.8 1.5 1.2 0 1.8-1 1.3-2.5C11.8 5.4 12 3.6 12.5 2z"/>
+                </svg>
+            </span>
+            <div>
+                <p class="hud-label">Серия входов</p>
+                <p class="hud-mono text-lg font-black leading-none mt-1 t-text hud-tnum">
+                    {{ $u->streak }} <span class="text-[11px] font-bold t-dim2">дн.</span>
+                </p>
+            </div>
+        </div>
+        <div class="flex-1 w-full min-w-[7rem]">
+            <div class="flex items-center justify-between mb-1">
+                <span class="hud-label">До недельной награды</span>
+                <span class="hud-mono text-[10px] t-dim2">{{ $weekDay }}/7</span>
+            </div>
+            <div class="hud-ticks">
+                @for($i = 0; $i < 7; $i++)<i class="{{ $i < $weekDay ? 'on' : '' }}"></i>@endfor
+            </div>
+        </div>
+        <p class="hud-mono text-xs t-dim flex-shrink-0 whitespace-nowrap">
+            Рекорд: <span class="t-text font-bold">{{ $u->best_streak }}</span> дн.
+        </p>
+        {{-- Открыть круговое меню наград --}}
+        <button type="button" @click="streakOpen = true"
+                class="hud-btn flex-shrink-0 whitespace-nowrap" title="Награды за серию входов">
+            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20 12v9H4v-9M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/>
+            </svg>
+            Награды
+        </button>
+    </div>
+
+    {{-- ══ Колесо наград за серию входов — 6 месяцев (Alpine modal) ══ --}}
+    @php
+        $cycle     = Gamification::STREAK_CYCLE;                  // 180
+        $progress  = $cycle > 0 ? (int) round($cycleDay / $cycle * 100) : 0;
+        $toWeekly  = ($cycleDay > 0 && $cycleDay % 7 === 0)  ? 0 : (7  - ($cycleDay % 7));
+        $toMonthly = ($cycleDay > 0 && $cycleDay % 30 === 0) ? 0 : (30 - ($cycleDay % 30));
+        $toGrand   = max(0, $cycle - $cycleDay);
+        $wkPct     = ($cycleDay > 0 && $cycleDay % 7 === 0)  ? 100 : ($cycleDay % 7)  / 7  * 100;
+        $moPct     = ($cycleDay > 0 && $cycleDay % 30 === 0) ? 100 : ($cycleDay % 30) / 30 * 100;
+        $tierColors = ['daily' => '#f97316', 'weekly' => '#22d3ee', 'monthly' => '#a855f7', 'grand' => '#fbbf24'];
+        // Reward table for the client-side preview slider (one source of truth: PHP).
+        $rewardTable = [];
+        for ($d = 1; $d <= $cycle; $d++) { $rewardTable[$d] = Gamification::streakReward($d); }
+        // Wheel geometry (viewBox 260×260): a clean progress ring. The arc sweeps
+        // from the top clockwise to the current day; milestone days (each month +
+        // the six-month grand prize) sit on the ring as studs, so nothing overlaps.
+        $cx = 130; $cy = 130; $R = 100;
+        $circ = 2 * M_PI * $R;
+        $dash = round($circ * ($cycle > 0 ? min($cycleDay, $cycle) / $cycle : 0), 2);
+        $markers = [];
+        for ($d = 30; $d < $cycle; $d += 30) { $markers[$d] = 'monthly'; }
+        $markers[$cycle] = 'grand';
+    @endphp
+
+    <div wire:ignore>
+        <div x-show="streakOpen" x-cloak @click.self="streakOpen = false"
+             x-transition.opacity.duration.200ms class="sr-overlay">
+            <div class="sr-card"
+                 x-data="{
+                    previewDay: {{ max(1, $cycleDay) }},
+                    rewards: @js($rewardTable),
+                    tiers: @js(Gamification::STREAK_TIERS),
+                    nextWeek() { this.previewDay = Math.min({{ $cycle }}, (Math.floor(this.previewDay / 7) + 1) * 7); }
+                 }"
+                 x-show="streakOpen"
+                 x-transition:enter="ease-out duration-200"
+                 x-transition:enter-start="opacity-0 translate-y-3 scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 scale-100">
+
+                {{-- Заголовок --}}
+                <div class="sr-head">
+                    <span class="sr-head__bar"></span>
+                    <span class="sr-head__title">Ежедневный вход</span>
+                    <span class="sr-head__code">6 МЕСЯЦЕВ · {{ $cycle }} ДН.</span>
+                    <button type="button" @click="streakOpen = false" class="sr-close" aria-label="Закрыть">&times;</button>
+                </div>
+
+                <div class="sr-body">
+                    {{-- ── Кольцо прогресса — заполняется до текущего дня ── --}}
+                    <div class="sr-wheel">
+                        <svg viewBox="0 0 260 260" class="sr-wheel-svg" aria-hidden="true">
+                            <defs>
+                                <linearGradient id="srGrad" x1="0" y1="0" x2="1" y2="1">
+                                    <stop offset="0" stop-color="#fbbf24"/>
+                                    <stop offset=".55" stop-color="#fb923c"/>
+                                    <stop offset="1" stop-color="#f97316"/>
+                                </linearGradient>
+                            </defs>
+                            {{-- Track --}}
+                            <circle cx="{{ $cx }}" cy="{{ $cy }}" r="{{ $R }}" fill="none"
+                                    stroke="var(--line-2)" stroke-width="9" opacity=".35"/>
+                            {{-- Progress arc — sweeps from the top, clockwise, to today --}}
+                            <circle cx="{{ $cx }}" cy="{{ $cy }}" r="{{ $R }}" fill="none"
+                                    stroke="url(#srGrad)" stroke-width="9" stroke-linecap="round"
+                                    stroke-dasharray="{{ $dash }} {{ round($circ - $dash, 2) }}"
+                                    transform="rotate(-90 {{ $cx }} {{ $cy }})"/>
+                            {{-- Milestone studs (monthly + grand prize) --}}
+                            @foreach($markers as $d => $tier)
+                                @php
+                                    $ang = deg2rad(-90 + ($d / $cycle) * 360);
+                                    $mx  = round($cx + $R * cos($ang), 2);
+                                    $my  = round($cy + $R * sin($ang), 2);
+                                    $reached = $d <= $cycleDay;
+                                @endphp
+                                <circle cx="{{ $mx }}" cy="{{ $my }}" r="{{ $tier === 'grand' ? 5.5 : 4 }}"
+                                        fill="{{ $reached ? $tierColors[$tier] : 'var(--bg)' }}"
+                                        stroke="{{ $reached ? $tierColors[$tier] : 'var(--line-2)' }}" stroke-width="1.5"/>
+                            @endforeach
+                            {{-- Current-day knob marks where you are on the ring --}}
+                            @if($cycleDay > 0)
+                                @php
+                                    $cAng = deg2rad(-90 + ($cycleDay / $cycle) * 360);
+                                    $kx = round($cx + $R * cos($cAng), 2);
+                                    $ky = round($cy + $R * sin($cAng), 2);
+                                @endphp
+                                <circle cx="{{ $kx }}" cy="{{ $ky }}" r="6" fill="var(--text)"
+                                        stroke="var(--bg)" stroke-width="2.5" class="sr-cur"/>
+                            @endif
+                        </svg>
+                        <div class="sr-wheel-center">
+                            <svg class="sr-wheel-flame w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12.5 2c.4 2.8 2.3 4.4 3.6 6 1.2 1.5 1.9 3 1.9 4.8a6 6 0 11-12 0c0-1.6.6-3 1.6-4.2.2.9.9 1.5 1.8 1.5 1.2 0 1.8-1 1.3-2.5C11.8 5.4 12 3.6 12.5 2z"/>
+                            </svg>
+                            <span class="sr-wheel-num">{{ $u->streak }}</span>
+                            <span class="sr-wheel-day">день {{ $cycleDay }} / {{ $cycle }}</span>
+                        </div>
+                    </div>
+
+                    {{-- ── Виджеты-статы ── --}}
+                    <div class="sr-stats">
+                        <div class="sr-stat"><p class="sr-stat__l">Серия</p><p class="sr-stat__v">{{ $u->streak }}</p></div>
+                        <div class="sr-stat"><p class="sr-stat__l">Рекорд</p><p class="sr-stat__v">{{ $u->best_streak }}</p></div>
+                        <div class="sr-stat"><p class="sr-stat__l">День цикла</p><p class="sr-stat__v">{{ $cycleDay }}<span class="sr-stat__sub">/{{ $cycle }}</span></p></div>
+                        <div class="sr-stat"><p class="sr-stat__l">Прогресс</p><p class="sr-stat__v">{{ $progress }}<span class="sr-stat__sub">%</span></p></div>
+                    </div>
+
+                    {{-- ── Виджеты-вехи (прогресс к наградам) ── --}}
+                    <div class="sr-mile">
+                        <div>
+                            <div class="sr-mile__top">
+                                <span class="sr-mile__name"><span class="sr-mile__dot" style="background:#22d3ee"></span>Недельная награда</span>
+                                <span class="sr-mile__val">{{ $toWeekly === 0 ? 'сегодня!' : 'через '.$toWeekly.' дн.' }}</span>
+                            </div>
+                            <div class="sr-bar"><span style="width:{{ $wkPct }}%;background:#22d3ee"></span></div>
+                        </div>
+                        <div>
+                            <div class="sr-mile__top">
+                                <span class="sr-mile__name"><span class="sr-mile__dot" style="background:#a855f7"></span>Месячная награда</span>
+                                <span class="sr-mile__val">{{ $toMonthly === 0 ? 'сегодня!' : 'через '.$toMonthly.' дн.' }}</span>
+                            </div>
+                            <div class="sr-bar"><span style="width:{{ $moPct }}%;background:#a855f7"></span></div>
+                        </div>
+                        <div>
+                            <div class="sr-mile__top">
+                                <span class="sr-mile__name"><span class="sr-mile__dot" style="background:#fbbf24"></span>Главный приз · 6 мес.</span>
+                                <span class="sr-mile__val">{{ $toGrand === 0 ? 'получен!' : 'через '.$toGrand.' дн.' }}</span>
+                            </div>
+                            <div class="sr-bar"><span style="width:{{ $progress }}%;background:#fbbf24"></span></div>
+                        </div>
+                    </div>
+
+                    {{-- ── Слайдер-превью наград по любому дню ── --}}
+                    <div class="sr-preview">
+                        <div class="sr-preview__head">
+                            <span class="hud-label" style="color:var(--dim)">Превью · день <span x-text="previewDay" class="t-text font-black"></span></span>
+                            <span class="sr-badge"
+                                  :style="`color:${tiers[rewards[previewDay].tier].color};border-color:${tiers[rewards[previewDay].tier].color}`"
+                                  x-text="tiers[rewards[previewDay].tier].label"></span>
+                        </div>
+                        <input type="range" min="1" max="{{ $cycle }}" step="1" x-model.number="previewDay"
+                               class="sr-range" :style="`--p:${(previewDay - 1) / ({{ $cycle }} - 1) * 100}%`"
+                               aria-label="Выбрать день для превью награды">
+                        <div class="sr-preview__rewards">
+                            <span class="sr-preview__xp">+<span x-text="rewards[previewDay].xp"></span> XP</span>
+                            <span class="sr-coin">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                                    <circle cx="12" cy="12" r="10" fill="#FBBF24" stroke="#D97706" stroke-width="1.5"/>
+                                    <circle cx="12" cy="12" r="7.5" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/>
+                                    <text x="12" y="16.5" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#78350F" font-family="Georgia, serif">₽</text>
+                                </svg>
+                                +<span x-text="rewards[previewDay].coins"></span> монет
+                            </span>
+                        </div>
+                        <div class="sr-preview__jumps">
+                            <button type="button" @click="previewDay = {{ max(1, $cycleDay) }}">Сегодня</button>
+                            <button type="button" @click="nextWeek()">След. неделя</button>
+                            <button type="button" @click="previewDay = {{ $cycle }}">Финал</button>
+                        </div>
+                    </div>
+
+                    {{-- ── Легенда уровней наград ── --}}
+                    <div class="sr-legend">
+                        @foreach(Gamification::STREAK_TIERS as $meta)
+                            <span><i style="background:{{ $meta['color'] }}"></i>{{ $meta['label'] }}</span>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Стили колеса наград — на CSS-переменных HUD (--bg/--text/--accent/...),
+             поэтому меню само адаптируется под светлую и тёмную тему. --}}
+        <style>
+            .sr-overlay{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);}
+            .sr-card{width:100%;max-width:30rem;max-height:92vh;display:flex;flex-direction:column;background:var(--bg);border:1px solid var(--line);border-radius:16px;box-shadow:0 30px 80px rgba(0,0,0,.5);overflow:hidden;}
+            .sr-head{display:flex;align-items:center;gap:.6rem;padding:.85rem 1.1rem;border-bottom:1px solid var(--line);background:var(--bg-2);flex-shrink:0;}
+            .sr-head__bar{width:3px;height:15px;background:var(--accent);flex-shrink:0;}
+            .sr-head__title{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.2em;color:var(--text);}
+            .sr-head__code{margin-left:auto;font-size:.56rem;letter-spacing:.14em;color:var(--dim-2);font-family:ui-monospace,Menlo,monospace;white-space:nowrap;}
+            .sr-close{font-size:1.5rem;line-height:1;color:var(--dim-2);background:none;border:0;cursor:pointer;padding:0 .1rem;}
+            .sr-close:hover{color:var(--text);}
+            .sr-body{padding:1.1rem;overflow-y:auto;}
+            .sr-wheel{position:relative;width:clamp(220px,72vw,288px);aspect-ratio:1;margin:.1rem auto 1.2rem;}
+            .sr-wheel-svg{width:100%;height:100%;display:block;}
+            .sr-cur{filter:drop-shadow(0 0 5px var(--accent));}
+            .sr-wheel-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none;}
+            .sr-wheel-flame{color:var(--accent);}
+            .sr-wheel-num{font-size:2.7rem;font-weight:900;line-height:1;color:var(--text);font-variant-numeric:tabular-nums;}
+            .sr-wheel-day{font-size:.6rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--dim);margin-top:5px;}
+            .sr-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+            @media(min-width:430px){.sr-stats{grid-template-columns:repeat(4,1fr);}}
+            .sr-stat{background:var(--bg);padding:.7rem .85rem;}
+            .sr-stat__l{font-size:.5rem;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--dim-2);}
+            .sr-stat__v{font-size:1.2rem;font-weight:900;color:var(--text);margin-top:3px;font-variant-numeric:tabular-nums;}
+            .sr-stat__sub{font-size:.7rem;font-weight:700;color:var(--dim-2);}
+            .sr-mile{margin-top:1rem;display:flex;flex-direction:column;gap:.75rem;}
+            .sr-mile__top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+            .sr-mile__name{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);display:flex;align-items:center;gap:7px;}
+            .sr-mile__dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+            .sr-mile__val{font-size:.6rem;font-family:ui-monospace,Menlo,monospace;color:var(--dim-2);white-space:nowrap;}
+            .sr-bar{height:6px;border-radius:4px;background:var(--track);overflow:hidden;}
+            .sr-bar>span{display:block;height:100%;border-radius:4px;transition:width .5s cubic-bezier(.22,1,.36,1);}
+            .sr-preview{margin-top:1.1rem;padding:.9rem;border:1px solid var(--line);border-radius:12px;background:var(--bg-2);}
+            .sr-preview__head{display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:.75rem;}
+            .sr-badge{font-size:.54rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:3px 9px;border:1px solid;border-radius:999px;white-space:nowrap;}
+            .sr-range{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:4px;cursor:pointer;background:linear-gradient(90deg,var(--accent) var(--p,0%),var(--track) var(--p,0%));}
+            .sr-range::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);border:3px solid var(--bg);box-shadow:0 0 0 1px var(--accent);cursor:pointer;}
+            .sr-range::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--accent);border:3px solid var(--bg);cursor:pointer;}
+            .sr-preview__rewards{display:flex;align-items:center;gap:1.1rem;margin-top:.8rem;font-size:.9rem;font-weight:800;}
+            .sr-preview__xp{color:var(--text);}
+            .sr-coin{display:flex;align-items:center;gap:5px;color:#f59e0b;}
+            .sr-preview__jumps{display:flex;gap:.4rem;margin-top:.85rem;}
+            .sr-preview__jumps button{flex:1;font-size:.54rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;padding:.5rem .35rem;border:1px solid var(--line-2);border-radius:7px;background:transparent;color:var(--dim);cursor:pointer;transition:color .12s,border-color .12s,background .12s;}
+            .sr-preview__jumps button:hover{color:var(--text);border-color:var(--accent);background:var(--bg);}
+            .sr-legend{margin-top:1rem;display:flex;flex-wrap:wrap;gap:.5rem .9rem;justify-content:center;}
+            .sr-legend span{display:inline-flex;align-items:center;gap:6px;font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);}
+            .sr-legend i{width:9px;height:9px;border-radius:2px;display:inline-block;flex-shrink:0;}
+        </style>
     </div>
 
     {{-- ── Лента достижений ── --}}

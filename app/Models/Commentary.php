@@ -35,4 +35,8 @@ class Commentary extends Model
     public function photos() {
         return $this->hasMany(CommentaryPhoto::class);
     }
+
+    public function likes() {
+        return $this->hasMany(CommentLike::class);
+    }
 }

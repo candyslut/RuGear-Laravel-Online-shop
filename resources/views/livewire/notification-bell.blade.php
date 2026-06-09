@@ -25,6 +25,26 @@
             'bg'    => 'rgba(236,72,153,.15)',
             'svg'   => '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17l-5-5 5-5M4 12h11a4 4 0 0 1 4 4v2"/></svg>',
         ],
+        'comment_like' => [
+            'color' => '#f43f5e',
+            'bg'    => 'rgba(244,63,94,.15)',
+            'svg'   => '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.23l-8.84-8.84a5.5 5.5 0 117.78-7.78L12 5.67l1.06-1.06a5.5 5.5 0 117.78 7.78z"/></svg>',
+        ],
+        'streak' => [
+            'color' => '#fb923c',
+            'bg'    => 'rgba(249,115,22,.15)',
+            'svg'   => '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.5 2c.4 2.8 2.3 4.4 3.6 6 1.2 1.5 1.9 3 1.9 4.8a6 6 0 11-12 0c0-1.6.6-3 1.6-4.2.2.9.9 1.5 1.8 1.5 1.2 0 1.8-1 1.3-2.5C11.8 5.4 12 3.6 12.5 2z"/></svg>',
+        ],
+        'rank_up' => [
+            'color' => '#fbbf24',
+            'bg'    => 'rgba(251,191,36,.15)',
+            'svg'   => '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5 3.4 7.7 8 9 4.6-1.3 8-4 8-9V5l-8-3z"/><polyline points="8.5 11.5 11 14 15.5 9.5"/></svg>',
+        ],
+        'quest' => [
+            'color' => '#34d399',
+            'bg'    => 'rgba(16,185,129,.15)',
+            'svg'   => '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>',
+        ],
     ];
     $defaultMeta = [
         'color' => 'var(--text-secondary)',

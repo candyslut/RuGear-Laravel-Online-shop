@@ -76,6 +76,14 @@ class CommentForm extends Component
                 $this->dispatch('show-levelup', $awarded['level_up']);
             }
         }
+
+        // Quest: leaving a top-level review (replies don't count, mirroring the
+        // comment achievements). Surfaced via a browser event toast since this
+        // is a Livewire round-trip, not a full page load.
+        if ($done = app(\App\Services\DailyQuestService::class)->progress($user, 'comment')) {
+            $this->dispatch('quests-completed', quests: $done);
+            $this->dispatch('profile-refresh'); // live-sync the stat matrix + quest panel
+        }
     }
 
     /**

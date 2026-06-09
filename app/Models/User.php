@@ -22,11 +22,21 @@ class User extends Authenticatable
     public int $lastLevelUp = 0;
     public int $lastLevelCoins = 0;
 
+    /**
+     * Rank-up summary set by addExperience() when the most recent XP gain
+     * pushed the user into a higher rank tier, otherwise null. Controllers
+     * read it to flash the bottom-right rank-up toast on a full page load.
+     *
+     * @var array{code:string, name:string, color:string, coins:int, level:int}|null
+     */
+    public ?array $lastRankUp = null;
+
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'last_active_date' => 'date',
         ];
     }
 
@@ -56,6 +66,11 @@ class User extends Authenticatable
         return $this->hasMany(Ticket::class);
     }
 
+    public function dailyQuests(): HasMany
+    {
+        return $this->hasMany(DailyQuest::class);
+    }
+
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
@@ -81,13 +96,46 @@ class User extends Authenticatable
         $this->save();
 
         $this->lastLevelUp = $this->level - $oldLevel;
+        $this->lastRankUp = null;
         if ($this->lastLevelUp > 0) {
             $this->lastLevelCoins = $this->lastLevelUp * 10;
             $this->addCoins($this->lastLevelCoins);
             app(\App\Services\NotificationService::class)->levelUp($this, $this->level);
+            $this->handleRankUp($oldLevel);
         } else {
             $this->lastLevelCoins = 0;
         }
+    }
+
+    /**
+     * Award the one-time coin bonus and bell notification when a level gain
+     * crosses into a higher rank tier (Бронза → … → Алмаз). Called from
+     * addExperience after a level-up; records the result in $lastRankUp so the
+     * UI can also surface a toast.
+     */
+    protected function handleRankUp(int $oldLevel): void
+    {
+        $oldTier = \App\Support\Gamification::rankTier($oldLevel);
+        $newTier = \App\Support\Gamification::rankTier($this->level);
+
+        if ($newTier['index'] <= $oldTier['index']) {
+            return;
+        }
+
+        $reward = \App\Support\Gamification::rankRewardBetween($oldLevel, $this->level);
+        if ($reward > 0) {
+            $this->addCoins($reward);
+        }
+
+        $this->lastRankUp = [
+            'code'  => $newTier['code'],
+            'name'  => $newTier['name'],
+            'color' => $newTier['color'],
+            'coins' => $reward,
+            'level' => $this->level,
+        ];
+
+        app(\App\Services\NotificationService::class)->rankUp($this, $newTier['name'], $reward);
     }
 
     public function addCoins(int $amount): void

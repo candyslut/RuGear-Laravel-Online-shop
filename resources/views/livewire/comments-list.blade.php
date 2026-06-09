@@ -29,16 +29,22 @@
                 </div>
             @endif
 
-            {{-- Reply action --}}
-            @auth
-                <div class="pl-11 mt-3">
+            {{-- Likes + reply action --}}
+            <div class="pl-11 mt-3 flex items-center gap-4">
+                @include('partials.comment-like', [
+                    'id'         => $comment['id'],
+                    'likesCount' => $comment['likes_count'] ?? 0,
+                    'liked'      => !empty($comment['liked_by_me']),
+                    'ownerId'    => $comment['user']['id'] ?? null,
+                ])
+                @auth
                     <button
                         type="button"
                         wire:click="startReply({{ $comment['id'] }})"
                         class="text-[11px] font-mono uppercase tracking-wider text-gray-500 hover:text-orange-500 transition-colors"
                     >Ответить</button>
-                </div>
-            @endauth
+                @endauth
+            </div>
 
             {{-- Inline reply form --}}
             @auth
@@ -175,6 +181,15 @@
                                     @endforeach
                                 </div>
                             @endif
+
+                            <div class="pl-9 mt-2">
+                                @include('partials.comment-like', [
+                                    'id'         => $reply['id'],
+                                    'likesCount' => $reply['likes_count'] ?? 0,
+                                    'liked'      => !empty($reply['liked_by_me']),
+                                    'ownerId'    => $reply['user']['id'] ?? null,
+                                ])
+                            </div>
                         </div>
                     @endforeach
                 </div>

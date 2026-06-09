@@ -43,6 +43,18 @@ class ProfileHud extends Component
 
         if ($u->level > $this->lastSeenLevel) {
             $this->dispatch('hud-levelup', level: $u->level, tier: Gamification::rankTier($u->level)['name']);
+
+            // A level gain detected live may also have crossed a rank tier
+            // (e.g. from a like or a finished quest while the page is open).
+            $oldTier = Gamification::rankTier($this->lastSeenLevel);
+            $newTier = Gamification::rankTier($u->level);
+            if ($newTier['index'] > $oldTier['index']) {
+                $this->dispatch(
+                    'hud-rankup',
+                    name: $newTier['name'],
+                    coins: Gamification::rankRewardBetween($this->lastSeenLevel, $u->level),
+                );
+            }
         }
 
         $newIds = array_diff($u->achievements->pluck('id')->all(), $this->lastSeenAchIds);

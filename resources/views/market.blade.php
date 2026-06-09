@@ -407,7 +407,7 @@
                             <div class="mk-bar mk-bar--mini"><span data-packstat-bar style="width: {{ $packPct }}%"></span></div>
                         </div>
                     </div>
-                    <div data-collection-trophy class="mt-4 text-center text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-xl py-2.5 {{ $pct === 100 ? '' : 'hidden' }}">🏆 Коллекция собрана полностью!</div>
+                    <div data-collection-trophy class="mt-4 text-center text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 rounded-xl py-2.5 {{ $pct === 100 ? '' : 'hidden' }}">Коллекция собрана полностью!</div>
                 </div>
 
                 <div class="mk-panel p-5">

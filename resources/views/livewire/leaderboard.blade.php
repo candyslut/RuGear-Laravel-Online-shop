@@ -132,8 +132,14 @@
             </div>
         </div>
 
-        <div class="px-5 sm:px-6 py-4 border-t flex-shrink-0" style="border-color:var(--line)">
-            <button wire:click="close" class="hud-btn w-full justify-center">Закрыть</button>
+        <div class="px-5 sm:px-6 py-4 border-t flex-shrink-0 flex gap-2" style="border-color:var(--line)">
+            <button wire:click="openRanks" class="hud-btn flex-1 justify-center" style="border-color:var(--accent);color:var(--accent)">
+                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                    <path d="M12 2 4 5v6c0 5 3.4 7.7 8 9 4.6-1.3 8-4 8-9V5l-8-3z"/><polyline points="8.5 11.5 11 14 15.5 9.5"/>
+                </svg>
+                Все ранги
+            </button>
+            <button wire:click="close" class="hud-btn flex-1 justify-center">Закрыть</button>
         </div>
     </div>
 </div>

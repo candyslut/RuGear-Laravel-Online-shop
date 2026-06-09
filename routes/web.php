@@ -92,11 +92,36 @@ Route::middleware('auth')->group(function () {
         $user = auth()->user();
         $user->addCoins(1);
         $user->addExperience(5);
+
+        // Clearing a level advances the "play the mini-game" quest. Completed
+        // quests (and any rank-up the rewards triggered) ride back in the JSON
+        // so the in-page handler can toast them without a reload.
+        $quests = app(\App\Services\DailyQuestService::class)->progress($user, 'game_play');
+
         return response()->json([
-            'coins' => 1,
-            'xp'    => 5,
+            'coins'   => 1,
+            'xp'      => 5,
+            'quests'  => $quests,
+            'rank_up' => $user->lastRankUp,
         ]);
     })->name('game.reward');
+
+    Route::post('/game/runner-reward', function () {
+        $user = auth()->user();
+        $user->addCoins(1);
+        $user->addExperience(5);
+
+        // Each distance milestone in the runner (500, 1500, 3000 m…) counts
+        // as a cleared mini-game level for the game_play daily quests.
+        $quests = app(\App\Services\DailyQuestService::class)->progress($user, 'game_play');
+
+        return response()->json([
+            'coins'   => 1,
+            'xp'      => 5,
+            'quests'  => $quests,
+            'rank_up' => $user->lastRankUp,
+        ]);
+    })->name('game.runner.reward');
 });
 
 

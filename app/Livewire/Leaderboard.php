@@ -31,6 +31,13 @@ class Leaderboard extends Component
         $this->dispatch('unlock-body');
     }
 
+    /** Swap this modal for the ranks ladder (close → open-ranks). */
+    public function openRanks(): void
+    {
+        $this->open = false;
+        $this->dispatch('open-ranks');
+    }
+
     public function render()
     {
         $users = $this->open

@@ -41,6 +41,7 @@ class NotificationBell extends Component
      */
     #[On('show-achievement')]
     #[On('show-levelup')]
+    #[On('quests-completed')]
     public function onActivity($payload = null)
     {
         $this->load();

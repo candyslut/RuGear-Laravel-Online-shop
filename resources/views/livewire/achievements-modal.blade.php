@@ -1,6 +1,9 @@
 <div>
 @if($open)
-<div class="lb-overlay" x-data="{}" x-on:keydown.escape.window="$wire.close()">
+<div class="lb-overlay" x-data="{ tip:false, tipTitle:'', tipRarity:'', tipDesc:'', tipIcon:'', tipColor:'', tipX:0, tipY:0,
+        showTip(el, e){ this.tipTitle=el.dataset.title; this.tipRarity=el.dataset.rarity; this.tipDesc=el.dataset.desc; this.tipIcon=el.querySelector('.ach-tile__icon').innerHTML; this.tipColor=el.style.getPropertyValue('--rc'); this.tip=true; this.moveTip(e); },
+        moveTip(e){ const w=320, h=200, pad=12; let x=e.clientX+16, y=e.clientY+16; if(x+w+pad>window.innerWidth) x=e.clientX-w-16; if(y+h+pad>window.innerHeight) y=window.innerHeight-h-pad; if(y<pad) y=pad; this.tipX=x; this.tipY=y; } }"
+     x-on:keydown.escape.window="$wire.close()">
     <div class="lb-backdrop" wire:click="close"></div>
 
     <div class="hud lb-panel lb-panel--ach hud-corner" role="dialog" aria-modal="true">
@@ -35,7 +38,9 @@
         <div class="flex-1 overflow-y-auto cs p-4 sm:p-5" style="min-height:0">
             <div id="ach-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 @foreach($items as $a)
-                <div class="ach-tile {{ $a['got'] ? 'is-got' : 'is-locked' }}" data-state="{{ $a['got'] ? 'got' : 'locked' }}" style="--rc:{{ $a['rarity']['color'] }}">
+                <div class="ach-tile {{ $a['got'] ? 'is-got' : 'is-locked' }}" data-state="{{ $a['got'] ? 'got' : 'locked' }}" style="--rc:{{ $a['rarity']['color'] }}"
+                    data-title="{{ $a['title'] }}" data-rarity="{{ $a['rarity']['label'] }}" data-desc="{{ $a['description'] }}"
+                    @mouseenter="showTip($el, $event)" @mousemove="moveTip($event)" @mouseleave="tip=false">
                     <div class="ach-tile__icon">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                             {!! $a['got'] ? $a['icon'] : '<rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 018 0v3"/>' !!}
@@ -64,6 +69,18 @@
         <div class="px-5 sm:px-6 py-4 border-t flex-shrink-0" style="border-color:var(--line)">
             <button wire:click="close" class="hud-btn w-full justify-center">Закрыть</button>
         </div>
+    </div>
+
+    {{-- Floating hover tooltip --}}
+    <div class="ach-tip hud" x-show="tip" x-cloak :style="`left:${tipX}px; top:${tipY}px; --rc:${tipColor}`">
+        <div class="ach-tip__head">
+            <div class="ach-tip__icon" x-html="tipIcon"></div>
+            <div class="min-w-0">
+                <div class="ach-tip__title" x-text="tipTitle"></div>
+                <div class="ach-tip__rarity" x-text="tipRarity"></div>
+            </div>
+        </div>
+        <div class="ach-tip__desc" x-text="tipDesc"></div>
     </div>
 </div>
 @endif

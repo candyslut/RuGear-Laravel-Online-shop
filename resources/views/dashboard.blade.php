@@ -44,6 +44,14 @@
         .game-banner-btn { display: inline-flex; align-items: center; justify-content: center; gap: .55rem; padding: .72rem 1.5rem; border: 1px solid var(--gb); background: transparent; color: var(--gb); font-weight: 800; text-transform: uppercase; letter-spacing: .14em; transition: background .12s ease, transform .08s ease; }
         .game-banner-btn:hover  { background: color-mix(in srgb, var(--gb) 14%, transparent); }
         .game-banner-btn:active { transform: translateY(1px); }
+        .game-banner--red { --gb: #f87171; }
+        [data-theme="light"] .game-banner--red { --gb: #dc2626; }
+
+        /* Runner modal: red accents on the active site theme */
+        .runner-modal { --rn-bg: #140a0c; --rn-line: rgba(127,29,29,.55); --rn-title: #f87171; --rn-dim: rgba(254,202,202,.6); --rn-hint: rgba(254,202,202,.4); --rn-x: rgba(252,165,165,.5); --rn-x-hover: #ffffff; background: var(--rn-bg); }
+        [data-theme="light"] .runner-modal { --rn-bg: #fff7f7; --rn-line: #fecaca; --rn-title: #dc2626; --rn-dim: rgba(127,29,29,.65); --rn-hint: rgba(127,29,29,.45); --rn-x: rgba(127,29,29,.45); --rn-x-hover: #7f1d1d; }
+        .runner-toast { background: #1f0d10; border: 1px solid rgba(248,113,113,.45); color: #fecaca; box-shadow: 0 0 24px rgba(248,113,113,.15); }
+        [data-theme="light"] .runner-toast { background: #ffffff; border-color: #fca5a5; color: #7f1d1d; box-shadow: 0 12px 32px rgba(127,29,29,.18); }
 
         /* ── Light-theme dashboard fixes ── */
         [data-theme="light"] .border-\[\#161920\] { border-color: #ffffff !important; }
@@ -147,7 +155,7 @@
         /* Achievement medallions (strip) */
         .ach-medallion { position: relative; padding: 1rem .85rem; text-align: center; background: var(--inset); border: 1px solid var(--line); border-top: 2px solid var(--rc); display: flex; flex-direction: column; align-items: center; justify-content: center; transition: transform .12s ease, border-color .12s ease; }
         .ach-medallion:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--rc) 50%, var(--line)); }
-        .ach-medallion__icon { width: 3rem; height: 3rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: var(--rc); background: color-mix(in srgb, var(--rc) 12%, transparent); border: 1px solid color-mix(in srgb, var(--rc) 35%, transparent); margin-bottom: .6rem; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
+        .ach-medallion__icon { width: 3rem; height: 3rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: var(--rc); background: color-mix(in srgb, var(--rc) 12%, transparent); border: 1px solid color-mix(in srgb, var(--rc) 35%, transparent); margin-bottom: .6rem; border-radius: 12px; }
         .ach-medallion__rarity { font-size: .54rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--rc); }
         .ach-medallion__title { font-size: .8rem; font-weight: 700; color: var(--text); line-height: 1.25; margin: .35rem 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2rem; }
         .ach-medallion__xp { font-family: ui-monospace, Menlo, monospace; font-size: .72rem; font-weight: 700; color: var(--accent); margin-top: .4rem; }
@@ -195,7 +203,7 @@
         .ach-chip.is-active { color: #000; background: var(--accent); border-color: var(--accent); }
         .ach-tile { display: flex; align-items: flex-start; gap: .85rem; padding: 1rem; background: var(--inset); border: 1px solid var(--line); border-left: 3px solid var(--rc); }
         .ach-tile.is-locked { opacity: .55; border-left-color: var(--line-2); }
-        .ach-tile__icon { width: 2.75rem; height: 2.75rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: var(--rc); background: color-mix(in srgb, var(--rc) 12%, transparent); border: 1px solid color-mix(in srgb, var(--rc) 35%, transparent); clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); }
+        .ach-tile__icon { width: 2.75rem; height: 2.75rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: var(--rc); background: color-mix(in srgb, var(--rc) 12%, transparent); border: 1px solid color-mix(in srgb, var(--rc) 35%, transparent); border-radius: 12px; }
         .ach-tile.is-locked .ach-tile__icon { color: var(--dim-2); background: var(--bg-2); border-color: var(--line); }
         .ach-tile__title { font-size: .85rem; font-weight: 700; color: var(--text); }
         .ach-tile__rarity { flex-shrink: 0; font-size: .5rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--rc); padding: .06rem .3rem; border: 1px solid color-mix(in srgb, var(--rc) 35%, transparent); }
@@ -206,6 +214,16 @@
         .ach-tile__status { font-size: .54rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; margin-top: .25rem; }
         .ach-tile.is-got .ach-tile__status { color: #22c55e; }
         .ach-tile.is-locked .ach-tile__status { color: var(--dim-2); }
+        .ach-tile { cursor: default; }
+
+        /* Achievement hover tooltip */
+        .ach-tip { position: fixed; z-index: 90; width: 20rem; max-width: 86vw; padding: .9rem 1rem; background: var(--bg-2); border: 1px solid color-mix(in srgb, var(--rc) 45%, var(--line)); border-radius: 12px; box-shadow: 0 18px 44px rgba(0,0,0,.5); pointer-events: none; }
+        .ach-tip__head { display: flex; align-items: center; gap: .7rem; }
+        .ach-tip__icon { width: 2.5rem; height: 2.5rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: var(--rc); background: color-mix(in srgb, var(--rc) 12%, transparent); border: 1px solid color-mix(in srgb, var(--rc) 35%, transparent); border-radius: 10px; }
+        .ach-tip__icon svg { width: 1.4rem; height: 1.4rem; }
+        .ach-tip__title { font-size: .95rem; font-weight: 800; color: var(--text); line-height: 1.2; }
+        .ach-tip__rarity { font-size: .54rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--rc); margin-top: .15rem; }
+        .ach-tip__desc { font-size: .8rem; color: var(--dim); line-height: 1.45; margin-top: .65rem; }
 
         /* Level-up reveal (floating, theme-neutral) */
         .levelup-reveal { position: fixed; left: 50%; top: 1.5rem; transform: translateX(-50%); z-index: 80; display: flex; align-items: center; gap: .9rem; padding: .85rem 1.3rem; background: #14171d; border: 1px solid #20f8c0; color: #e6e8ec; box-shadow: 0 0 32px rgba(32,248,192,.22); }
@@ -259,6 +277,45 @@
                 </button>
             </div>
         </section>
+
+        <section class="game-banner game-banner--red hud-grid-bg clip-tr relative overflow-hidden">
+            <span class="game-banner__rail"></span>
+            <div class="relative z-10 p-5 sm:px-7 sm:py-6 flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-8">
+                <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2.5 mb-2.5">
+                        <span class="game-banner-dot flex-shrink-0"></span>
+                        <span class="hud-mono text-[10px] font-bold uppercase tracking-[0.22em] t-dim2">МИНИ-ИГРА // ACTIVE</span>
+                    </div>
+                    <h2 class="game-banner-title text-xl sm:text-2xl font-black uppercase tracking-widest leading-none">REDLINE RUSH</h2>
+                    <p class="text-sm t-dim mt-2">Беги, прыгай через преграды — получай награды за дистанцию</p>
+                    <div class="flex flex-wrap items-center gap-2 mt-3.5">
+                        <span class="game-chip">
+                            <svg class="game-banner-bolt w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                            <span class="hud-mono">+5&nbsp;XP</span> за рубеж дистанции
+                        </span>
+                        <span class="game-chip">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0">
+                                <circle cx="12" cy="12" r="10" fill="#FBBF24" stroke="#D97706" stroke-width="1.5" />
+                                <circle cx="12" cy="12" r="7.5" fill="#F59E0B" stroke="#D97706" stroke-width="0.5" />
+                                <text x="12" y="16.5" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#78350F" font-family="Georgia,serif">₽</text>
+                            </svg>
+                            <span class="hud-mono">+1</span> монета за рубеж
+                        </span>
+                    </div>
+                </div>
+                <button onclick="openRunner()" class="game-banner-btn w-full sm:w-auto flex-shrink-0 text-sm">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                    Играть
+                </button>
+            </div>
+        </section>
+
+        {{-- ══════════════════════════════════════════════════ --}}
+        {{-- ЕЖЕДНЕВНЫЕ ЗАДАНИЯ                                 --}}
+        {{-- ══════════════════════════════════════════════════ --}}
+        <livewire:daily-quests />
 
         {{-- ══════════════════════════════════════════════════ --}}
         {{-- КОРЗИНА                                           --}}
@@ -514,6 +571,7 @@
     {{-- ══════════════════════════════════════════════════ --}}
     <livewire:leaderboard />
     <livewire:achievements-modal />
+    <livewire:ranks-modal />
 
     {{-- Game modal --}}
     <dialog id="mod-game" class="bg-[#111318] border border-gray-800 p-0 shadow-2xl focus:outline-none w-screen h-[100dvh] max-w-none rounded-none md:w-[70vw] md:h-[96vh] md:max-w-[90vw] md:rounded-2xl">
@@ -530,6 +588,24 @@
             <div class="hidden md:block border-t border-gray-800 px-4 py-3 flex-shrink-0">
                 <button onclick="closeGame()" class="w-full py-2 text-sm font-semibold border border-gray-700 text-gray-500 hover:text-white rounded-xl transition">Закрыть</button>
             </div>
+        </div>
+    </dialog>
+
+    {{-- Runner game modal (Redline Rush — instant, no iframe) --}}
+    <dialog id="mod-runner" class="runner-modal p-0 shadow-2xl focus:outline-none w-[calc(100vw-1rem)] md:w-[80vw] max-w-none rounded-2xl overflow-hidden" style="border:1px solid var(--rn-line)">
+        <div class="flex items-center gap-3 px-4 sm:px-5 py-3" style="border-bottom:1px solid var(--rn-line)">
+            <h3 class="text-sm sm:text-base font-black uppercase tracking-widest" style="color:var(--rn-title)">Redline Rush</h3>
+            <span class="hud-mono text-[11px] sm:text-xs ml-auto whitespace-nowrap" style="color:var(--rn-dim)">
+                <span id="runner-dist">0</span> м · <span id="runner-time">00:00</span> · рекорд <span id="runner-best">0</span> м
+            </span>
+            <button onclick="document.getElementById('mod-runner').close()" class="text-2xl leading-none transition flex-shrink-0 px-1" style="color:var(--rn-x)" onmouseover="this.style.color='var(--rn-x-hover)'" onmouseout="this.style.color='var(--rn-x)'">×</button>
+        </div>
+        <div class="relative" style="background:var(--rn-bg)">
+            <canvas id="runner-canvas" class="block w-full h-[440px] sm:h-[520px] max-h-[calc(100dvh-140px)] touch-none select-none cursor-pointer"></canvas>
+            <div id="runner-toast-wrap" class="absolute bottom-4 right-4 z-10 flex flex-col-reverse gap-3 items-end pointer-events-none"></div>
+        </div>
+        <div class="px-4 sm:px-5 py-2.5" style="border-top:1px solid var(--rn-line)">
+            <p class="hud-mono text-[10px] uppercase tracking-widest" style="color:var(--rn-hint)">Пробел / тап — прыжок · Esc — выход</p>
         </div>
     </dialog>
 
@@ -727,7 +803,10 @@
             .then(r => r.json())
             .then(data => {
                 showGameToast(data);
-                if (window.Livewire) Livewire.dispatch('profile-refresh'); // live-sync stat matrix
+                // Quest completions / rank-up the level reward may have unlocked.
+                (data.quests || []).forEach(q => window.showToast && showToast('quest', q, false));
+                if (data.rank_up) window.showToast && showToast('rankup', data.rank_up, false);
+                if (window.Livewire) Livewire.dispatch('profile-refresh'); // live-sync stat matrix + quests
             });
         });
 
@@ -741,5 +820,334 @@
         document.addEventListener('livewire:navigated', () => { animateCounts(); syncAchNav(); });
         window.addEventListener('DOMContentLoaded', () => { animateCounts(); syncAchNav(); });
         window.addEventListener('resize', syncAchNav);
+    </script>
+
+    {{-- ══════════════════════════════════════════════════ --}}
+    {{-- REDLINE RUSH — встроенный canvas-раннер            --}}
+    {{-- ══════════════════════════════════════════════════ --}}
+    <script>
+    (function () {
+        const REWARD_URL = '{{ route('game.runner.reward') }}';
+        const PX_PER_M   = 12;     // world px → "metres"
+        const MILESTONE  = 500;    // first reward; each next gap grows by this much
+        const BATS_FROM  = 1500;   // metres after which bats join in
+
+        const dlg    = document.getElementById('mod-runner');
+        const canvas = document.getElementById('runner-canvas');
+        const distEl = document.getElementById('runner-dist');
+        const timeEl = document.getElementById('runner-time');
+        const bestEl = document.getElementById('runner-best');
+        if (!dlg || !canvas) return;
+        const ctx = canvas.getContext('2d');
+
+        function palette() {
+            const light = document.documentElement.getAttribute('data-theme') === 'light';
+            return light ? {
+                bg: '#fff7f7', ground: '#fca5a5', groundTop: '#dc2626',
+                player: '#dc2626', playerDark: '#7f1d1d',
+                spike: '#ef4444', spikeDark: '#b91c1c',
+                text: '#7f1d1d', dim: 'rgba(127,29,29,.5)', faint: 'rgba(220,38,38,.06)'
+            } : {
+                bg: '#140a0c', ground: '#7f1d1d', groundTop: '#ef4444',
+                player: '#f87171', playerDark: '#b91c1c',
+                spike: '#ef4444', spikeDark: '#991b1b',
+                text: '#fecaca', dim: 'rgba(254,202,202,.45)', faint: 'rgba(248,113,113,.07)'
+            };
+        }
+        let C = palette();
+
+        let W = 0, H = 0, groundY = 0, raf = null, lastT = 0, st = null;
+        let best = parseInt(localStorage.getItem('runner_best') || '0', 10) || 0;
+        bestEl.textContent = best;
+
+        function resize() {
+            const dpr = window.devicePixelRatio || 1;
+            W = canvas.clientWidth; H = canvas.clientHeight;
+            canvas.width = Math.round(W * dpr);
+            canvas.height = Math.round(H * dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            groundY = H - Math.max(36, Math.round(H * 0.16));
+        }
+
+        function reset() {
+            st = {
+                phase: 'ready', dist: 0, speed: 340, time: 0, runTime: 0, deadAt: 0,
+                nextReward: MILESTONE, rewardN: 0,
+                py: 0, vy: 0, leg: 0, obstacles: [], nextAt: W + 120, flashes: []
+            };
+        }
+
+        function metres() { return Math.floor(st.dist / PX_PER_M); }
+
+        function press() {
+            if (st.phase === 'ready') { st.phase = 'run'; return; }
+            if (st.phase === 'run' && st.py === 0) { st.vy = 820; return; }
+            // small lockout so a late jump-press doesn't instantly restart
+            if (st.phase === 'dead' && st.time - st.deadAt > 0.45) { reset(); st.phase = 'run'; }
+        }
+
+        function spawn() {
+            let x = st.nextAt;
+            if (metres() >= BATS_FROM && Math.random() < 0.35) {
+                // bat: alt = bottom edge above ground. Low — jump over it,
+                // higher ones — run under (jumping into them is the trap).
+                const alt = [8, 55, 95][Math.floor(Math.random() * 3)];
+                st.obstacles.push({ type: 'bat', x, w: 40, h: 24, alt, vx: 50 + Math.random() * 70, flap: Math.random() * 6 });
+                x += 40;
+            } else {
+                const n = Math.random() < 0.3 ? 2 : 1; // occasional double spike
+                for (let i = 0; i < n; i++) {
+                    const w = 16 + Math.random() * 10;
+                    const h = 26 + Math.random() * 24;
+                    st.obstacles.push({ x, w, h });
+                    x += w + 4;
+                }
+            }
+            const gap = 300 + Math.random() * 340 + st.speed * 0.35;
+            st.nextAt = x + gap;
+        }
+
+        function claimMilestone(m) {
+            fetch(REWARD_URL, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(r => r.json())
+            .then(data => {
+                showRunnerToast(data, m);
+                (data.quests || []).forEach(q => window.showToast && showToast('quest', q, false));
+                if (data.rank_up) window.showToast && showToast('rankup', data.rank_up, false);
+                if (window.Livewire) Livewire.dispatch('profile-refresh');
+            });
+        }
+
+        function showRunnerToast(data, m) {
+            const wrap = document.getElementById('runner-toast-wrap');
+            if (!wrap) return;
+            const id = 'rt-' + Date.now();
+            const el = document.createElement('div');
+            el.id = id;
+            el.className = 'runner-toast w-72 rounded-2xl p-4 shadow-2xl toast pointer-events-auto';
+            el.innerHTML =
+                '<div class="flex gap-3 items-start">' +
+                '<div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:rgba(248,113,113,0.18)">' +
+                '<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--rn-title)"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>' +
+                '</div>' +
+                '<div class="flex-1 min-w-0">' +
+                '<p class="text-xs font-bold uppercase tracking-widest" style="color:var(--rn-title)">Redline Rush</p>' +
+                '<p class="text-sm font-bold mt-0.5">' + m + ' м позади!</p>' +
+                '<div class="flex items-center gap-3 mt-1">' +
+                '<span class="text-xs opacity-75">+' + data.xp + ' XP</span>' +
+                '<span class="flex items-center gap-1 text-xs font-bold" style="color:#f59e0b">' +
+                '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><circle cx="12" cy="12" r="10" fill="#FBBF24" stroke="#D97706" stroke-width="1.5"/><circle cx="12" cy="12" r="7.5" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/><text x="12" y="16.5" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#78350F" font-family="Georgia,serif">₽</text></svg>' +
+                '+' + data.coins + ' монета</span>' +
+                '</div></div>' +
+                '<button onclick="(function(id){const t=document.getElementById(id);if(!t)return;t.classList.add(\'out\');setTimeout(()=>t.remove(),300);}(\'' + id + '\'))" class="opacity-50 hover:opacity-100 text-lg leading-none flex-shrink-0">×</button>' +
+                '</div>';
+            wrap.prepend(el);
+            setTimeout(() => { const t = document.getElementById(id); if (!t) return; t.classList.add('out'); setTimeout(() => t.remove(), 300); }, 3500);
+        }
+
+        function update(dt) {
+            st.time += dt;
+            if (st.phase !== 'run') return;
+            st.runTime += dt;
+
+            // narrow canvas = less warning distance, so cap top speed lower
+            st.speed = Math.min(W < 520 ? 620 : 860, st.speed + 10 * dt);
+            const dx = st.speed * dt;
+            st.dist += dx;
+
+            // jump physics (vy > 0 = upward)
+            if (st.py > 0 || st.vy > 0) {
+                st.py += st.vy * dt;
+                st.vy -= 2400 * dt;
+                if (st.py <= 0) { st.py = 0; st.vy = 0; }
+            } else {
+                st.leg += dt * 12;
+            }
+
+            // world scroll + spawn (bats fly towards the player on top of scroll)
+            st.nextAt -= dx;
+            st.obstacles.forEach(o => {
+                o.x -= dx;
+                if (o.type === 'bat') { o.x -= o.vx * dt; o.flap += dt; }
+            });
+            st.obstacles = st.obstacles.filter(o => o.x + o.w > -20);
+            if (st.nextAt < W) spawn();
+
+            // collision (player box at fixed x=70, w=30, h=40, with forgiveness)
+            const px = 70, pw = 30, ph = 40;
+            const pBot = groundY - st.py, pTop = pBot - ph;
+            for (const o of st.obstacles) {
+                if (px + pw - 6 <= o.x + 3 || px + 6 >= o.x + o.w - 3) continue;
+                const hit = o.type === 'bat'
+                    ? (pBot - 4 > groundY - o.alt - o.h && pTop + 4 < groundY - o.alt)
+                    : (pBot > groundY - o.h + 6);
+                if (hit) {
+                    st.phase = 'dead';
+                    st.deadAt = st.time;
+                    const m = metres();
+                    if (m > best) { best = m; localStorage.setItem('runner_best', best); bestEl.textContent = best; }
+                    break;
+                }
+            }
+
+            // milestone rewards: each next one is further away (500, 1500,
+            // 3000, 5000…) so the speed ramp can't farm a reward per second
+            if (metres() >= st.nextReward) {
+                const at = st.nextReward;
+                st.rewardN += 1;
+                st.nextReward += MILESTONE * (st.rewardN + 1);
+                st.flashes.push({ text: '+5 XP · +1 ₽', y: groundY - 90, t: 0 });
+                claimMilestone(at);
+            }
+        }
+
+        function drawPlayer() {
+            const x = 70, foot = groundY - st.py;
+            ctx.fillStyle = st.phase === 'dead' ? C.playerDark : C.player;
+            ctx.fillRect(x, foot - 26, 8, 8);            // tail
+            ctx.fillRect(x + 6, foot - 32, 20, 24);      // body
+            ctx.fillRect(x + 16, foot - 42, 16, 14);     // head
+            ctx.fillStyle = C.bg;
+            ctx.fillRect(x + 26, foot - 38, 3, 3);       // eye
+            ctx.fillStyle = st.phase === 'dead' ? C.playerDark : C.player;
+            if (st.py > 0) {                             // tucked legs in air
+                ctx.fillRect(x + 8, foot - 8, 7, 6);
+                ctx.fillRect(x + 18, foot - 8, 7, 6);
+            } else {
+                const a = Math.floor(st.leg) % 2 === 0;
+                ctx.fillRect(x + 8, foot - 8, 6, a ? 8 : 5);
+                ctx.fillRect(x + 18, foot - 8, 6, a ? 5 : 8);
+            }
+        }
+
+        function drawSpike(o) {
+            ctx.fillStyle = C.spike;
+            ctx.beginPath();
+            ctx.moveTo(o.x, groundY);
+            ctx.lineTo(o.x + o.w / 2, groundY - o.h);
+            ctx.lineTo(o.x + o.w, groundY);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = C.spikeDark;
+            ctx.beginPath();
+            ctx.moveTo(o.x + o.w / 2, groundY - o.h);
+            ctx.lineTo(o.x + o.w, groundY);
+            ctx.lineTo(o.x + o.w / 2, groundY);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawBat(o) {
+            const yt = groundY - o.alt - o.h;          // top edge
+            const cx = o.x + o.w / 2;
+            const up = Math.floor(o.flap * 9) % 2 === 0;
+            ctx.fillStyle = C.spike;
+            ctx.beginPath();                            // left wing
+            ctx.moveTo(cx - 3, yt + 12);
+            ctx.lineTo(o.x, up ? yt : yt + o.h + 2);
+            ctx.lineTo(cx - 3, up ? yt + 16 : yt + 8);
+            ctx.closePath(); ctx.fill();
+            ctx.beginPath();                            // right wing
+            ctx.moveTo(cx + 3, yt + 12);
+            ctx.lineTo(o.x + o.w, up ? yt : yt + o.h + 2);
+            ctx.lineTo(cx + 3, up ? yt + 16 : yt + 8);
+            ctx.closePath(); ctx.fill();
+            ctx.fillStyle = C.spikeDark;
+            ctx.fillRect(cx - 5, yt + 8, 10, 10);       // body
+            ctx.fillRect(cx - 5, yt + 4, 3, 4);         // ears
+            ctx.fillRect(cx + 2, yt + 4, 3, 4);
+            ctx.fillStyle = C.bg;
+            ctx.fillRect(cx - 3, yt + 11, 2, 2);        // eyes
+            ctx.fillRect(cx + 1, yt + 11, 2, 2);
+        }
+
+        function draw() {
+            ctx.fillStyle = C.bg;
+            ctx.fillRect(0, 0, W, H);
+
+            // faint parallax grid
+            ctx.fillStyle = C.faint;
+            const off = (st.dist * 0.5) % 52;
+            for (let gx = -off; gx < W; gx += 52) ctx.fillRect(gx, 0, 1, H);
+
+            // ground
+            ctx.fillStyle = C.groundTop;
+            ctx.fillRect(0, groundY, W, 2);
+            ctx.fillStyle = C.ground;
+            const doff = st.dist % 34;
+            for (let gx = -doff; gx < W; gx += 34) ctx.fillRect(gx, groundY + 9, 16, 2);
+
+            st.obstacles.forEach(o => o.type === 'bat' ? drawBat(o) : drawSpike(o));
+            drawPlayer();
+
+            // milestone flashes float up
+            st.flashes = st.flashes.filter(f => f.t < 1.4);
+            st.flashes.forEach(f => {
+                ctx.globalAlpha = Math.max(0, 1 - f.t / 1.4);
+                ctx.fillStyle = C.player;
+                ctx.font = '700 13px ui-monospace, Menlo, monospace';
+                ctx.fillText(f.text, 70, f.y - f.t * 28);
+                ctx.globalAlpha = 1;
+            });
+
+            ctx.textAlign = 'center';
+            if (st.phase === 'ready') {
+                ctx.fillStyle = C.text;
+                ctx.font = '900 16px ui-monospace, Menlo, monospace';
+                ctx.fillText('ПРОБЕЛ / ТАП — СТАРТ', W / 2, H / 2 - 14);
+                ctx.fillStyle = C.dim;
+                ctx.font = '600 11px ui-monospace, Menlo, monospace';
+                ctx.fillText('награды на 500 / 1500 / 3000 м и дальше · с ' + BATS_FROM + ' м — летучие мыши', W / 2, H / 2 + 8);
+            } else if (st.phase === 'dead') {
+                ctx.fillStyle = '#ef4444';
+                ctx.font = '900 18px ui-monospace, Menlo, monospace';
+                ctx.fillText('СТОЛКНОВЕНИЕ // ' + metres() + ' м', W / 2, H / 2 - 14);
+                ctx.fillStyle = C.dim;
+                ctx.font = '600 11px ui-monospace, Menlo, monospace';
+                ctx.fillText('пробел / тап — ещё раз', W / 2, H / 2 + 8);
+            }
+            ctx.textAlign = 'left';
+        }
+
+        function loop(t) {
+            raf = requestAnimationFrame(loop);
+            const dt = Math.min(0.05, (t - lastT) / 1000 || 0);
+            lastT = t;
+            st.flashes.forEach(f => f.t += dt);
+            update(dt);
+            draw();
+            const m = String(metres());
+            if (distEl.textContent !== m) distEl.textContent = m;
+            const sec = Math.floor(st.runTime);
+            const clock = String(Math.floor(sec / 60)).padStart(2, '0') + ':' + String(sec % 60).padStart(2, '0');
+            if (timeEl.textContent !== clock) timeEl.textContent = clock;
+        }
+
+        window.openRunner = function () {
+            C = palette();
+            dlg.showModal();
+            resize();
+            reset();
+            lastT = performance.now();
+            if (!raf) raf = requestAnimationFrame(loop);
+        };
+        dlg.addEventListener('close', () => {
+            if (raf) { cancelAnimationFrame(raf); raf = null; }
+        });
+
+        document.addEventListener('keydown', e => {
+            if (!dlg.open) return;
+            if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') { e.preventDefault(); press(); }
+        });
+        canvas.addEventListener('pointerdown', e => { e.preventDefault(); press(); });
+        window.addEventListener('resize', () => { if (dlg.open) resize(); });
+    })();
     </script>
 </x-shop-layout>

@@ -28,6 +28,17 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Count today's login toward the user's daily streak (idempotent per day).
+        // Flash any reward so the dashboard shows the streak toast after redirect.
+        if ($streakReward = app(\App\Services\StreakService::class)->touch(Auth::user())) {
+            session()->flash('streak_awarded', $streakReward);
+
+            // The streak's XP can carry a level-up and, with it, a new rank.
+            if (Auth::user()->lastRankUp) {
+                session()->flash('rank_up', Auth::user()->lastRankUp);
+            }
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

@@ -46,6 +46,30 @@ class NotificationService
         );
     }
 
+    public function rankUp(User $user, string $tierName, int $coins): Notification
+    {
+        $reward = $coins > 0 ? " · +{$coins} коинов" : '';
+
+        return $this->push(
+            $user,
+            'rank_up',
+            'Новый ранг!',
+            "Вы достигли ранга «{$tierName}»{$reward}",
+            route('dashboard'),
+        );
+    }
+
+    public function questCompleted(User $user, string $title, int $coins, int $xp): Notification
+    {
+        return $this->push(
+            $user,
+            'quest',
+            'Задание выполнено',
+            "«{$title}» · +{$coins} коинов · +{$xp} XP",
+            route('dashboard'),
+        );
+    }
+
     public function ticketStatus(Ticket $ticket): ?Notification
     {
         if (!$ticket->user) {
@@ -80,6 +104,35 @@ class NotificationService
             'Статус заказа изменён',
             "Заказ #{$order->id}: {$order->status_label}",
             route('dashboard'),
+        );
+    }
+
+    public function streak(User $user, int $coins, int $xp): Notification
+    {
+        return $this->push(
+            $user,
+            'streak',
+            'Серия входов',
+            "День {$user->streak} подряд · +{$coins} коинов · +{$xp} XP",
+            route('dashboard'),
+        );
+    }
+
+    public function commentLiked(Commentary $comment, User $liker): ?Notification
+    {
+        // No author, or you liked your own review — nothing to notify.
+        if (!$comment->user || $comment->user_id === $liker->id) {
+            return null;
+        }
+
+        $likerName = $liker->name ?? 'Пользователь';
+
+        return $this->push(
+            $comment->user,
+            'comment_like',
+            'Новый лайк',
+            "{$likerName} оценил(а) ваш отзыв",
+            route('products.show', $comment->product_id),
         );
     }
 

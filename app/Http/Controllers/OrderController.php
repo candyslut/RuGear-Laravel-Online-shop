@@ -185,11 +185,25 @@ class OrderController extends Controller
             }
         }
 
+        // Rank-up may come from an achievement's XP above; capture it before
+        // the order quest's XP (which resets lastRankUp) can clobber it.
+        $rankUp = $user->lastRankUp;
+
+        // Quest: paying for an order.
+        $questsDone = app(\App\Services\DailyQuestService::class)->progress($user, 'order');
+        $rankUp = $user->lastRankUp ?: $rankUp;
+
         if (!empty($awardedAchievements)) {
             $redirect = $redirect->with('achievements_awarded', $awardedAchievements);
         }
         if ($toastLevelUp) {
             $redirect = $redirect->with('level_up', $toastLevelUp);
+        }
+        if ($rankUp) {
+            $redirect = $redirect->with('rank_up', $rankUp);
+        }
+        if (!empty($questsDone)) {
+            $redirect = $redirect->with('quests_completed', $questsDone);
         }
 
         return $redirect;

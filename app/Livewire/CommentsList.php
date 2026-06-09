@@ -5,8 +5,12 @@ namespace App\Livewire;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Product;
+use App\Models\Commentary;
+use App\Models\CommentLike;
+use App\Models\Achievement;
 use App\Livewire\Concerns\InteractsWithStickerPicker;
 use App\Services\CommentaryService;
+use App\Services\NotificationService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 
@@ -43,12 +47,98 @@ class CommentsList extends Component
     #[Computed]
     public function comments()
     {
+        $uid = Auth::id();
+        // Whether the current user has liked each row, resolved in the same query
+        // (aliased count → 0/1) so the view needs no per-comment lookups.
+        $mine = ['likes as liked_by_me' => fn ($q) => $q->where('user_id', $uid)];
+
         return $this->product->commentaries()
             ->whereNull('parent_id')
-            ->with(['user', 'photos', 'sticker', 'replies.user', 'replies.photos', 'replies.sticker'])
+            ->withCount('likes')
+            ->withCount($mine)
+            ->with([
+                'user', 'photos', 'sticker',
+                'replies' => fn ($q) => $q
+                    ->withCount('likes')
+                    ->withCount($mine)
+                    ->with(['user', 'photos', 'sticker']),
+            ])
             ->orderByDesc('created_at')
             ->get()
             ->toArray();
+    }
+
+    /**
+     * Toggle the current user's like on a comment/reply. Liking awards the
+     * comment's author +1 XP, plus +5 coins on every 5th like the comment
+     * receives, and drops a "liked your comment" notification in their bell.
+     * You can't like your own review. Unliking simply removes the like (no
+     * claw-back). The heart updates optimistically client-side; this just
+     * persists the truth.
+     */
+    public function toggleLike(int $commentId)
+    {
+        if (!Auth::check()) {
+            return;
+        }
+
+        $user    = Auth::user();
+        $comment = Commentary::find($commentId);
+
+        // Missing comment, or your own review — ignore.
+        if (!$comment || $comment->user_id === $user->id) {
+            return;
+        }
+
+        $existing = $comment->likes()->where('user_id', $user->id)->first();
+
+        if ($existing) {
+            $existing->delete();
+        } else {
+            $comment->likes()->create(['user_id' => $user->id]);
+
+            $author = $comment->user;
+            if ($author) {
+                $author->addExperience(1); // +1 XP per like received
+                $likeCount = $comment->likes()->count();
+                if ($likeCount % 5 === 0) {
+                    $author->addCoins(5);  // +5 coins every 5 likes
+                }
+                // Popularity achievements for the comment's author.
+                $this->awardBySlug($author, [10 => 'liked_10', 50 => 'liked_50'], $likeCount);
+                app(NotificationService::class)->commentLiked($comment, $user);
+            }
+
+            // Engagement achievements for the liker (likes they've handed out).
+            $givenCount = CommentLike::where('user_id', $user->id)->count();
+            $this->awardBySlug($user, [1 => 'like_giver_1', 25 => 'like_giver_25', 100 => 'like_giver_100'], $givenCount);
+
+            // Quest: giving likes to other people's comments.
+            if ($done = app(\App\Services\DailyQuestService::class)->progress($user, 'like_give')) {
+                $this->dispatch('quests-completed', quests: $done);
+            }
+            $this->dispatch('profile-refresh'); // live-sync coins / quest panel
+        }
+
+        unset($this->comments);
+    }
+
+    /**
+     * Grant the achievement mapped to $count, if any. The map is keyed by the
+     * exact threshold (mirrors the comment-milestone style); since likes move
+     * by one at a time, each threshold is hit precisely once. awardAchievement()
+     * dedupes, so this stays a no-op after the first grant.
+     */
+    private function awardBySlug(\App\Models\User $user, array $thresholds, int $count): void
+    {
+        if (!isset($thresholds[$count])) {
+            return;
+        }
+
+        $achievement = Achievement::where('slug', $thresholds[$count])->first();
+        if ($achievement) {
+            $user->awardAchievement($achievement);
+        }
     }
 
     public function startReply(int $commentId)

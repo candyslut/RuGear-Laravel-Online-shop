@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ShopItem;
 use App\Models\StickerPack;
+use App\Models\Achievement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -90,6 +91,8 @@ class ShopController extends Controller
 
         $this->applyCosmetic($user, $item);
 
+        $this->checkStoreCompletion($user);
+
         return response()->json([
             'coins'    => $user->fresh()->coins,
             'equipped' => true,
@@ -127,6 +130,25 @@ class ShopController extends Controller
         }
 
         return response()->json(['unequipped' => true, 'category' => $category]);
+    }
+
+    /**
+     * Award the completionist achievement once the user owns every buyable
+     * ShopItem — all cosmetics and every sticker pack (fonts aren't sold, so
+     * they're excluded, mirroring the guard in buy()). awardAchievement()
+     * dedupes, so this only ever pays out once.
+     */
+    private function checkStoreCompletion($user): void
+    {
+        $buyableIds = ShopItem::where('category', '!=', 'font')->pluck('id');
+        $ownedIds   = $user->shopItems()->pluck('shop_item_id');
+
+        if ($buyableIds->isNotEmpty() && $buyableIds->diff($ownedIds)->isEmpty()) {
+            $achievement = Achievement::where('slug', 'store_complete')->first();
+            if ($achievement) {
+                $user->awardAchievement($achievement);
+            }
+        }
     }
 
     private function applyCosmetic($user, ShopItem $item): void
