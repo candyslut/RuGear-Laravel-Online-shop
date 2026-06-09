@@ -81,19 +81,35 @@ if (typeof window.yodorada === 'undefined') {
 				];
 			};
 			this.loadImg = function() {
+				// Грузим все картинки параллельно (а не цепочкой), чтобы старт
+				// не упирался в последовательные round-trip'ы на медленных
+				// соединениях. onerror тоже считаем «готовым» — одна недоступная
+				// картинка не должна навсегда подвесить запуск игры.
 				var self = this;
-				this.assets[self.count].img.onload = function() {
-					self.assets[self.count].width = this.width;
-					self.assets[self.count].height = this.height;
-					self.assets[self.count].rect = self.generatePoints(this.width, this.height);
-					self.count++;
-					if (self.count != self.assets.length) {
-						self.loadImg();
-					} else {
+				var done = 0;
+				var finish = function() {
+					self.count = ++done;
+					if (done >= self.assets.length) {
 						self.assetsLoaded = true;
 					}
 				};
-				this.assets[this.count].img.src = this.assets[this.count].src;
+				for (var i = 0; i < self.assets.length; i++) {
+					(function(asset) {
+						asset.img.onload = function() {
+							asset.width = this.width;
+							asset.height = this.height;
+							asset.rect = self.generatePoints(this.width, this.height);
+							finish();
+						};
+						asset.img.onerror = function() {
+							asset.width = asset.width || 60;
+							asset.height = asset.height || 60;
+							asset.rect = self.generatePoints(asset.width, asset.height);
+							finish();
+						};
+						asset.img.src = asset.src;
+					})(self.assets[i]);
+				}
 			};
 			this.init = function() {
 				var shuffleImg = shuffle([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]);
@@ -1628,9 +1644,13 @@ if (typeof window.yodorada === 'undefined') {
 		window.yodorada.game = Game;
 
 
+		// Запускаем игру, как только готовы (крошечные) картинки — НЕ ждём
+		// полной буферизации музыки (arcadeloop.mp3 ~3.7 МБ), из-за которой
+		// раньше старт подвисал на 10-15 секунд. Музыка/звуки подхватятся,
+		// как только догрузятся; для интерактива они не нужны.
 		var waitAssets = setInterval(function() {
 
-			if (ImageRepository.assetsLoaded && Game.audioLoaded) {
+			if (ImageRepository.assetsLoaded) {
 				clearInterval(waitAssets);
 				Game.alive = true;
 				mainLoop();

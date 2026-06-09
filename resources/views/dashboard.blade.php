@@ -1194,17 +1194,6 @@
     <script>
         const GAME_SRC = '{{ asset('index.html') }}';
 
-        // Прогреваем игру заранее: грузим iframe в фоне (внутри закрытого
-        // <dialog>), чтобы её скрипты и обработчики клавиш/тапа были готовы
-        // ещё до открытия — тогда пробел/тап срабатывают мгновенно, а не
-        // через пару секунд ожидания загрузки.
-        function preloadGame() {
-            const iframe = document.getElementById('game-iframe');
-            if (iframe && !iframe.src) iframe.src = GAME_SRC;
-        }
-        if (document.readyState === 'complete') preloadGame();
-        else window.addEventListener('load', preloadGame);
-
         function focusGame() {
             const iframe = document.getElementById('game-iframe');
             try {
@@ -1214,8 +1203,13 @@
         }
 
         window.openGame = function() {
+            // Грузим игру СВЕЖЕЙ в момент открытия — внутри уже видимой
+            // модалки. Так её холст и игровой цикл (requestAnimationFrame)
+            // работают корректно; в скрытом <dialog> (display:none) они
+            // не запускаются. Стартует быстро: тяжёлую музыку игра больше
+            // не ждёт (см. game.js), а спрайты — это считанные килобайты.
             const iframe = document.getElementById('game-iframe');
-            if (iframe.src !== GAME_SRC) iframe.src = GAME_SRC; // на случай, если прогрев не успел
+            if (iframe.src !== GAME_SRC) iframe.src = GAME_SRC;
             document.getElementById('mod-game').showModal();
             // showModal() забирает фокус на диалог — возвращаем его в игру,
             // чтобы первое нажатие пробела дошло до неё.
@@ -1224,11 +1218,19 @@
         };
 
         function closeGame() {
+            // Достаточно закрыть диалог — фактический демонтаж игры висит на
+            // событии 'close' ниже, поэтому он срабатывает при любом способе
+            // закрытия (кнопка, Esc, программно).
             document.getElementById('mod-game').close();
-            // Перезагружаем во «свежую» игру и сразу прогреваем её для
-            // следующего открытия (фоновая загрузка, пока модалка закрыта).
-            document.getElementById('game-iframe').src = GAME_SRC;
         }
+
+        // Полностью выгружаем игру при закрытии модалки ЛЮБЫМ способом
+        // (включая клавишу Esc): about:blank сносит её документ — музыка и
+        // звуки останавливаются, весь прогресс сбрасывается. Следующее
+        // открытие загрузит игру заново (см. openGame).
+        document.getElementById('mod-game').addEventListener('close', function() {
+            document.getElementById('game-iframe').src = 'about:blank';
+        });
 
         function toggleLogout(show) {
             const m = document.getElementById('mod-logout');

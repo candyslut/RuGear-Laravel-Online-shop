@@ -30,6 +30,15 @@ class CommentForm extends Component
         $this->photos = array_values($this->photos);
     }
 
+    /**
+     * Validate photos as soon as they are attached so the user gets immediate
+     * feedback (too large / wrong type) instead of only on submit.
+     */
+    public function updatedPhotos()
+    {
+        $this->validate($this->photoRules(), $this->validationMessages());
+    }
+
     public function submitComment()
     {
         if (!Auth::check()) {
@@ -38,12 +47,12 @@ class CommentForm extends Component
         }
 
         $this->validate([
-            // Either text or a sticker is required (or both).
-            'content'   => 'required_without:stickerId|nullable|string|min:3|max:1000',
+            // A comment is valid with text, a sticker, OR just photo(s) —
+            // text is only required when nothing else is attached.
+            'content'   => 'required_without_all:stickerId,photos|nullable|string|min:3|max:1000',
             'stickerId' => 'nullable|exists:stickers,id',
-            'photos'    => 'array|max:4',
-            'photos.*'  => 'image|mimes:jpg,jpeg,png,webp|max:2048',
-        ]);
+            ...$this->photoRules(),
+        ], $this->validationMessages());
 
         $user = Auth::user();
         $commentaryService = app(CommentaryService::class);
@@ -67,6 +76,30 @@ class CommentForm extends Component
                 $this->dispatch('show-levelup', $awarded['level_up']);
             }
         }
+    }
+
+    /**
+     * Up to 4 photos, each a real image (jpg/png/webp) of at most 5 MB.
+     */
+    protected function photoRules(): array
+    {
+        return [
+            'photos'   => 'array|max:4',
+            'photos.*' => 'image|mimes:jpg,jpeg,png,webp|max:5120',
+        ];
+    }
+
+    protected function validationMessages(): array
+    {
+        return [
+            'content.required_without_all' => 'Напишите отзыв, прикрепите фото или стикер.',
+            'content.min'                  => 'Отзыв должен содержать не менее 3 символов.',
+            'content.max'                  => 'Отзыв не должен превышать 1000 символов.',
+            'photos.max'                   => 'Можно прикрепить не более 4 фотографий.',
+            'photos.*.image'               => 'Файл должен быть изображением.',
+            'photos.*.mimes'               => 'Допустимые форматы: JPG, PNG или WEBP.',
+            'photos.*.max'                 => 'Размер фото не должен превышать 5 МБ.',
+        ];
     }
 
     public function render()

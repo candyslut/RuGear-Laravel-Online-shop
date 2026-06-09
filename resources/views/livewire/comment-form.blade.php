@@ -70,7 +70,7 @@
             {{-- Attach photos --}}
             <label
                 class="inline-flex items-center gap-2 h-9 px-3 rounded-xl border border-gray-800 bg-[#0f1117] text-gray-400 hover:border-orange-500 hover:text-orange-400 active:scale-95 transition-all cursor-pointer"
-                title="Прикрепить фото (до 4)"
+                title="Прикрепить фото (до 4, до 5 МБ каждое)"
             >
                 <input type="file" wire:model="photos" multiple accept="image/jpeg,image/png,image/webp" class="hidden">
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
