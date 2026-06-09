@@ -1,0 +1,219 @@
+{
+    "slug": "cherryblack",
+    "name": "Black Cherry",
+    "description": "Стикерпак из Telegram: Black Cherry",
+    "price": 400,
+    "sort": 10,
+    "stickers": [
+        {
+            "file": "stickers\/cherryblack\/01.json",
+            "emoji": "👍",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/02.json",
+            "emoji": "🙂",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/03.json",
+            "emoji": "😭",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/04.json",
+            "emoji": "🥵",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/05.json",
+            "emoji": "😝",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/06.json",
+            "emoji": "☺️",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/07.json",
+            "emoji": "😃",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/08.json",
+            "emoji": "😐",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/09.json",
+            "emoji": "🙄",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/10.json",
+            "emoji": "☠️",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/11.json",
+            "emoji": "🤔",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/12.json",
+            "emoji": "🤔",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/13.json",
+            "emoji": "😑",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/14.json",
+            "emoji": "😀",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/15.json",
+            "emoji": "💃",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/16.json",
+            "emoji": "😀",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/17.json",
+            "emoji": "😀",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/18.json",
+            "emoji": "😀",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/19.json",
+            "emoji": "🏃‍♀️",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/20.json",
+            "emoji": "🏃‍♂️",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/21.json",
+            "emoji": "👏",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/22.json",
+            "emoji": "😉",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/23.json",
+            "emoji": "🤤",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/24.json",
+            "emoji": "😴",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/25.json",
+            "emoji": "😄",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/26.json",
+            "emoji": "🤗",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/27.json",
+            "emoji": "🥳",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/28.json",
+            "emoji": "☠️",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/29.json",
+            "emoji": "🍿",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/30.json",
+            "emoji": "🤗",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/31.json",
+            "emoji": "🖤",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/32.json",
+            "emoji": "😱",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/33.json",
+            "emoji": "😳",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/34.json",
+            "emoji": "😒",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/35.json",
+            "emoji": "😵",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/36.json",
+            "emoji": "🤢",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/37.json",
+            "emoji": "😨",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/38.json",
+            "emoji": "😘",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/39.json",
+            "emoji": "🤗",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/40.json",
+            "emoji": "🔥",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/41.json",
+            "emoji": "👩‍❤️‍👨",
+            "is_animated": true
+        },
+        {
+            "file": "stickers\/cherryblack\/42.json",
+            "emoji": "💪",
+            "is_animated": true
+        }
+    ]
+}
