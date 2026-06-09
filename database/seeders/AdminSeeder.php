@@ -16,6 +16,7 @@ class AdminSeeder extends Seeder
             'email'    => 'admin@mail.com',
             'password' => Hash::make('admin123'),
             'role'     => 'admin',
+            'coins' => 5000,
         ]);
 
         $achievement = Achievement::where('slug', 'registered')->first();

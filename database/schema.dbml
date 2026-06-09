@@ -1,0 +1,378 @@
+// ============================================================
+// new-project — database schema
+// Generated from Laravel migrations in database/migrations
+// Paste into https://dbdiagram.io (DBML)
+// ============================================================
+
+// ---------- Auth / users ----------
+
+Table users {
+  id bigint [pk, increment]
+  name varchar
+  avatar varchar [null]
+  cosmetic_border varchar [null]
+  cosmetic_font varchar [null]
+  cosmetic_nickname_color varchar [null]
+  phone varchar [null]
+  gender varchar [null]
+  about text [null]
+  email varchar [unique]
+  email_verified_at timestamp [null]
+  password varchar
+  experience int [default: 0]
+  level int [default: 1]
+  coins int [default: 0]
+  role varchar [default: 'user']
+  remember_token varchar [null]
+  created_at timestamp [null]
+  updated_at timestamp [null]
+}
+
+Table password_reset_tokens {
+  email varchar [pk]
+  token varchar
+  created_at timestamp [null]
+}
+
+Table sessions {
+  id varchar [pk]
+  user_id bigint [null]
+  ip_address varchar(45) [null]
+  user_agent text [null]
+  payload longtext
+  last_activity int [note: 'indexed']
+}
+
+// ---------- Catalog ----------
+
+Table categories {
+  id bigint [pk, increment]
+  name varchar
+  created_at timestamp [null]
+  updated_at timestamp [null]
+}
+
+Table products {
+  id bigint [pk, increment]
+  name varchar
+  description text [null]
+  price decimal(10,2)
+  quantity int [default: 0]
+  image varchar [null]
+  category_id bigint
+  specification_type varchar [null, note: 'polymorphic morph type']
+  specification_id bigint [null, note: 'polymorphic morph id']
+  created_at timestamp [null]
+  updated_at timestamp [null]
+}
+
+// Polymorphic product specifications (products.specification_type/id)
+
+Table mouse_specifications {
+  id bigint [pk, increment]
+  sensor varchar
+  max_dpi int
+  polling_rate int
+  switches varchar
+  connection varchar
+  battery_life int [null]
+  weight int
+  created_at timestamp [null]
+  updated_at timestamp [null]
+}
+
+Table keyboard_specifications {
+  id bigint [pk, increment]
+  switch_type varchar
+  form_factor varchar
+  keycap_material varchar
+  hotswap varchar
+  connection varchar
+  illumination varchar
+  construction varchar
+  created_at timestamp [null]
+  updated_at timestamp [null]
+}
+
+Table headphone_specifications {
+  id bigint [pk, increment]
+  sound_type varchar
+  drivers varchar
+  frequency varchar
+  impedance varchar
+  connection varchar
+  microphone varchar
+  battery_life int [null]
+  created_at timestamp [null]
+  updated_at timestamp [null]
+}
+
+Table pad_specifications {
+  id bigint [pk, increment]
+  surface varchar
+  material varchar
+  base_material varchar
+  dimensions varchar
+  thickness varchar
+  edges varchar
+  created_at timestamp [null]
+  updated_at timestamp [null]
+}
+
+// ---------- Comments & stickers ----------
+
+Table commentaries {
+  id bigint [pk, increment]
+  content text [null]
+  user_id bigint
+  product_id bigint
+  sticker_id bigint [null]
+  parent_id bigint [null, note: 'self-reference for replies']
+  created_at timestamp [null]
+  updated_at timestamp [null]
+}
+
+Table commentary_photos {
+  id bigint [pk, increment]
+  commentary_id bigint
+  path varchar
+  created_at timestamp [null]
+  updated_at timestamp [null]
+}
+
+Table sticker_packs {
+  id bigint [pk, increment]
+  name varchar
+  slug varchar [unique]
+  thumb_path varchar [null]
+  sort_order int [default: 0]
+  is_active boolean [default: true]
+  created_at timestamp [null]
+  updated_at timestamp [null]
+}
+
+Table stickers {
+  id bigint [pk, increment]
+  sticker_pack_id bigint
+  file_path varchar
+  is_animated boolean [default: true]
+  thumb_path varchar [null]
+  emoji varchar [null]
+  sort_order int [default: 0]
+  created_at timestamp [null]
+  updated_at timestamp [null]
+}
+
+Table sticker_usages {
+  id bigint [pk, increment]
+  user_id bigint
+  sticker_id bigint
+  used_at timestamp
+
+  indexes {
+    (user_id, sticker_id) [unique]
+  }
+}
+
+// ---------- Cart & orders ----------
+
+Table cart_items {
+  id bigint [pk, increment]
+  user_id bigint
+  product_id bigint
+  quantity bigint [default: 0]
+  created_at timestamp [null]
+  updated_at timestamp [null]
+}
+
+Table orders {
+  id bigint [pk, increment]
+  user_id bigint
+  status varchar [default: 'pending', note: 'enum: pending, processing, completed, cancelled']
+  total_price decimal(10,2) [default: 0]
+  notes text [null]
+  address varchar [null]
+  payment_method varchar [null]
+  full_name varchar [null]
+  phone varchar [null]
+  email varchar [null]
+  delivery_type varchar [null]
+  created_at timestamp [null]
+  updated_at timestamp [null]
+}
+
+Table order_items {
+  id bigint [pk, increment]
+  order_id bigint
+  product_id bigint
+  quantity int
+  price decimal(10,2)
+  created_at timestamp [null]
+  updated_at timestamp [null]
+}
+
+// ---------- Gamification: achievements & shop ----------
+
+Table achievements {
+  id bigint [pk, increment]
+  slug varchar [unique]
+  title varchar
+  description text
+  experience int [default: 0]
+  coins int [default: 0]
+  icon varchar [null]
+  created_at timestamp [null]
+  updated_at timestamp [null]
+}
+
+Table achievement_user {
+  id bigint [pk, increment]
+  user_id bigint
+  achievement_id bigint
+  awarded_at timestamp [null]
+
+  indexes {
+    (user_id, achievement_id) [unique]
+  }
+}
+
+Table shop_items {
+  id bigint [pk, increment]
+  slug varchar [unique]
+  category varchar [note: 'font | border | nickname_color | sticker_pack']
+  sticker_pack_id bigint [null]
+  name varchar
+  description varchar
+  price int
+  css_value varchar [null]
+  created_at timestamp [null]
+  updated_at timestamp [null]
+}
+
+Table user_shop_items {
+  id bigint [pk, increment]
+  user_id bigint
+  shop_item_id bigint
+  purchased_at timestamp
+
+  indexes {
+    (user_id, shop_item_id) [unique]
+  }
+}
+
+// ---------- Notifications ----------
+
+Table notifications {
+  id bigint [pk, increment]
+  user_id bigint
+  type varchar
+  title varchar
+  message text [null]
+  url varchar [null]
+  read_at timestamp [null]
+  created_at timestamp [null]
+  updated_at timestamp [null]
+
+  indexes {
+    (user_id, read_at)
+  }
+}
+
+// ---------- Framework: cache & queue ----------
+
+Table cache {
+  key varchar [pk]
+  value mediumtext
+  expiration bigint
+}
+
+Table cache_locks {
+  key varchar [pk]
+  owner varchar
+  expiration bigint
+}
+
+Table jobs {
+  id bigint [pk, increment]
+  queue varchar
+  payload longtext
+  attempts smallint
+  reserved_at int [null]
+  available_at int
+  created_at int
+}
+
+Table job_batches {
+  id varchar [pk]
+  name varchar
+  total_jobs int
+  pending_jobs int
+  failed_jobs int
+  failed_job_ids longtext
+  options mediumtext [null]
+  cancelled_at int [null]
+  created_at int
+  finished_at int [null]
+}
+
+Table failed_jobs {
+  id bigint [pk, increment]
+  uuid varchar [unique]
+  connection text
+  queue text
+  payload longtext
+  exception longtext
+  failed_at timestamp
+}
+
+// ============================================================
+// Relationships
+// ============================================================
+
+Ref: sessions.user_id > users.id
+
+Ref: products.category_id > categories.id [delete: cascade]
+
+Ref: commentaries.user_id > users.id [delete: cascade]
+Ref: commentaries.product_id > products.id [delete: cascade]
+Ref: commentaries.parent_id > commentaries.id [delete: cascade]
+Ref: commentaries.sticker_id > stickers.id [delete: set null]
+
+Ref: commentary_photos.commentary_id > commentaries.id [delete: cascade]
+
+Ref: stickers.sticker_pack_id > sticker_packs.id [delete: cascade]
+Ref: sticker_usages.user_id > users.id [delete: cascade]
+Ref: sticker_usages.sticker_id > stickers.id [delete: cascade]
+
+Ref: cart_items.user_id > users.id [delete: cascade]
+Ref: cart_items.product_id > products.id [delete: cascade]
+
+Ref: orders.user_id > users.id [delete: cascade]
+Ref: order_items.order_id > orders.id [delete: cascade]
+Ref: order_items.product_id > products.id [delete: cascade]
+
+Ref: tickets.user_id > users.id [delete: cascade]
+
+Ref: achievement_user.user_id > users.id [delete: cascade]
+Ref: achievement_user.achievement_id > achievements.id [delete: cascade]
+
+Ref: shop_items.sticker_pack_id > sticker_packs.id [delete: set null]
+Ref: user_shop_items.user_id > users.id [delete: cascade]
+Ref: user_shop_items.shop_item_id > shop_items.id [delete: cascade]
+
+Ref: notifications.user_id > users.id [delete: cascade]
+
+// ---------- Support tickets ----------
+
+Table tickets {
+  id bigint [pk, increment]
+  name varchar
+  category varchar
+  content text
+  user_id bigint
+  status varchar [default: 'pending']
+  reply text [null]
+  deleted_at timestamp [null, note: 'soft deletes']
+  created_at timestamp [null]
+  updated_at timestamp [null]
+}
