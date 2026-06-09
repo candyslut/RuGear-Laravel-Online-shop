@@ -753,6 +753,7 @@
 
             equipped[category] = css;
             applyPreview(category, css);
+            if (category === 'border') window.dispatchEvent(new CustomEvent('cosmetic-border-changed', { detail: { value: css } }));
             refreshCategory(category);
             updateCollectionStats();
             marketToast('Куплено и надето!');
@@ -768,6 +769,7 @@
 
             equipped[category] = css;
             applyPreview(category, css);
+            if (category === 'border') window.dispatchEvent(new CustomEvent('cosmetic-border-changed', { detail: { value: css } }));
             refreshCategory(category);
             marketToast('Экипировано успешно!');
         }
@@ -779,6 +781,7 @@
             markEquipped(category, null);
             equipped[category] = null;
             restorePreview(category);
+            if (category === 'border') window.dispatchEvent(new CustomEvent('cosmetic-border-changed', { detail: { value: null } }));
             refreshCategory(category);
             marketToast('Снято с профиля');
         }

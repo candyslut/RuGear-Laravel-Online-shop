@@ -23,3 +23,26 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# ──────────────────────────────────────────────────────────────────────────
+# Long-lived caching for static media (stickers, images, fonts, video).
+# Sticker assets under /storage are immutable once uploaded, so letting the
+# browser keep them means the picker opens instantly on repeat visits instead
+# of re-fetching every .json/.webm. Applied by extension, so it covers
+# /storage/** and /build/** alike.
+# ──────────────────────────────────────────────────────────────────────────
+<IfModule mod_headers.c>
+    <FilesMatch "\.(json|webm|mp4|png|jpe?g|gif|webp|svg|woff2?|ttf|otf|lottie)$">
+        Header set Cache-Control "public, max-age=31536000"
+    </FilesMatch>
+</IfModule>
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType application/json          "access plus 1 year"
+    ExpiresByType video/webm                "access plus 1 year"
+    ExpiresByType image/png                 "access plus 1 year"
+    ExpiresByType image/jpeg                "access plus 1 year"
+    ExpiresByType image/webp                "access plus 1 year"
+    ExpiresByType image/svg+xml             "access plus 1 year"
+    ExpiresByType font/woff2                "access plus 1 year"
+</IfModule>

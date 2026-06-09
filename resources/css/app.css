@@ -1,3 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Hide Alpine x-show/x-cloak elements until Alpine initialises (prevents the
+   always-mounted sticker picker from flashing open on load). */
+[x-cloak] { display: none !important; }

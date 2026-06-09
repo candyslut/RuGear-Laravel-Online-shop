@@ -32,7 +32,7 @@
                             transform="rotate(-90 40 40)"/>
                 </svg>
                 <div class="absolute inset-0 flex items-center justify-center">
-                    <div class="w-[62px] h-[62px] rounded-full bg-orange-500 flex items-center justify-center text-black text-xl font-black overflow-hidden {{ $u->cosmetic_border === 'rainbow' ? 'avatar-rainbow' : '' }}"
+                    <div data-user-avatar class="w-[62px] h-[62px] rounded-full bg-orange-500 flex items-center justify-center text-black text-xl font-black overflow-hidden {{ $u->cosmetic_border === 'rainbow' ? 'avatar-rainbow' : '' }}"
                          style="{{ $u->cosmetic_border && $u->cosmetic_border !== 'rainbow' ? 'box-shadow:'.$u->cosmetic_border.';' : '' }}">
                         @if($u->avatar)
                         <img src="{{ Storage::url($u->avatar) }}" alt="Аватар" class="w-full h-full object-cover">

@@ -32,13 +32,17 @@
         </svg>
     </button>
 
-    <template x-if="open">
-        <div
-            x-transition.origin.bottom.left
-            {{-- Mobile: a fixed bottom-sheet spanning the screen width (the 22rem
-                 popover was cramped/clipped on phones). sm+: the anchored popover. --}}
-            class="fixed sm:absolute z-[60] inset-x-2 bottom-2 sm:inset-x-auto sm:bottom-full sm:mb-2 sm:left-0 w-auto sm:w-[22rem] sm:max-w-[calc(100vw-1.5rem)] bg-gradient-to-b from-[#13161d] to-[#0d0f15] border border-gray-800 rounded-2xl shadow-2xl shadow-black/60 overflow-hidden"
-        >
+    {{-- x-show (not x-if): the picker is built ONCE and kept in the DOM so it
+         reopens instantly — no re-clone, no re-fetch/re-decode of stickers on
+         every open. x-sticker-grid still lazy-mounts only the visible players. --}}
+    <div
+        x-show="open"
+        x-cloak
+        x-transition.origin.bottom.left
+        {{-- Mobile: a fixed bottom-sheet spanning the screen width (the 22rem
+             popover was cramped/clipped on phones). sm+: the anchored popover. --}}
+        class="fixed sm:absolute z-[60] inset-x-2 bottom-2 sm:inset-x-auto sm:bottom-full sm:mb-2 sm:left-0 w-auto sm:w-[22rem] sm:max-w-[calc(100vw-1.5rem)] bg-gradient-to-b from-[#13161d] to-[#0d0f15] border border-gray-800 rounded-2xl shadow-2xl shadow-black/60 overflow-hidden"
+    >
             @if($packs->isEmpty() && $recent->isEmpty())
                 <div class="h-56 flex flex-col items-center justify-center text-center gap-2 px-4">
                     <div class="text-4xl">🪄</div>
@@ -107,5 +111,4 @@
                 </div>
             @endif
         </div>
-    </template>
 </div>

@@ -481,6 +481,7 @@
                         <div class="relative" id="avatar-menu-wrap">
                             <button
                                 id="avatar-btn"
+                                data-user-avatar
                                 onclick="toggleAvatarMenu()"
                                 class="w-9 h-9 rounded-full bg-orange-500 flex items-center justify-center text-black font-black text-sm flex-shrink-0 hover:opacity-90 transition focus:outline-none overflow-hidden {{ auth()->user()->cosmetic_border === 'rainbow' ? 'avatar-rainbow' : '' }} hover:shadow-[0_0_20px_rgba(249,115,22,0.6)]"
                                 style="{{ auth()->user()->cosmetic_border && auth()->user()->cosmetic_border !== 'rainbow' ? 'box-shadow:'.auth()->user()->cosmetic_border.';' : '' }}"
@@ -758,6 +759,23 @@
                 }, idx * 600);
             });
         }
+
+        // ── Live cosmetic border (avatar icon) ───────────────────
+        // Applies a newly equipped/unequipped border cosmetic to EVERY avatar
+        // on the page (header, dashboard, etc.) without a reload. Any avatar
+        // that should track the current user's border carries [data-user-avatar].
+        // The market dispatches `cosmetic-border-changed` on equip/buy/unequip.
+        window.applyUserBorder = function (value) {
+            document.querySelectorAll('[data-user-avatar]').forEach(function (el) {
+                el.classList.remove('avatar-rainbow');
+                el.style.boxShadow = '';
+                if (value === 'rainbow') el.classList.add('avatar-rainbow');
+                else if (value) el.style.boxShadow = value;
+            });
+        };
+        window.addEventListener('cosmetic-border-changed', function (e) {
+            window.applyUserBorder(e.detail ? e.detail.value : null);
+        });
 
         // ── Avatar dropdown ──────────────────────────────────────
         function toggleAvatarMenu() {

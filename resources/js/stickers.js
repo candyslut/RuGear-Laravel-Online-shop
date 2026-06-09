@@ -130,10 +130,10 @@ function unmountCell(cell) {
 }
 
 /* Build one Recent-grid cell, mirroring partials/sticker-button.blade.php.
-   It is injected into the picker's inert <template> content; Alpine binds the
-   @click on the clone when the popover next opens, and x-sticker-grid mounts the
-   animated player for it. Kept attribute-for-attribute in sync with the blade so
-   a server re-render and this client insert are visually identical. */
+   It is inserted into the live picker DOM; recordRecent() runs Alpine.initTree on
+   it to wire its @click, and x-sticker-grid's MutationObserver mounts the animated
+   player. Kept attribute-for-attribute in sync with the blade so a server
+   re-render and this client insert are visually identical. */
 function createRecentCell({ id, url, type, emoji = '' }) {
     const btn = document.createElement('button');
     btn.type = 'button';
@@ -176,13 +176,31 @@ export function registerStickerDirectives(Alpine) {
 
     // <div x-sticker-grid> — lazily mounts/destroys the animated cells inside this
     // scrollable container as they enter/leave view, capping live players.
+    // Because the picker is now kept mounted (x-show), this also watches for cells
+    // inserted later (e.g. a just-used sticker prepended to the Recent section) and
+    // gives them the same lazy treatment.
+    const ANIM_SEL = '[data-sticker-cell][data-type="lottie"],[data-sticker-cell][data-type="video"]';
     Alpine.directive('sticker-grid', (el, {}, { cleanup }) => {
         const io = new IntersectionObserver((entries) => {
             entries.forEach((e) => (e.isIntersecting ? mountCell(e.target) : unmountCell(e.target)));
         }, { root: el, rootMargin: '140px' });
-        const cells = el.querySelectorAll('[data-sticker-cell][data-type="lottie"],[data-sticker-cell][data-type="video"]');
-        cells.forEach((c) => io.observe(c));
-        cleanup(() => { io.disconnect(); cells.forEach(unmountCell); });
+        el.querySelectorAll(ANIM_SEL).forEach((c) => io.observe(c));
+
+        const mo = new MutationObserver((muts) => {
+            muts.forEach((m) => {
+                m.addedNodes.forEach((n) => {
+                    if (n.nodeType !== 1) return;
+                    if (n.matches?.(ANIM_SEL)) io.observe(n);
+                    n.querySelectorAll?.(ANIM_SEL).forEach((c) => io.observe(c));
+                });
+                m.removedNodes.forEach((n) => {
+                    if (n.nodeType === 1 && n.matches?.('[data-sticker-cell]')) unmountCell(n);
+                });
+            });
+        });
+        mo.observe(el, { childList: true, subtree: true });
+
+        cleanup(() => { io.disconnect(); mo.disconnect(); el.querySelectorAll('[data-sticker-cell]').forEach(unmountCell); });
     });
 
     // <video x-sticker-video> — plays only while visible (for posted stickers).
@@ -210,28 +228,28 @@ export function registerStickerDirectives(Alpine) {
         init() {
             // When a sticker comment/reply is actually sent, the host Livewire
             // component dispatches `sticker-used` with the sticker payload. We
-            // patch it into the (closed) popover's <template> so it shows up in
-            // the Recent tab the next time the picker is opened — no reload.
+            // insert it into the (kept-mounted) popover's Recent section so it
+            // shows up there immediately — no reload.
             this.$wire?.on?.('sticker-used', (e) => {
                 const d = Array.isArray(e) ? e[0] : e;
                 this.recordRecent(d && d.sticker ? d.sticker : d);
             });
         },
 
-        // Prepend a just-used sticker to the Recent section inside the popover's
-        // inert <template>. Creates the section + tab on first use, de-dupes by
-        // sticker id (so a re-used sticker jumps to the front) and caps at 16.
+        // Prepend a just-used sticker to the Recent section. The picker is kept
+        // mounted (x-show), so we insert straight into the LIVE DOM and run
+        // Alpine.initTree on the new nodes (so their @click/:class bindings are
+        // wired). Creates the section + tab on first use, de-dupes by sticker id
+        // (so a re-used sticker jumps to the front) and caps at 16.
         recordRecent(detail) {
             if (!detail) return;
             const id = Number(detail.id);
             if (!id) return;
 
-            const tpl = this.$el.querySelector('template');
-            if (!tpl) return;
-            const root = tpl.content;
-            const body = root.querySelector('[x-ref="body"]');
-            const tabs = root.querySelector('[x-ref="tabs"]');
+            const body = this.$refs.body;
+            const tabs = this.$refs.tabs;
             if (!body) return; // empty-state popover (no packs) — nothing to do
+            const init = (node) => window.Alpine?.initTree?.(node);
 
             let section = body.querySelector('section[data-section="recent"]');
             if (!section) {
@@ -245,6 +263,7 @@ export function registerStickerDirectives(Alpine) {
                 grid.className = 'grid grid-cols-5 gap-1';
                 section.append(h, grid);
                 body.prepend(section);
+                this._spy?.observe(section); // keep scroll-spy aware of the new section
 
                 if (tabs && !tabs.querySelector('[data-tab="recent"]')) {
                     const tab = document.createElement('button');
@@ -259,6 +278,7 @@ export function registerStickerDirectives(Alpine) {
                     divider.className = 'flex-shrink-0 w-px h-6 bg-gray-800';
                     tabs.prepend(divider);
                     tabs.prepend(tab);
+                    init(tab); // wire @click / :class on the freshly inserted tab
                 }
             }
 
@@ -266,7 +286,9 @@ export function registerStickerDirectives(Alpine) {
             if (!grid) return;
 
             grid.querySelector(`[data-sticker-id="${id}"]`)?.remove();
-            grid.prepend(createRecentCell({ id, url: detail.url, type: detail.type, emoji: detail.emoji }));
+            const cell = createRecentCell({ id, url: detail.url, type: detail.type, emoji: detail.emoji });
+            grid.prepend(cell);
+            init(cell); // wire @click="select(...)" on the new cell
             while (grid.children.length > 16) grid.lastElementChild.remove();
         },
 
@@ -412,10 +434,44 @@ function observePostedStickers() {
     document.body.__stickerMO = mo;
 }
 
+/* ──────────────────────────────────────────────────────────────────────────
+   Eager prefetch — warm the browser cache for the sticker files the user can
+   actually reach (the picker only renders available packs), so the FIRST open
+   is instant too. Runs in idle time and is cheap to repeat: <link rel=prefetch>
+   is low-priority and de-duped by URL. Pairs with the long Cache-Control on
+   /storage media (see public/.htaccess) so prefetched files stay cached.
+   ────────────────────────────────────────────────────────────────────────── */
+function prefetchStickerAssets() {
+    const cells = document.querySelectorAll('[data-sticker-cell][data-src]');
+    if (!cells.length) return;
+    const head = document.head;
+    const seen = new Set();
+    cells.forEach((c) => {
+        const url = c.dataset.src;
+        if (!url || seen.has(url)) return;
+        seen.add(url);
+        if (head.querySelector(`link[rel="prefetch"][href="${CSS.escape(url)}"]`)) return;
+        const link = document.createElement('link');
+        link.rel = 'prefetch';
+        link.href = url;
+        // Same-origin /storage assets — no crossorigin, so the warmed cache entry
+        // is reused by the player's plain fetch. `as` only steers priority.
+        link.as = c.dataset.type === 'video' ? 'video' : (c.dataset.type === 'image' ? 'image' : 'fetch');
+        head.appendChild(link);
+    });
+}
+
+function scheduleStickerPrefetch() {
+    const run = () => prefetchStickerAssets();
+    if ('requestIdleCallback' in window) requestIdleCallback(run, { timeout: 3000 });
+    else setTimeout(run, 1500);
+}
+
 function initStickers() {
     scanLottieCanvases();
     mountPostedStickers();
     observePostedStickers();
+    scheduleStickerPrefetch();
 }
 
 document.addEventListener('alpine:init', () => registerStickerDirectives(window.Alpine));
