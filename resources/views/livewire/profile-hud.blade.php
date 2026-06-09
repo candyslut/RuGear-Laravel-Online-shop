@@ -19,7 +19,7 @@
     <div class="flex flex-col lg:flex-row lg:items-stretch">
 
         {{-- ── Идентификация ── --}}
-        <div class="flex-1 min-w-0 p-6 lg:p-7 flex items-start gap-5">
+        <div class="flex-1 min-w-0 p-6 lg:p-7 flex items-center sm:items-start gap-5">
 
             {{-- Clean circular avatar inside the animated XP ring; tier emblem below --}}
             <div class="relative flex-shrink-0" style="width:84px;height:84px">
@@ -55,13 +55,7 @@
                 <p class="hud-kicker">RUGEAR // ЛИЧНЫЙ КАБИНЕТ</p>
                 <h1 class="text-2xl lg:text-3xl font-black leading-tight mt-1.5 t-text" style="{{ $nameStyle }}">{{ $u->name }}</h1>
 
-                <div class="flex flex-wrap items-center gap-2 mt-2">
-                    <span class="rank-pill" style="--tc:{{ $tier['color'] }}">
-                        <span class="rank-pill__dot"></span>{{ $tier['name'] }}
-                        <span class="rank-pill__sep">·</span> LV {{ $u->level }}
-                    </span>
-                    <span class="hud-mono text-xs t-dim2 truncate">{{ $u->email }}</span>
-                </div>
+                <p class="hud-mono text-xs t-dim2 truncate mt-2">{{ $u->email }}</p>
 
                 @if($u->phone || $u->gender)
                 <div class="mt-3 flex flex-wrap gap-2">
