@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Services\CartService;
-use App\Models\Achievement;
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
@@ -16,24 +14,14 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $user->load('achievements');
 
         $cartItems = $this->cartService->getUserCart($user);
         $userTickets = $user->tickets()->latest()->get();
-
-        // Get user's orders
         $userOrders = $user->orders()->with('items.product')->latest()->paginate(5);
-        
-        // Get all achievements for the modal
-        $allAchievements = Achievement::all();
-        $userAchievementIds = $user->achievements->pluck('id')->toArray();
 
-        $leaderboard = User::with('achievements')
-            ->orderByDesc('level')
-            ->orderByDesc('experience')
-            ->get();
-
-        return view('dashboard', compact('cartItems', 'userTickets', 'userOrders', 'allAchievements', 'userAchievementIds', 'leaderboard'));
+        // Profile stats, the achievements grid and the leaderboard are now
+        // owned by their own reactive Livewire components (ProfileHud,
+        // AchievementsModal, Leaderboard), which load their data on demand.
+        return view('dashboard', compact('cartItems', 'userTickets', 'userOrders'));
     }
-
 }

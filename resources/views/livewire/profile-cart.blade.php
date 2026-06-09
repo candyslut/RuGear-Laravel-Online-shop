@@ -1,67 +1,67 @@
 <div>
     @if(count($cartItems) === 0)
-    <div class="py-16 flex flex-col items-center gap-3 text-center">
-        <div class="w-10 h-10 border border-dashed border-gray-800 rounded-xl flex items-center justify-center text-gray-700">
+    <div class="py-14 flex flex-col items-center gap-3 text-center">
+        <div class="w-12 h-12 flex items-center justify-center t-dim2" style="border:1px solid var(--line);background:var(--inset)">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
             </svg>
         </div>
-        <p class="text-sm text-gray-600">Корзина пуста</p>
-        <a href="/" class="text-orange-500 hover:text-orange-400 text-sm font-bold transition">В каталог →</a>
+        <p class="text-sm font-bold t-dim uppercase tracking-widest">Корзина пуста</p>
+        <a href="/" class="hud-mono text-xs font-bold uppercase tracking-widest t-acc hover:opacity-80 transition">В каталог →</a>
     </div>
     @else
 
-    <div class="divide-y divide-gray-900/60 max-h-72 overflow-y-auto cs pb-3 pr-3">
+    <div class="divide-y max-h-72 overflow-y-auto cs pb-3 pr-1" style="border-color:var(--line)">
         @foreach($cartItems as $item)
         <div class="flex items-center gap-4 py-4" wire:key="profile-cart-item-{{ $item->id }}">
 
-            <div class="w-11 h-11 bg-[#0f1115] border border-gray-900/80 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center">
+            <div class="w-11 h-11 overflow-hidden flex-shrink-0 flex items-center justify-center" style="background:var(--inset);border:1px solid var(--line)">
                 <img src="{{ asset($item->product->image) }}"
                      alt="{{ $item->product->name }}"
                      class="w-full h-full object-contain p-1">
             </div>
 
             <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold text-white line-clamp-1">{{ $item->product->name }}</p>
-                <p class="font-mono text-[10px] uppercase tracking-wider text-gray-600 mt-0.5 truncate">{{ $item->product->category->name ?? '—' }}</p>
+                <p class="text-sm font-semibold t-text line-clamp-1">{{ $item->product->name }}</p>
+                <p class="hud-mono text-[10px] uppercase tracking-wider t-dim2 mt-0.5 truncate">{{ $item->product->category->name ?? '—' }}</p>
             </div>
 
-            <div class="flex items-center border border-gray-800 rounded-lg overflow-hidden flex-shrink-0">
+            <div class="flex items-center overflow-hidden flex-shrink-0" style="border:1px solid var(--line)">
                 <button wire:click="decrement({{ $item->product->id }})"
-                        class="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-white hover:bg-gray-800/60 transition cursor-pointer text-sm select-none">
+                        class="w-8 h-8 flex items-center justify-center t-dim hover:text-orange-500 transition cursor-pointer text-sm select-none">
                     −
                 </button>
-                <span class="w-9 text-center text-sm font-black text-orange-500 tabular-nums select-none">{{ $item->quantity }}</span>
+                <span class="w-9 text-center text-sm font-black t-acc tabular-nums select-none">{{ $item->quantity }}</span>
                 @if($item->quantity >= $item->product->quantity)
                 <button disabled
-                        class="w-8 h-8 flex items-center justify-center text-gray-800 cursor-not-allowed text-sm bg-gray-900/20 select-none">
+                        class="w-8 h-8 flex items-center justify-center t-dim2 cursor-not-allowed text-sm select-none" style="background:var(--inset)">
                     +
                 </button>
                 @else
                 <button wire:click="increment({{ $item->product->id }})"
-                        class="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-white hover:bg-gray-800/60 transition cursor-pointer text-sm select-none">
+                        class="w-8 h-8 flex items-center justify-center t-dim hover:text-orange-500 transition cursor-pointer text-sm select-none">
                     +
                 </button>
                 @endif
             </div>
 
             <div class="text-right flex-shrink-0 w-28">
-                <p class="text-sm font-black text-white tabular-nums">{{ number_format($item->product->price * $item->quantity, 0, '.', ' ') }} ₽</p>
-                <p class="font-mono text-[10px] text-gray-700 mt-0.5 tabular-nums">{{ number_format($item->product->price, 0, '.', ' ') }} ₽/шт.</p>
+                <p class="text-sm font-black t-text tabular-nums">{{ number_format($item->product->price * $item->quantity, 0, '.', ' ') }} ₽</p>
+                <p class="hud-mono text-[10px] t-dim2 mt-0.5 tabular-nums">{{ number_format($item->product->price, 0, '.', ' ') }} ₽/шт.</p>
             </div>
         </div>
         @endforeach
     </div>
 
-    <div class="flex items-center justify-between gap-4 pt-7 mt-3 border-t border-gray-900/50 max-[450px]:flex-col max-[450px]:items-stretch max-[450px]:gap-3">
+    <div class="flex items-center justify-between gap-4 pt-6 mt-3 border-t max-[450px]:flex-col max-[450px]:items-stretch max-[450px]:gap-3" style="border-color:var(--line)">
         <div>
-            <p class="font-mono text-[10px] uppercase tracking-widest text-gray-600 mb-1.5">Итого</p>
-            <p class="text-3xl font-black text-white leading-none tabular-nums">
-                {{ number_format($totalSum, 0, '.', ' ') }}&nbsp;<span class="text-orange-500">₽</span>
+            <p class="hud-label mb-1.5">Итого</p>
+            <p class="text-3xl font-black t-text leading-none tabular-nums">
+                {{ number_format($totalSum, 0, '.', ' ') }}&nbsp;<span class="t-acc">₽</span>
             </p>
         </div>
         <button type="button" onclick="openCheckoutModal()"
-                class="bg-orange-500 hover:bg-orange-600 active:scale-[0.98] text-black font-black text-sm px-8 py-3.5 rounded-xl transition-all uppercase tracking-wider shadow-lg shadow-orange-500/10 max-[450px]:w-full">
+                class="bg-orange-500 hover:bg-orange-600 active:scale-[0.98] text-black font-black text-sm px-8 py-3.5 transition-all uppercase tracking-wider max-[450px]:w-full">
             Оформить заказ
         </button>
     </div>
