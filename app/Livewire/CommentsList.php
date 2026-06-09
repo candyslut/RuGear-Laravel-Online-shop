@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Livewire\Concerns\InteractsWithStickerPicker;
 use App\Services\CommentaryService;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Computed;
 
 class CommentsList extends Component
 {
@@ -15,7 +16,6 @@ class CommentsList extends Component
     use InteractsWithStickerPicker;
 
     public Product $product;
-    public $comments = [];
 
     // Inline reply state (one open reply form at a time).
     public ?int $replyingTo = null;
@@ -30,13 +30,20 @@ class CommentsList extends Component
     {
         $this->product = $product;
         $this->listId = 'comments-list-' . $product->id;
-        $this->loadComments();
     }
 
-    public function loadComments()
+    /**
+     * The comment thread. Computed (not a stored public property) so the entire
+     * thread is NOT serialized into the Livewire snapshot on every request —
+     * which, on a busy product, was shipping the whole comment list back and
+     * forth on every keystroke/submit and made sticker sends feel sluggish.
+     * It is recomputed from the DB on each render and the cache is busted with
+     * unset($this->comments) whenever the thread changes.
+     */
+    #[Computed]
+    public function comments()
     {
-        $this->product->refresh();
-        $this->comments = $this->product->commentaries()
+        return $this->product->commentaries()
             ->whereNull('parent_id')
             ->with(['user', 'photos', 'sticker', 'replies.user', 'replies.photos', 'replies.sticker'])
             ->orderByDesc('created_at')
@@ -107,13 +114,13 @@ class CommentsList extends Component
 
         unset($this->recentStickers);
         $this->cancelReply();
-        $this->loadComments();
+        unset($this->comments);
     }
 
     #[\Livewire\Attributes\On('comment-added')]
     public function onCommentAdded()
     {
-        $this->loadComments();
+        unset($this->comments);
     }
 
     public function render()

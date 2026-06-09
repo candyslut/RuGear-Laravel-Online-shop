@@ -1,5 +1,5 @@
 <div class="space-y-4">
-    @forelse($comments as $comment)
+    @forelse($this->comments as $comment)
         <div
             wire:key="comment-{{ $comment['id'] }}"
             class="bg-[#161920]/40 border border-gray-800 rounded-xl p-5 shadow-sm comment-item"
@@ -117,11 +117,16 @@
                                 @endif
                             </label>
 
-                            {{-- Sticker picker for replies --}}
-                            @include('partials.sticker-picker', [
-                                'recent' => $this->recentStickers,
-                                'packs'  => $this->stickerPacks,
-                            ])
+                            {{-- Sticker picker for replies. wire:ignore for the same
+                                 reason as the main comment form: the picker is fully
+                                 client-driven, so Livewire never needs to re-morph its
+                                 hundreds of cells. --}}
+                            <div wire:ignore>
+                                @include('partials.sticker-picker', [
+                                    'recent' => $this->recentStickers,
+                                    'packs'  => $this->stickerPacks,
+                                ])
+                            </div>
 
                             <span wire:loading wire:target="replyPhotos" class="text-xs text-gray-500 font-mono">Загрузка…</span>
 

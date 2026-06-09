@@ -83,12 +83,18 @@
                 @endif
             </label>
 
-            {{-- Animated sticker picker --}}
+            {{-- Animated sticker picker. wire:ignore: the picker is built once and
+                 driven entirely client-side (selection is Alpine, the "Recent" tab
+                 updates itself via JS). Letting Livewire re-render/morph its ~hundreds
+                 of cells on every submit is the main source of send lag — so we keep
+                 Livewire out of this subtree completely. --}}
             @auth
-                @include('partials.sticker-picker', [
-                    'recent' => $this->recentStickers,
-                    'packs'  => $this->stickerPacks,
-                ])
+                <div wire:ignore>
+                    @include('partials.sticker-picker', [
+                        'recent' => $this->recentStickers,
+                        'packs'  => $this->stickerPacks,
+                    ])
+                </div>
             @endauth
 
             <span wire:loading wire:target="photos" class="text-xs text-gray-500 font-mono">Загрузка…</span>
