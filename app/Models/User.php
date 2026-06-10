@@ -90,8 +90,10 @@ class User extends Authenticatable
 
     public function addExperience(int $amount): void
     {
-        $oldLevel = $this->level;
-        $this->experience = $this->experience + $amount;
+        // Freshly created models (factories/seeders) may not have the DB
+        // defaults hydrated yet, so level/experience can be null here.
+        $oldLevel = max(1, (int) $this->level);
+        $this->experience = (int) $this->experience + $amount;
         $this->level = max(1, intdiv($this->experience, 100) + 1);
         $this->save();
 
