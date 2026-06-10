@@ -15,9 +15,11 @@ class ShopController extends Controller
         $user  = Auth::user();
 
         // Cosmetics live in the spotlight grid; sticker packs get their own section.
+        // Внутри категории: бесплатные базовые → дешёвые → дорогие.
         $items = ShopItem::whereNotIn('category', ['font', 'sticker_pack'])
             ->get()
-            ->groupBy('category');
+            ->groupBy('category')
+            ->map(fn ($group) => $group->sortBy([['price', 'asc'], ['id', 'asc']])->values());
         $owned = $user->shopItems()->pluck('shop_item_id')->toArray();
 
         // Imported Telegram sets get a curated rarity tier that drives the
@@ -78,6 +80,19 @@ class ShopController extends Controller
             return response()->json(['error' => 'unavailable'], 404);
         }
 
+        // Бесплатные базовые предметы (тёмная/светлая тема) есть у всех:
+        // «покупка» для них — просто экипировка, без списания и pivot-записи.
+        if ((int) $item->price === 0) {
+            $this->applyCosmetic($user, $item);
+
+            return response()->json([
+                'coins'    => $user->coins,
+                'equipped' => true,
+                'category' => $item->category,
+                'css'      => $item->css_value,
+            ]);
+        }
+
         if (in_array($item->id, $user->shopItems()->pluck('shop_item_id')->toArray())) {
             return response()->json(['error' => 'already_owned'], 400);
         }
@@ -105,7 +120,8 @@ class ShopController extends Controller
     {
         $user = Auth::user();
 
-        if (!in_array($item->id, $user->shopItems()->pluck('shop_item_id')->toArray())) {
+        // Бесплатные базовые предметы экипируются без записи о покупке.
+        if ((int) $item->price > 0 && !in_array($item->id, $user->shopItems()->pluck('shop_item_id')->toArray())) {
             return response()->json(['error' => 'not_owned'], 400);
         }
 
@@ -124,6 +140,23 @@ class ShopController extends Controller
         $category = $request->input('category');
         $col      = $this->col($category);
 
+        // «Отключить» на базовой тёмной/светлой теме включает противоположную;
+        // покупные темы (космос/няшная) снимаются в обычные dark/light (null).
+        // current приходит с клиента для случая, когда базовая тема активна
+        // только локально (cosmetic_theme ещё не сохранялся).
+        if ($category === 'theme') {
+            $current = $user->cosmetic_theme ?: $request->input('current');
+            $next    = match ($current) {
+                'light' => 'dark',
+                'dark'  => 'light',
+                default => null,
+            };
+            $user->cosmetic_theme = $next;
+            $user->save();
+
+            return response()->json(['unequipped' => true, 'category' => $category, 'value' => $next]);
+        }
+
         if ($col) {
             $user->$col = null;
             $user->save();
@@ -134,13 +167,14 @@ class ShopController extends Controller
 
     /**
      * Award the completionist achievement once the user owns every buyable
-     * ShopItem — all cosmetics and every sticker pack (fonts aren't sold, so
-     * they're excluded, mirroring the guard in buy()). awardAchievement()
-     * dedupes, so this only ever pays out once.
+     * ShopItem — all cosmetics and every sticker pack (fonts aren't sold and
+     * price-0 base themes belong to everyone, so both are excluded, mirroring
+     * the guards in buy()). awardAchievement() dedupes, so this only ever
+     * pays out once.
      */
     private function checkStoreCompletion($user): void
     {
-        $buyableIds = ShopItem::where('category', '!=', 'font')->pluck('id');
+        $buyableIds = ShopItem::where('category', '!=', 'font')->where('price', '>', 0)->pluck('id');
         $ownedIds   = $user->shopItems()->pluck('shop_item_id');
 
         if ($buyableIds->isNotEmpty() && $buyableIds->diff($ownedIds)->isEmpty()) {
@@ -166,6 +200,7 @@ class ShopController extends Controller
             'font'           => 'cosmetic_font',
             'border'         => 'cosmetic_border',
             'nickname_color' => 'cosmetic_nickname_color',
+            'theme'          => 'cosmetic_theme',
             default          => null,
         };
     }

@@ -153,7 +153,7 @@
         <div class="flex items-center gap-3 flex-shrink-0">
             <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg flex-shrink-0" aria-hidden="true"
                   style="{{ $u->streak > 0
-                        ? 'color:#fb923c;background:rgba(249,115,22,.14);box-shadow:0 0 16px rgba(249,115,22,.25);'
+                        ? 'color:var(--warm-acc, #fb923c);background:var(--warm-acc-bg, rgba(249,115,22,.14));box-shadow:0 0 16px var(--warm-acc-bg, rgba(249,115,22,.25));'
                         : 'color:var(--dim-2);background:var(--inset);' }}">
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12.5 2c.4 2.8 2.3 4.4 3.6 6 1.2 1.5 1.9 3 1.9 4.8a6 6 0 11-12 0c0-1.6.6-3 1.6-4.2.2.9.9 1.5 1.8 1.5 1.2 0 1.8-1 1.3-2.5C11.8 5.4 12 3.6 12.5 2z"/>
@@ -197,7 +197,8 @@
         $toGrand   = max(0, $cycle - $cycleDay);
         $wkPct     = ($cycleDay > 0 && $cycleDay % 7 === 0)  ? 100 : ($cycleDay % 7)  / 7  * 100;
         $moPct     = ($cycleDay > 0 && $cycleDay % 30 === 0) ? 100 : ($cycleDay % 30) / 30 * 100;
-        $tierColors = ['daily' => '#f97316', 'weekly' => '#22d3ee', 'monthly' => '#a855f7', 'grand' => '#fbbf24'];
+        // daily идёт через var: тема «Космос» подменяет тёплый оранжевый.
+        $tierColors = ['daily' => 'var(--tier-daily, #f97316)', 'weekly' => '#22d3ee', 'monthly' => '#a855f7', 'grand' => '#fbbf24'];
         // Reward table for the client-side preview slider (one source of truth: PHP).
         $rewardTable = [];
         for ($d = 1; $d <= $cycle; $d++) { $rewardTable[$d] = Gamification::streakReward($d); }
@@ -372,6 +373,14 @@
             .sr-body{padding:1.1rem;overflow-y:auto;}
             .sr-wheel{position:relative;width:clamp(220px,72vw,288px);aspect-ratio:1;margin:.1rem auto 1.2rem;}
             .sr-wheel-svg{width:100%;height:100%;display:block;}
+            /* Тема «Космос»: дуга прогресса — аврора вместо золото-оранжевого. */
+            [data-theme="cosmic"] #srGrad stop:nth-child(1){stop-color:#22d3ee;}
+            [data-theme="cosmic"] #srGrad stop:nth-child(2){stop-color:#a78bfa;}
+            [data-theme="cosmic"] #srGrad stop:nth-child(3){stop-color:#f472b6;}
+            /* Тема «Няшный розовый»: дуга прогресса — розовый перелив. */
+            [data-theme="pink"] #srGrad stop:nth-child(1){stop-color:#fbcfe8;}
+            [data-theme="pink"] #srGrad stop:nth-child(2){stop-color:#f472b6;}
+            [data-theme="pink"] #srGrad stop:nth-child(3){stop-color:#db2777;}
             .sr-cur{filter:drop-shadow(0 0 5px var(--accent));}
             .sr-wheel-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none;}
             .sr-wheel-flame{color:var(--accent);}

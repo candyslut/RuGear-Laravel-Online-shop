@@ -20,11 +20,234 @@
         }
         .mk-hero::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 2px; background: #f97316; opacity: .55; }
         .mk-coin { color: #fbbf24; }
-        [data-theme="light"] .mk-coin { color: #b45309; }
+        :is([data-theme="light"], [data-theme="pink"]) .mk-coin { color: #b45309; }
         .mk-chip { background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-secondary); }
 
         /* Sidebar preview / bars / legend */
-        .mk-preview-art { background: var(--bg-tertiary); border: 1px solid var(--border-color); }
+        .mk-preview-art {
+            position: relative;
+            overflow: hidden;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            /* Имя и подписи берут цвет из локально переопределяемых
+               переменных — примеряемая тема читаема на любой странице. */
+            color: var(--text-primary);
+            transition: background .45s ease, border-color .45s ease;
+        }
+
+        /* ── Примерка базовых тем: тёмная и светлая ── */
+        .mk-preview-art--dark {
+            --text-primary: #e5e7eb;
+            --text-secondary: #9ca3af;
+            --text-tertiary: #6b7280;
+            border-color: #374151;
+            background: linear-gradient(180deg, #1a1d24 0%, #0f1115 100%);
+        }
+        .mk-preview-art--light {
+            --text-primary: #1f2937;
+            --text-secondary: #4b5563;
+            --text-tertiary: #9ca3af;
+            border-color: #d8dce2;
+            background: linear-gradient(180deg, #ffffff 0%, #eceef2 100%);
+        }
+
+        /* ── Примерка ТЕМЫ САЙТА: фон блока предпросмотра становится
+              выбранной темой (даже некупленной). Локально переопределяем
+              текстовые переменные, чтобы подписи читались на космосе. ── */
+        .mk-preview-art--cosmic {
+            --text-primary: #eef1ff;
+            --text-secondary: #b6c0f0;
+            --text-tertiary: #8d98d6;
+            border-color: #4d5bb0;
+            background:
+                radial-gradient(9rem 7rem at 85% -10%, rgba(139, 92, 246, .5), transparent 65%),
+                radial-gradient(8rem 6rem at -10% 55%, rgba(34, 211, 238, .32), transparent 62%),
+                radial-gradient(7rem 6rem at 70% 115%, rgba(236, 72, 153, .3), transparent 65%),
+                linear-gradient(180deg, #070a22 0%, #0d1138 55%, #150f3d 100%);
+        }
+        .mk-preview-art--cosmic::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                radial-gradient(1px 1px at 18px 26px, rgba(255, 255, 255, .95), transparent 55%),
+                radial-gradient(1.5px 1.5px at 72px 64px, rgba(186, 230, 253, .85), transparent 55%),
+                radial-gradient(1px 1px at 118px 22px, rgba(255, 255, 255, .6), transparent 55%),
+                radial-gradient(2px 2px at 152px 86px, rgba(221, 214, 254, .85), transparent 55%),
+                radial-gradient(1px 1px at 44px 108px, rgba(255, 255, 255, .7), transparent 55%);
+            background-size: 173px 127px;
+            animation: cosmic-prev-twinkle 4.5s ease-in-out infinite alternate;
+        }
+        @keyframes cosmic-prev-twinkle { from { opacity: .4; } to { opacity: 1; } }
+
+        /* ── Примерка темы «Няшный розовый»: пастель + сердечки ── */
+        .mk-preview-art--pink {
+            --text-primary: #4a2338;
+            --text-secondary: #8a4f6e;
+            --text-tertiary: #b87d9b;
+            border-color: #f2a8cd;
+            background:
+                radial-gradient(9rem 7rem at 85% -10%, rgba(249, 168, 212, .55), transparent 65%),
+                radial-gradient(8rem 6rem at -10% 55%, rgba(233, 213, 255, .5), transparent 62%),
+                linear-gradient(180deg, #fff0f7 0%, #fde2ef 60%, #fbd6e9 100%);
+        }
+        .mk-preview-art--pink::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cg fill='%23ec4899'%3E%3Cpath opacity='.2' transform='translate(20,24) rotate(-14 12 12)' d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3Cpath opacity='.14' transform='translate(116,84) rotate(12 12 12) scale(.8)' d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3Cpath opacity='.17' transform='translate(58,134) rotate(-7 12 12) scale(.55)' d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3Ccircle opacity='.35' cx='142' cy='34' r='1.6'/%3E%3Ccircle opacity='.3' cx='38' cy='98' r='1.3'/%3E%3Ccircle opacity='.3' cx='160' cy='150' r='1.5'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: 120px 120px;
+            animation: cosmic-prev-twinkle 4.5s ease-in-out infinite alternate;
+        }
+
+        /* ── Свотч темы в лотке: мини-космос вместо однотонной точки ── */
+        .orb__dot--theme-cosmic {
+            background:
+                radial-gradient(1.5px 1.5px at 30% 25%, #fff, transparent 60%),
+                radial-gradient(1px 1px at 68% 62%, rgba(255, 255, 255, .85), transparent 60%),
+                radial-gradient(1px 1px at 45% 80%, rgba(255, 255, 255, .6), transparent 60%),
+                linear-gradient(135deg, #312e81 0%, #7c3aed 45%, #0ea5e9 100%);
+        }
+        .orb__dot--theme-pink {
+            background:
+                radial-gradient(2px 2px at 30% 28%, #fff, transparent 60%),
+                radial-gradient(1px 1px at 68% 62%, rgba(255, 255, 255, .85), transparent 60%),
+                linear-gradient(135deg, #fbcfe8 0%, #f472b6 50%, #ec4899 100%);
+        }
+        .orb__dot--theme-dark {
+            background:
+                radial-gradient(1.5px 1.5px at 30% 25%, rgba(255, 255, 255, .8), transparent 60%),
+                linear-gradient(135deg, #1a1d24 0%, #0f1115 100%);
+            box-shadow: inset 0 0 0 1px #4b5563;
+        }
+        .orb__dot--theme-light {
+            background:
+                radial-gradient(2.5px 2.5px at 32% 30%, #fbbf24, transparent 65%),
+                linear-gradient(135deg, #ffffff 0%, #d8dce2 100%);
+            box-shadow: inset 0 0 0 1px #cbd5e1;
+        }
+
+        /* ── Арт темы в спотлайте: сцена-«иллюминатор» с авророй ── */
+        .theme-art {
+            position: relative;
+            width: 8rem;
+            height: 8rem;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+        .theme-art--cosmic {
+            background:
+                radial-gradient(6rem 5rem at 80% -5%, rgba(139, 92, 246, .55), transparent 65%),
+                radial-gradient(5rem 4rem at -5% 60%, rgba(34, 211, 238, .38), transparent 62%),
+                radial-gradient(5rem 4rem at 65% 110%, rgba(236, 72, 153, .35), transparent 65%),
+                linear-gradient(180deg, #070a22, #11103c);
+            border: 1px solid #4d5bb0;
+        }
+        .theme-art--cosmic::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(1px 1px at 14px 20px, #fff, transparent 55%),
+                radial-gradient(1.5px 1.5px at 56px 48px, rgba(186, 230, 253, .9), transparent 55%),
+                radial-gradient(1px 1px at 92px 16px, rgba(255, 255, 255, .65), transparent 55%),
+                radial-gradient(2px 2px at 110px 76px, rgba(221, 214, 254, .9), transparent 55%),
+                radial-gradient(1px 1px at 34px 92px, rgba(255, 255, 255, .75), transparent 55%);
+            background-size: 131px 107px;
+            animation: cosmic-prev-twinkle 4s ease-in-out infinite alternate;
+        }
+        .theme-art--cosmic::after {
+            content: '';
+            position: absolute;
+            left: -30%;
+            right: -30%;
+            bottom: -10%;
+            height: 55%;
+            background: linear-gradient(90deg, rgba(34, 211, 238, .45), rgba(167, 139, 250, .5), rgba(244, 114, 182, .4), rgba(34, 211, 238, .45));
+            background-size: 300% 100%;
+            filter: blur(14px);
+            animation: cosmic-art-aurora 7s linear infinite;
+        }
+        @keyframes cosmic-art-aurora { from { background-position: 0% 0; } to { background-position: 300% 0; } }
+
+        /* ── Арт базовых тем: луна для тёмной, солнце для светлой ── */
+        .theme-art--dark {
+            background:
+                radial-gradient(1.5px 1.5px at 22% 28%, rgba(255, 255, 255, .85), transparent 60%),
+                radial-gradient(1px 1px at 72% 18%, rgba(255, 255, 255, .6), transparent 60%),
+                radial-gradient(1px 1px at 38% 64%, rgba(255, 255, 255, .45), transparent 60%),
+                radial-gradient(1.5px 1.5px at 82% 72%, rgba(186, 230, 253, .6), transparent 60%),
+                linear-gradient(180deg, #1a1d24, #0f1115);
+            border: 1px solid #374151;
+        }
+        .theme-art--dark::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23e5e7eb' d='M21.64 13a1 1 0 0 0-1.05-.14 8 8 0 0 1-9.45-9.45 1 1 0 0 0-1.19-1.19A10 10 0 1 0 22 14.05a1 1 0 0 0-.36-1.05z'/%3E%3C/svg%3E") center / 3rem no-repeat;
+            filter: drop-shadow(0 4px 10px rgba(229, 231, 235, .25));
+        }
+        .theme-art--light {
+            background: linear-gradient(180deg, #ffffff, #e9ecf1);
+            border: 1px solid #d8dce2;
+        }
+        .theme-art--light::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='none' stroke='%23f59e0b' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='4.5' fill='%23fbbf24'/%3E%3Cpath d='M12 2v2.5M12 19.5V22M4.22 4.22l1.77 1.77M18.01 18.01l1.77 1.77M2 12h2.5M19.5 12H22M4.22 19.78l1.77-1.77M18.01 5.99l1.77-1.77'/%3E%3C/g%3E%3C/svg%3E") center / 3rem no-repeat;
+            filter: drop-shadow(0 4px 10px rgba(245, 158, 11, .3));
+        }
+
+        /* ── Арт темы «Няшный розовый»: пастель, сердечки и лапка ── */
+        .theme-art--pink {
+            background:
+                radial-gradient(6rem 5rem at 80% -5%, rgba(249, 168, 212, .6), transparent 65%),
+                radial-gradient(5rem 4rem at -5% 60%, rgba(233, 213, 255, .55), transparent 62%),
+                linear-gradient(180deg, #fff1f8, #fcd9ea);
+            border: 1px solid #f2a8cd;
+        }
+        .theme-art--pink::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cg fill='%23ec4899'%3E%3Cpath opacity='.22' transform='translate(20,24) rotate(-14 12 12)' d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3Cpath opacity='.15' transform='translate(116,84) rotate(12 12 12) scale(.8)' d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3Ccircle opacity='.4' cx='142' cy='34' r='1.6'/%3E%3Ccircle opacity='.32' cx='38' cy='98' r='1.3'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: 100px 100px;
+            animation: cosmic-prev-twinkle 4s ease-in-out infinite alternate;
+        }
+        .theme-art--pink::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26' viewBox='0 0 26 26'%3E%3Cg fill='%23ec4899' stroke='%23ffffff' stroke-width='1.2'%3E%3Cellipse cx='9.4' cy='6.8' rx='2.4' ry='3.3' transform='rotate(-8 9.4 6.8)'/%3E%3Cellipse cx='16.6' cy='6.8' rx='2.4' ry='3.3' transform='rotate(8 16.6 6.8)'/%3E%3Cellipse cx='3.9' cy='11.6' rx='2.2' ry='3' transform='rotate(-28 3.9 11.6)'/%3E%3Cellipse cx='22.1' cy='11.6' rx='2.2' ry='3' transform='rotate(28 22.1 11.6)'/%3E%3Cpath d='M13 11.8c3.8 0 6.6 2.6 6.6 5.8 0 3-2.5 4.9-6.6 4.9s-6.6-1.9-6.6-4.9c0-3.2 2.8-5.8 6.6-5.8z'/%3E%3C/g%3E%3C/svg%3E") center / 3.5rem no-repeat;
+            filter: drop-shadow(0 4px 10px rgba(236, 72, 153, .35));
+        }
+
+        /* ── Тема «Няшный розовый»: акценты маркета (оранжевый → розовый) ── */
+        :root[data-theme="pink"] { --mk-ava: #ec4899; }
+        [data-theme="pink"] .mk-hero { border-color: rgba(236, 72, 153, .35); }
+        [data-theme="pink"] .mk-hero::before { background: linear-gradient(90deg, #f9a8d4, #ec4899, #fbcfe8); opacity: .8; }
+        [data-theme="pink"] .mk-bar > span { background: linear-gradient(90deg, #ec4899, #f9a8d4); }
+        [data-theme="pink"] .mk-bar--mini > span { background: rgb(var(--rgb)); }
+        [data-theme="pink"] .rbtn--equip { background: rgba(236, 72, 153, .12); border-color: rgba(236, 72, 153, .45); color: #db2777; }
+        [data-theme="pink"] .rbtn--equip:hover { background: rgba(236, 72, 153, .2); box-shadow: 0 6px 16px rgba(236, 72, 153, .25); }
+        [data-theme="pink"] .pkx-buy:hover { border-color: #ec4899; color: #db2777; }
+        /* Сводные бары категорий в сайдбаре заданы инлайновым --rgb (оранжевым) */
+        [data-theme="pink"] [data-cat-stat] { --rgb: 236, 72, 153 !important; }
+
+        /* ── Тема «Космос»: акценты маркета (оранжевый → фиолет/аврора) ── */
+        :root[data-theme="cosmic"] { --mk-ava: #8b5cf6; }
+        [data-theme="cosmic"] .mk-hero { border-color: rgba(139, 92, 246, .38); }
+        [data-theme="cosmic"] .mk-hero::before { background: linear-gradient(90deg, #22d3ee, #a78bfa, #f472b6); opacity: .75; }
+        [data-theme="cosmic"] .mk-bar > span { background: linear-gradient(90deg, #8b5cf6, #22d3ee); }
+        [data-theme="cosmic"] .mk-bar--mini > span { background: rgb(var(--rgb)); }
+        [data-theme="cosmic"] .rbtn--equip { background: rgba(139, 92, 246, .16); border-color: rgba(139, 92, 246, .5); color: #b5a6fb; }
+        [data-theme="cosmic"] .rbtn--equip:hover { background: rgba(139, 92, 246, .26); box-shadow: 0 6px 16px rgba(139, 92, 246, .28); }
+        [data-theme="cosmic"] .pkx-buy:hover { border-color: #8b5cf6; color: #a78bfa; }
+        /* Сводные бары категорий в сайдбаре заданы инлайновым --rgb (оранжевым) */
+        [data-theme="cosmic"] [data-cat-stat] { --rgb: 139, 92, 246 !important; }
         .mk-bar { height: .55rem; border-radius: 999px; background: var(--bg-tertiary); border: 1px solid var(--border-color); overflow: hidden; }
         .mk-bar > span { display: block; height: 100%; border-radius: 999px; background: #f97316; transition: width .8s cubic-bezier(.34, 1.56, .64, 1); }
         .mk-bar--mini > span { background: rgb(var(--rgb)); box-shadow: none; }
@@ -189,7 +412,7 @@
         /* подвал */
         .pkx__foot { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: .6rem; padding-top: .25rem; }
         .pkx__price { display: inline-flex; align-items: center; gap: .35rem; font-size: .9rem; font-weight: 900; color: #fbbf24; }
-        [data-theme="light"] .pkx__price { color: #b45309; }
+        :is([data-theme="light"], [data-theme="pink"]) .pkx__price { color: #b45309; }
         .pkx__owned { display: inline-flex; align-items: center; gap: .3rem; font-size: .62rem; font-weight: 800;
             text-transform: uppercase; letter-spacing: .06em; color: #10b981; }
         .pkx__count { font-size: .64rem; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: .05em; }
@@ -234,10 +457,19 @@
     @php
         $user     = auth()->user();
         $ownedIds = $user->shopItems()->pluck('shop_item_id')->toArray();
-        $catLabels = ['border' => 'Обводки аватарки', 'nickname_color' => 'Цвет никнейма'];
+        // Бесплатные базовые предметы (тёмная/светлая тема) есть у каждого.
+        foreach ($items as $group) {
+            foreach ($group as $it) {
+                if ((int) $it->price === 0 && !in_array($it->id, $ownedIds)) {
+                    $ownedIds[] = $it->id;
+                }
+            }
+        }
+        $catLabels = ['border' => 'Обводки аватарки', 'nickname_color' => 'Цвет никнейма', 'theme' => 'Темы сайта'];
         $activeMap = [
             'border'         => $user->cosmetic_border,
             'nickname_color' => $user->cosmetic_nickname_color,
+            'theme'          => $user->cosmetic_theme,
         ];
 
         $rarityMeta = [
@@ -355,7 +587,8 @@
                             <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>LIVE
                         </span>
                     </div>
-                    <div class="mk-preview-art rounded-xl px-4 py-6 flex flex-col items-center text-center gap-3">
+                    <div id="preview-theme-host"
+                         class="mk-preview-art rounded-xl px-4 py-6 flex flex-col items-center text-center gap-3 {{ $user->cosmetic_theme ? 'mk-preview-art--'.$user->cosmetic_theme : '' }}">
                         <div id="preview-avatar"
                              class="w-16 h-16 rounded-full flex-shrink-0 flex items-center justify-center font-black text-xl overflow-hidden bg-orange-500 text-black ring-2 ring-orange-500/40 {{ $user->cosmetic_border === 'rainbow' ? 'avatar-rainbow' : '' }}"
                              style="{{ $user->cosmetic_border && $user->cosmetic_border !== 'rainbow' ? 'box-shadow:'.$user->cosmetic_border.';' : '' }}">
@@ -458,7 +691,9 @@
                                 onclick="selectItem('{{ $category }}', {{ $i }})"
                                 onmouseenter="hoverItem('{{ $category }}', {{ $i }})"
                                 onmouseleave="unhoverItem('{{ $category }}')">
-                            @if($item->css_value === 'rainbow')
+                            @if($category === 'theme')
+                                <span class="orb__dot orb__dot--theme-{{ $item->css_value }}"></span>
+                            @elseif($item->css_value === 'rainbow')
                                 <span class="orb__rainbow"><span></span></span>
                             @else
                                 <span class="orb__dot" style="background: {{ $orbColor }};"></span>
@@ -540,6 +775,7 @@
             border:         @json($user->cosmetic_border),
             nickname_color: @json($user->cosmetic_nickname_color),
             font:           @json($user->cosmetic_font),
+            theme:          @json($user->cosmetic_theme),
         };
 
         const COIN_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#FBBF24" stroke="#D97706" stroke-width="1.5"/><circle cx="12" cy="12" r="7.5" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/></svg>';
@@ -562,6 +798,16 @@
             market[cat].forEach(it => { it.equipped = (it.id === id); });
         }
 
+        // Базовые тёмная/светлая темы «надеты» по умолчанию: когда покупная
+        // тема не активна (cosmetic_theme = null), подсвечиваем текущую
+        // dark/light из <html data-theme> как экипированную.
+        function syncBaseTheme() {
+            if (!market.theme || equipped.theme) return;
+            const cur = document.documentElement.getAttribute('data-theme');
+            const it = market.theme.find(i => i.css === cur);
+            if (it) { it.equipped = true; equipped.theme = cur; }
+        }
+
         function orbColorFor(item) {
             if (item.category === 'nickname_color') return item.css;
             const m = String(item.css).match(/#[0-9a-fA-F]{6}/);
@@ -575,9 +821,11 @@
             if (!rail) return;
             const sel = selected[cat] ?? 0;
             rail.innerHTML = market[cat].map((item, i) => {
-                const dot = item.css === 'rainbow'
-                    ? `<span class="orb__rainbow"><span></span></span>`
-                    : `<span class="orb__dot" style="background:${orbColorFor(item)};"></span>`;
+                const dot = item.category === 'theme'
+                    ? `<span class="orb__dot orb__dot--theme-${item.css}"></span>`
+                    : (item.css === 'rainbow'
+                        ? `<span class="orb__rainbow"><span></span></span>`
+                        : `<span class="orb__dot" style="background:${orbColorFor(item)};"></span>`);
                 const badge = item.equipped ? `<span class="orb__check">✓</span>`
                     : (item.owned ? `<span class="orb__own"></span>` : '');
                 return `<button type="button" class="orb ${i === sel ? 'is-active' : ''}" data-cat="${cat}" data-idx="${i}" style="--rgb:${item.rgb};" title="${esc(item.name)}" onclick="selectItem('${cat}',${i})" onmouseenter="hoverItem('${cat}',${i})" onmouseleave="unhoverItem('${cat}')">${dot}${badge}</button>`;
@@ -638,11 +886,14 @@
         }
 
         function bigArt(item) {
+            if (item.category === 'theme') {
+                return `<div class="theme-art theme-art--${item.css}"></div>`;
+            }
             if (item.category === 'border') {
                 if (item.css === 'rainbow') {
-                    return `<div class="spot-rainbow-ring"><div style="width:5rem;height:5rem;border-radius:999px;background:#f97316;display:flex;align-items:center;justify-content:center;color:#000;font-weight:900;font-size:1.6rem;">А</div></div>`;
+                    return `<div class="spot-rainbow-ring"><div style="width:5rem;height:5rem;border-radius:999px;background:var(--mk-ava, #f97316);display:flex;align-items:center;justify-content:center;color:#000;font-weight:900;font-size:1.6rem;">А</div></div>`;
                 }
-                return `<div style="width:5rem;height:5rem;border-radius:999px;background:#f97316;display:flex;align-items:center;justify-content:center;color:#000;font-weight:900;font-size:1.6rem;box-shadow:${item.css};">А</div>`;
+                return `<div style="width:5rem;height:5rem;border-radius:999px;background:var(--mk-ava, #f97316);display:flex;align-items:center;justify-content:center;color:#000;font-weight:900;font-size:1.6rem;box-shadow:${item.css};">А</div>`;
             }
             return `<span style="display:inline-block;padding:0 1rem;font-size:2rem;font-weight:900;color:${item.css};">Никнейм</span>`;
         }
@@ -655,8 +906,9 @@
 
         function actionHTML(item) {
             const cssArg = String(item.css).replace(/'/g, "\\'");
-            if (item.equipped) return `<button class="rbtn rbtn--unequip" onclick="marketUnequip('${item.category}')">Снять с профиля</button>`;
-            if (item.owned)    return `<button class="rbtn rbtn--equip" onclick="marketEquip(${item.id}, '${item.category}', '${cssArg}')">Надеть</button>`;
+            const isTheme = item.category === 'theme';
+            if (item.equipped) return `<button class="rbtn rbtn--unequip" onclick="marketUnequip('${item.category}')">${isTheme ? 'Отключить тему' : 'Снять с профиля'}</button>`;
+            if (item.owned)    return `<button class="rbtn rbtn--equip" onclick="marketEquip(${item.id}, '${item.category}', '${cssArg}')">${isTheme ? 'Применить' : 'Надеть'}</button>`;
             return `<button class="rbtn rbtn--buy" onclick="marketBuy(${item.id}, ${item.price}, '${item.category}', '${cssArg}')">${COIN_SVG} Купить · ${item.price.toLocaleString('ru-RU')}</button>`;
         }
 
@@ -708,7 +960,12 @@
         function applyPreview(category, css) {
             const avatar = document.getElementById('preview-avatar');
             const name = document.getElementById('preview-name');
-            if (category === 'border') {
+            if (category === 'theme') {
+                // Фон блока предпросмотра = выбранная тема (даже некупленная).
+                const host = document.getElementById('preview-theme-host');
+                [...host.classList].forEach(c => { if (c.startsWith('mk-preview-art--')) host.classList.remove(c); });
+                if (css) host.classList.add('mk-preview-art--' + css);
+            } else if (category === 'border') {
                 avatar.classList.remove('avatar-rainbow');
                 avatar.style.boxShadow = '';
                 if (css === 'rainbow') avatar.classList.add('avatar-rainbow');
@@ -754,6 +1011,7 @@
             equipped[category] = css;
             applyPreview(category, css);
             if (category === 'border') window.dispatchEvent(new CustomEvent('cosmetic-border-changed', { detail: { value: css } }));
+            if (category === 'theme')  window.dispatchEvent(new CustomEvent('site-theme-changed', { detail: { value: css } }));
             refreshCategory(category);
             updateCollectionStats();
             marketToast('Куплено и надето!');
@@ -770,20 +1028,40 @@
             equipped[category] = css;
             applyPreview(category, css);
             if (category === 'border') window.dispatchEvent(new CustomEvent('cosmetic-border-changed', { detail: { value: css } }));
+            if (category === 'theme')  window.dispatchEvent(new CustomEvent('site-theme-changed', { detail: { value: css } }));
             refreshCategory(category);
             marketToast('Экипировано успешно!');
         }
 
         async function marketUnequip(category) {
-            const res = await fetch('/market/unequip', { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf, 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({ category }) });
+            // current нужен серверу для свапа базовых тем, когда dark/light
+            // активна только локально (cosmetic_theme ещё не сохранялся).
+            const res = await fetch('/market/unequip', { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf, 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({ category, current: equipped[category] }) });
             if (!res.ok) { marketToast('Ошибка при снятии', false); return; }
+            const data = await res.json().catch(() => ({}));
 
-            markEquipped(category, null);
-            equipped[category] = null;
-            restorePreview(category);
-            if (category === 'border') window.dispatchEvent(new CustomEvent('cosmetic-border-changed', { detail: { value: null } }));
+            // «Отключить» на базовой тёмной/светлой включает противоположную —
+            // сервер возвращает её в data.value (для космоса/няшной — null).
+            const next = category === 'theme' ? (data.value || null) : null;
+            if (next) {
+                const it = market.theme.find(i => i.css === next);
+                markEquipped(category, it ? it.id : null);
+                equipped[category] = next;
+                applyPreview(category, next);
+                window.dispatchEvent(new CustomEvent('site-theme-changed', { detail: { value: next } }));
+                marketToast(`Включена тема «${(window.SITE_THEMES || {})[next] || next}»`);
+            } else {
+                markEquipped(category, null);
+                equipped[category] = null;
+                if (category === 'border') window.dispatchEvent(new CustomEvent('cosmetic-border-changed', { detail: { value: null } }));
+                if (category === 'theme') {
+                    window.dispatchEvent(new CustomEvent('site-theme-changed', { detail: { value: null } }));
+                    syncBaseTheme(); // подсветить включившуюся dark/light
+                }
+                restorePreview(category);
+                marketToast('Снято с профиля');
+            }
             refreshCategory(category);
-            marketToast('Снято с профиля');
         }
 
         function marketToast(msg, ok = true) {
@@ -878,6 +1156,8 @@
         }
 
         // Инициализация: спотлайт показывает надетый предмет (или первый)
+        syncBaseTheme();
+        if (equipped.theme) applyPreview('theme', equipped.theme);
         Object.keys(market).forEach(cat => {
             let idx = market[cat].findIndex(i => i.equipped);
             if (idx < 0) idx = 0;
@@ -885,5 +1165,8 @@
             renderSpotlight(cat, idx);
             highlightOrb(cat, idx);
         });
+        // Серверная разметка лотка не знает про клиентскую dark/light —
+        // перерисовываем, чтобы галочка встала на актуальную базовую тему.
+        if (market.theme) renderOrbs('theme');
     </script>
 </x-shop-layout>

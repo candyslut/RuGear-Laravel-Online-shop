@@ -4,15 +4,21 @@
 <head>
     <script>
         window.livewire_app_url = "{{ config('app.env') === 'production' ? config('app.url') : '' }}";
+        // Купленная в мини-маркете тема сайта (слаг для <html data-theme>),
+        // null — обычные dark/light. Имеет приоритет над переключателем.
+        window.__siteTheme = @json(auth()->user()?->cosmetic_theme);
+        // Названия покупных тем для бейджа в меню «Оформление».
+        window.SITE_THEMES = { dark: 'Тёмная', light: 'Светлая', cosmic: 'Космос', pink: 'Няшная' };
         // Применяем тему до первой отрисовки, чтобы не было мигания тёмного фона.
         // Без явного выбора пользователя берём системную тему (prefers-color-scheme).
-        document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+        document.documentElement.setAttribute('data-theme', window.__siteTheme || localStorage.getItem('theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'RuGear | Hardware Store' }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
     <style>
         /* Theme Variables */
         :root[data-theme="dark"] {
@@ -35,6 +41,41 @@
             --text-tertiary: #9ca3af;
             --border-color: #e2e5ea;
             --border-color-light: #eef0f3;
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           ТЕМА «КОСМОС» (покупается в мини-маркете, слаг `cosmic`)
+           Глубокий индиго-космос: звёздное небо + дрейфующие туманности
+           с аврора-переливами. Панели непрозрачные, границы усилены —
+           контент читается на любом экране и при любом освещении.
+           ──────────────────────────────────────────────────────────── */
+        :root[data-theme="cosmic"] {
+            --bg-primary: #070a1c;
+            --bg-secondary: #11173a;
+            --bg-tertiary: #1a2150;
+            --text-primary: #eef1ff;
+            --text-secondary: #aab4e8;
+            --text-tertiary: #7681bd;
+            --border-color: #3d4a99;
+            --border-color-light: #283273;
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           ТЕМА «НЯШНЫЙ РОЗОВЫЙ» (покупается в мини-маркете, слаг `pink`)
+           Нежная пастель: розовый градиент с парящими сердечками,
+           ленточка-перелив в шапке и курсор-лапка котика. Светлая
+           палитра, поэтому тёмные захардкоженные классы ремапятся
+           в розовые пастельные тона (блок ниже, после cosmic).
+           ──────────────────────────────────────────────────────────── */
+        :root[data-theme="pink"] {
+            --bg-primary: #fdf0f7;
+            --bg-secondary: #fff7fb;
+            --bg-tertiary: #fbe7f2;
+            --text-primary: #4a2338;
+            --text-secondary: #8a4f6e;
+            --text-tertiary: #bd8aa3;
+            --border-color: #f2c4dc;
+            --border-color-light: #f8dcea;
         }
 
         /* ════════════════════════════════════════════════════════════
@@ -193,6 +234,568 @@
         [data-theme="light"] .custom-pagination nav a:hover {
             background-color: #f3f4f6 !important;
             color: #1f2937 !important;
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           COSMIC THEME OVERRIDES
+           1) Живой фон: базовый градиент + туманности (медленный дрейф
+              и hue-переливы, transform/filter — композитор, не репейнт)
+              и два слоя мерцающих звёзд.
+           2) Аврора-линия в шапке.
+           3) Ремап захардкоженных тёмных классов (как для светлой темы),
+              чтобы карточки/модалки/тосты сели в индиго-палитру.
+           ──────────────────────────────────────────────────────────── */
+
+        [data-theme="cosmic"] body { position: relative; z-index: 0; }
+
+        /* — Базовый космос + туманности (низ z-стека body) — */
+        [data-theme="cosmic"] body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            pointer-events: none;
+            background:
+                radial-gradient(58rem 42rem at 82% -12%, rgba(139, 92, 246, .34), transparent 62%),
+                radial-gradient(50rem 38rem at -8% 30%, rgba(34, 211, 238, .20), transparent 60%),
+                radial-gradient(46rem 34rem at 70% 80%, rgba(236, 72, 153, .17), transparent 62%),
+                radial-gradient(34rem 26rem at 25% 105%, rgba(99, 102, 241, .25), transparent 65%),
+                linear-gradient(180deg, #05071a 0%, #0a0f30 48%, #0e0a2e 100%);
+            animation: cosmic-nebula 46s ease-in-out infinite alternate;
+        }
+        @keyframes cosmic-nebula {
+            0%   { filter: hue-rotate(0deg) saturate(1); }
+            50%  { filter: hue-rotate(28deg) saturate(1.18); }
+            100% { filter: hue-rotate(-22deg) saturate(1.05); }
+        }
+
+        /* — Звёзды: два слоя точек разного шага, мягкое мерцание — */
+        [data-theme="cosmic"] body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            background-image:
+                radial-gradient(1px 1px at 25px 35px, rgba(255, 255, 255, .9), transparent 55%),
+                radial-gradient(1px 1px at 160px 120px, rgba(255, 255, 255, .7), transparent 55%),
+                radial-gradient(1.5px 1.5px at 90px 210px, rgba(186, 230, 253, .85), transparent 55%),
+                radial-gradient(1px 1px at 230px 60px, rgba(255, 255, 255, .55), transparent 55%),
+                radial-gradient(2px 2px at 310px 170px, rgba(221, 214, 254, .8), transparent 55%),
+                radial-gradient(1px 1px at 55px 300px, rgba(255, 255, 255, .65), transparent 55%),
+                radial-gradient(1.5px 1.5px at 280px 280px, rgba(165, 243, 252, .7), transparent 55%);
+            background-size: 357px 343px;
+            animation: cosmic-twinkle 5.5s ease-in-out infinite alternate;
+        }
+        @keyframes cosmic-twinkle {
+            0%   { opacity: .45; }
+            55%  { opacity: .95; }
+            100% { opacity: .6; }
+        }
+
+        /* — Аврора-перелив по нижней кромке шапки — */
+        [data-theme="cosmic"] header::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -1px;
+            height: 2px;
+            background: linear-gradient(90deg, #22d3ee, #a78bfa, #f472b6, #818cf8, #22d3ee);
+            background-size: 300% 100%;
+            animation: cosmic-aurora 9s linear infinite;
+            opacity: .85;
+            pointer-events: none;
+        }
+        @keyframes cosmic-aurora { from { background-position: 0% 0; } to { background-position: 300% 0; } }
+
+        /* — Шапка/футер: лёгкая прозрачность поверх звёзд, но с blur — */
+        [data-theme="cosmic"] header { background-color: rgba(13, 18, 48, .82); }
+
+        @media (prefers-reduced-motion: reduce) {
+            [data-theme="cosmic"] body::before,
+            [data-theme="cosmic"] body::after,
+            [data-theme="cosmic"] header::after { animation: none; }
+        }
+
+        /* — Акцент: фирменный оранжевый → космический фиолет —
+              Бренд-акцент (кнопки, ссылки, фокусы, рамки, логотип) в космосе
+              фиолетовый #8b5cf6. Семантика не трогается: монеты — золото,
+              огонь серии входов — оранжевый, цвета редкости — как были. — */
+        [data-theme="cosmic"] .bg-orange-500,
+        [data-theme="cosmic"] .bg-orange-400,
+        [data-theme="cosmic"] .hover\:bg-orange-500:hover,
+        [data-theme="cosmic"] .group:hover .group-hover\:bg-orange-500 { background-color: #8b5cf6; }
+        [data-theme="cosmic"] .hover\:bg-orange-600:hover { background-color: #7c3aed; }
+        [data-theme="cosmic"] .hover\:bg-orange-400:hover { background-color: #a78bfa; }
+        [data-theme="cosmic"] .bg-orange-500\/50 { background-color: rgba(139, 92, 246, .5); }
+        [data-theme="cosmic"] .bg-orange-500\/20,
+        [data-theme="cosmic"] .hover\:bg-orange-500\/20:hover { background-color: rgba(139, 92, 246, .2); }
+        [data-theme="cosmic"] .bg-orange-500\/15 { background-color: rgba(139, 92, 246, .15); }
+        [data-theme="cosmic"] .bg-orange-500\/10 { background-color: rgba(139, 92, 246, .12); }
+        [data-theme="cosmic"] .bg-orange-500\/5 { background-color: rgba(139, 92, 246, .07); }
+
+        [data-theme="cosmic"] .text-orange-500,
+        [data-theme="cosmic"] .hover\:text-orange-500:hover { color: #a78bfa; }
+        [data-theme="cosmic"] .text-orange-400,
+        [data-theme="cosmic"] .hover\:text-orange-400:hover { color: #b5a6fb; }
+        [data-theme="cosmic"] .text-orange-400\/80 { color: rgba(181, 166, 251, .8); }
+        [data-theme="cosmic"] .hover\:text-orange-300:hover { color: #c4b5fd; }
+
+        [data-theme="cosmic"] .border-orange-500,
+        [data-theme="cosmic"] .hover\:border-orange-500:hover,
+        [data-theme="cosmic"] .focus\:border-orange-500:focus { border-color: #8b5cf6; }
+        [data-theme="cosmic"] .border-orange-500\/50,
+        [data-theme="cosmic"] .hover\:border-orange-500\/50:hover,
+        [data-theme="cosmic"] .focus\:border-orange-500\/50:focus,
+        [data-theme="cosmic"] .hover\:border-orange-500\/60:hover { border-color: rgba(139, 92, 246, .55); }
+        [data-theme="cosmic"] .border-orange-500\/40,
+        [data-theme="cosmic"] .hover\:border-orange-500\/40:hover { border-color: rgba(139, 92, 246, .45); }
+        [data-theme="cosmic"] .border-orange-500\/30,
+        [data-theme="cosmic"] .hover\:border-orange-500\/30:hover { border-color: rgba(139, 92, 246, .38); }
+        [data-theme="cosmic"] .border-orange-500\/20 { border-color: rgba(139, 92, 246, .28); }
+        [data-theme="cosmic"] .border-orange-500\/10 { border-color: rgba(139, 92, 246, .16); }
+
+        [data-theme="cosmic"] .ring-orange-500\/50 { --tw-ring-color: rgba(139, 92, 246, .5); }
+        [data-theme="cosmic"] .ring-orange-500\/40,
+        [data-theme="cosmic"] .hover\:ring-orange-500\/40:hover { --tw-ring-color: rgba(139, 92, 246, .45); }
+        [data-theme="cosmic"] .focus\:ring-orange-500:focus { --tw-ring-color: #8b5cf6; }
+        [data-theme="cosmic"] .focus\:ring-orange-500\/20:focus { --tw-ring-color: rgba(139, 92, 246, .25); }
+
+        [data-theme="cosmic"] .from-orange-500\/10 {
+            --tw-gradient-from: rgb(139 92 246 / .12) var(--tw-gradient-from-position);
+            --tw-gradient-to: rgb(139 92 246 / 0) var(--tw-gradient-to-position);
+            --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+        }
+        [data-theme="cosmic"] .from-orange-500\/20 {
+            --tw-gradient-from: rgb(139 92 246 / .22) var(--tw-gradient-from-position);
+            --tw-gradient-to: rgb(139 92 246 / 0) var(--tw-gradient-to-position);
+            --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+        }
+
+        /* Произвольные оранжевые glow-тени (shadow-[...rgba(249,115,22...]) —
+           ловим по подстроке класса, заменяем фиолетовым свечением. */
+        [data-theme="cosmic"] [class*="shadow-["][class*="rgba(249"] { box-shadow: 0 0 22px rgba(139, 92, 246, .42); }
+
+        /* Инлайновые «тёплые» акценты (тосты, колокольчик) идут через var
+           с оранжевым фолбэком — здесь даём им космические значения. */
+        :root[data-theme="cosmic"] {
+            --warm-acc: #b5a6fb;
+            --warm-acc-bg: rgba(139, 92, 246, .16);
+            --tier-daily: #60a5fa; /* «дневной» тир колеса наград */
+        }
+
+        /* — Поверхности: карточки/модалки/тосты → панельный индиго — */
+        [data-theme="cosmic"] .bg-\[\#161920\],
+        [data-theme="cosmic"] .bg-\[\#14171d\],
+        [data-theme="cosmic"] .bg-\[\#1a1d24\],
+        [data-theme="cosmic"] .bg-\[\#111318\] { background-color: #11173a; }
+        [data-theme="cosmic"] .bg-\[\#161920\]\/50,
+        [data-theme="cosmic"] .bg-\[\#161920\]\/40 { background-color: rgba(17, 23, 58, .82); }
+
+        /* — Вложенные/утопленные поверхности (инпуты, ячейки) — */
+        [data-theme="cosmic"] .bg-\[\#0f1115\],
+        [data-theme="cosmic"] .bg-\[\#0f1117\],
+        [data-theme="cosmic"] .bg-\[\#0d0f14\],
+        [data-theme="cosmic"] .bg-\[\#13151a\],
+        [data-theme="cosmic"] .bg-\[\#0f1115\]\/50 { background-color: #0b1029; }
+
+        /* — Серые фоны — */
+        [data-theme="cosmic"] .bg-gray-900,
+        [data-theme="cosmic"] .bg-gray-950 { background-color: #0d1233; }
+        [data-theme="cosmic"] .bg-gray-800 { background-color: #1a2150; }
+        [data-theme="cosmic"] .bg-gray-700 { background-color: #27306b; }
+        [data-theme="cosmic"] .bg-gray-500 { background-color: #3d4a99; }
+        [data-theme="cosmic"] .bg-gray-900\/80 { background-color: rgba(13, 18, 51, .85); }
+        [data-theme="cosmic"] .bg-gray-900\/60 { background-color: rgba(13, 18, 51, .65); }
+        [data-theme="cosmic"] .bg-gray-900\/50 { background-color: rgba(13, 18, 51, .55); }
+        [data-theme="cosmic"] .bg-gray-900\/40 { background-color: rgba(13, 18, 51, .45); }
+        [data-theme="cosmic"] .bg-gray-900\/30 { background-color: rgba(13, 18, 51, .35); }
+        [data-theme="cosmic"] .bg-gray-900\/20 { background-color: rgba(13, 18, 51, .25); }
+        [data-theme="cosmic"] .bg-gray-800\/70 { background-color: rgba(26, 33, 80, .75); }
+        [data-theme="cosmic"] .bg-gray-800\/60 { background-color: rgba(26, 33, 80, .65); }
+        [data-theme="cosmic"] .bg-gray-800\/50 { background-color: rgba(26, 33, 80, .55); }
+        [data-theme="cosmic"] .bg-gray-800\/30 { background-color: rgba(26, 33, 80, .35); }
+        [data-theme="cosmic"] .bg-gray-800\/10 { background-color: rgba(26, 33, 80, .14); }
+        [data-theme="cosmic"] .bg-gray-950\/40 { background-color: rgba(9, 13, 38, .5); }
+        [data-theme="cosmic"] .bg-gray-950\/20 { background-color: rgba(9, 13, 38, .28); }
+
+        /* — hover-фоны — */
+        [data-theme="cosmic"] .hover\:bg-gray-800:hover { background-color: #212a63; }
+        [data-theme="cosmic"] .hover\:bg-gray-700:hover { background-color: #2d377a; }
+        [data-theme="cosmic"] .hover\:bg-gray-900\/30:hover { background-color: rgba(13, 18, 51, .4); }
+        [data-theme="cosmic"] .hover\:bg-gray-900\/50:hover { background-color: rgba(13, 18, 51, .6); }
+        [data-theme="cosmic"] .hover\:bg-gray-800\/60:hover { background-color: rgba(26, 33, 80, .7); }
+        [data-theme="cosmic"] .hover\:bg-gray-800\/50:hover { background-color: rgba(26, 33, 80, .6); }
+        [data-theme="cosmic"] .hover\:bg-gray-800\/80:hover { background-color: rgba(26, 33, 80, .85); }
+        [data-theme="cosmic"] .hover\:bg-gray-800\/70:hover { background-color: rgba(26, 33, 80, .78); }
+
+        /* — Текст: серые оттенки → звёздно-сиреневые — */
+        [data-theme="cosmic"] .text-gray-300 { color: #c5cdf4; }
+        [data-theme="cosmic"] .text-gray-400 { color: #aab4e8; }
+        [data-theme="cosmic"] .text-gray-500 { color: #8a95cf; }
+        [data-theme="cosmic"] .text-gray-600 { color: #6a76b5; }
+        [data-theme="cosmic"] .hover\:text-gray-400:hover { color: #aab4e8; }
+        [data-theme="cosmic"] .hover\:text-gray-300:hover { color: #c5cdf4; }
+        [data-theme="cosmic"] .group:hover .group-hover\:text-gray-400 { color: #aab4e8; }
+
+        /* — Плейсхолдеры — */
+        [data-theme="cosmic"] .placeholder-gray-600::placeholder,
+        [data-theme="cosmic"] .placeholder-gray-700::placeholder,
+        [data-theme="cosmic"] .placeholder\:text-gray-600::placeholder,
+        [data-theme="cosmic"] .placeholder\:text-gray-700::placeholder { color: #6a76b5; }
+
+        /* — Границы: всегда различимы на панелях — */
+        [data-theme="cosmic"] .border-gray-900,
+        [data-theme="cosmic"] .border-gray-900\/80,
+        [data-theme="cosmic"] .border-gray-900\/50,
+        [data-theme="cosmic"] .border-gray-800,
+        [data-theme="cosmic"] .border-gray-800\/80,
+        [data-theme="cosmic"] .border-gray-800\/60,
+        [data-theme="cosmic"] .border-gray-800\/50,
+        [data-theme="cosmic"] .border-gray-800\/40 { border-color: #323d80; }
+        [data-theme="cosmic"] .border-gray-700,
+        [data-theme="cosmic"] .border-gray-700\/60,
+        [data-theme="cosmic"] .border-gray-700\/50,
+        [data-theme="cosmic"] .border-gray-700\/30 { border-color: #3d4a99; }
+        [data-theme="cosmic"] .border-gray-600 { border-color: #4d5bb0; }
+        [data-theme="cosmic"] .hover\:border-gray-700:hover,
+        [data-theme="cosmic"] .hover\:border-gray-700\/60:hover { border-color: #4d5bb0; }
+        [data-theme="cosmic"] .hover\:border-gray-600:hover { border-color: #5e6cc4; }
+
+        /* — Разделители — */
+        [data-theme="cosmic"] .divide-gray-800 > :not([hidden]) ~ :not([hidden]),
+        [data-theme="cosmic"] .divide-gray-800\/60 > :not([hidden]) ~ :not([hidden]),
+        [data-theme="cosmic"] .divide-gray-800\/50 > :not([hidden]) ~ :not([hidden]),
+        [data-theme="cosmic"] .divide-gray-900\/60 > :not([hidden]) ~ :not([hidden]) { border-color: #2a3470; }
+
+        /* — Градиенты: серые и тёмные hex-стопы → индиго — */
+        [data-theme="cosmic"] .from-gray-800 {
+            --tw-gradient-from: #1a2150 var(--tw-gradient-from-position);
+            --tw-gradient-to: rgb(26 33 80 / 0) var(--tw-gradient-to-position);
+            --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+        }
+        [data-theme="cosmic"] .to-gray-900 { --tw-gradient-to: #0d1233 var(--tw-gradient-to-position); }
+        [data-theme="cosmic"] .from-gray-800\/40 {
+            --tw-gradient-from: rgb(26 33 80 / .45) var(--tw-gradient-from-position);
+            --tw-gradient-to: rgb(26 33 80 / 0) var(--tw-gradient-to-position);
+            --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+        }
+        [data-theme="cosmic"] .to-gray-900\/60 { --tw-gradient-to: rgb(13 18 51 / .65) var(--tw-gradient-to-position); }
+        [data-theme="cosmic"] .from-\[\#1a1d24\],
+        [data-theme="cosmic"] .from-\[\#161920\] {
+            --tw-gradient-from: #141b45 var(--tw-gradient-from-position);
+            --tw-gradient-to: rgb(20 27 69 / 0) var(--tw-gradient-to-position);
+            --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+        }
+        [data-theme="cosmic"] .via-\[\#161920\] {
+            --tw-gradient-to: rgb(17 23 58 / 0) var(--tw-gradient-to-position);
+            --tw-gradient-stops: var(--tw-gradient-from), #11173a var(--tw-gradient-via-position), var(--tw-gradient-to);
+        }
+        [data-theme="cosmic"] .to-\[\#0f1115\] { --tw-gradient-to: #0b1029 var(--tw-gradient-to-position); }
+
+        /* — Стикер-пикер — */
+        [data-theme="cosmic"] .from-\[\#13161d\] {
+            --tw-gradient-from: #11173a var(--tw-gradient-from-position);
+            --tw-gradient-to: rgb(17 23 58 / 0) var(--tw-gradient-to-position);
+            --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+        }
+        [data-theme="cosmic"] .to-\[\#0d0f15\] { --tw-gradient-to: #0b1029 var(--tw-gradient-to-position); }
+        [data-theme="cosmic"] .bg-\[\#0b0d12\] { background-color: #0b1029; }
+        [data-theme="cosmic"] .bg-\[\#0d0f15\]\/95 { background-color: rgba(13, 18, 48, .95); }
+
+        /* — Пагинация (постраничные стили задают тёмный фон через !important) — */
+        [data-theme="cosmic"] .custom-pagination a,
+        [data-theme="cosmic"] .custom-pagination nav a,
+        [data-theme="cosmic"] .custom-pagination span[aria-disabled="true"] span {
+            background-color: #11173a !important;
+            border-color: #3d4a99 !important;
+            color: #aab4e8 !important;
+        }
+        [data-theme="cosmic"] .custom-pagination a:hover,
+        [data-theme="cosmic"] .custom-pagination nav a:hover {
+            background-color: #1a2150 !important;
+            color: #eef1ff !important;
+        }
+
+        /* ════════════════════════════════════════════════════════════
+           PINK THEME OVERRIDES («Няшный розовый»)
+           1) Пастельный фон: розовый градиент + парящие сердечки.
+           2) Ленточка-перелив в шапке и курсор-лапка котика.
+           3) Ремап захардкоженных тёмных классов в розовую пастель
+              (по образцу light/cosmic-оверрайдов выше).
+           ──────────────────────────────────────────────────────────── */
+
+        [data-theme="pink"] body { position: relative; z-index: 0; }
+
+        /* — Пастельная база + мягкие цветные пятна — */
+        [data-theme="pink"] body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            pointer-events: none;
+            background:
+                radial-gradient(46rem 34rem at 85% -10%, rgba(244, 114, 182, .22), transparent 65%),
+                radial-gradient(40rem 30rem at -8% 35%, rgba(216, 180, 254, .20), transparent 62%),
+                radial-gradient(36rem 28rem at 75% 88%, rgba(253, 186, 116, .14), transparent 65%),
+                linear-gradient(180deg, #fff3f9 0%, #fdeaf4 52%, #fce3f0 100%);
+        }
+
+        /* — Парящие сердечки и блёстки (тайл медленно плывёт вверх) — */
+        [data-theme="pink"] body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cg fill='%23ec4899'%3E%3Cpath opacity='.13' transform='translate(20,24) rotate(-14 12 12)' d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3Cpath opacity='.09' transform='translate(116,84) rotate(12 12 12) scale(.8)' d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3Cpath opacity='.11' transform='translate(58,134) rotate(-7 12 12) scale(.55)' d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3Ccircle opacity='.28' cx='142' cy='34' r='1.6'/%3E%3Ccircle opacity='.22' cx='38' cy='98' r='1.3'/%3E%3Ccircle opacity='.24' cx='160' cy='150' r='1.5'/%3E%3Ccircle opacity='.2' cx='14' cy='160' r='1.2'/%3E%3Ccircle opacity='.22' cx='92' cy='12' r='1.3'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: 180px 180px;
+            animation: pink-hearts-float 38s linear infinite;
+        }
+        @keyframes pink-hearts-float { from { background-position: 0 0; } to { background-position: 0 -180px; } }
+
+        /* — Ленточка-перелив по нижней кромке шапки — */
+        [data-theme="pink"] header { background-color: rgba(255, 247, 251, .85); }
+        [data-theme="pink"] header::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -1px;
+            height: 2px;
+            background: linear-gradient(90deg, #f9a8d4, #f472b6, #fbcfe8, #fda4af, #f9a8d4);
+            background-size: 300% 100%;
+            animation: pink-ribbon 12s linear infinite;
+            opacity: .9;
+            pointer-events: none;
+        }
+        @keyframes pink-ribbon { from { background-position: 0% 0; } to { background-position: 300% 0; } }
+
+        @media (prefers-reduced-motion: reduce) {
+            [data-theme="pink"] body::after,
+            [data-theme="pink"] header::after { animation: none; }
+        }
+
+        /* — Курсор-лапка котика: обычная (светлая) и кликабельная (ярче).
+              Текстовые поля не трогаем — у них остаётся курсор `text`. — */
+        [data-theme="pink"],
+        [data-theme="pink"] body {
+            cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26' viewBox='0 0 26 26'%3E%3Cg fill='%23f472b6' stroke='%23ffffff' stroke-width='1.2'%3E%3Cellipse cx='9.4' cy='6.8' rx='2.4' ry='3.3' transform='rotate(-8 9.4 6.8)'/%3E%3Cellipse cx='16.6' cy='6.8' rx='2.4' ry='3.3' transform='rotate(8 16.6 6.8)'/%3E%3Cellipse cx='3.9' cy='11.6' rx='2.2' ry='3' transform='rotate(-28 3.9 11.6)'/%3E%3Cellipse cx='22.1' cy='11.6' rx='2.2' ry='3' transform='rotate(28 22.1 11.6)'/%3E%3Cpath d='M13 11.8c3.8 0 6.6 2.6 6.6 5.8 0 3-2.5 4.9-6.6 4.9s-6.6-1.9-6.6-4.9c0-3.2 2.8-5.8 6.6-5.8z'/%3E%3C/g%3E%3C/svg%3E") 13 13, auto;
+        }
+        [data-theme="pink"] a,
+        [data-theme="pink"] button,
+        [data-theme="pink"] [role="button"],
+        [data-theme="pink"] label,
+        [data-theme="pink"] select,
+        [data-theme="pink"] summary,
+        [data-theme="pink"] input[type="checkbox"],
+        [data-theme="pink"] input[type="radio"],
+        [data-theme="pink"] input[type="range"],
+        [data-theme="pink"] input[type="submit"],
+        [data-theme="pink"] .cursor-pointer {
+            cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26' viewBox='0 0 26 26'%3E%3Cg fill='%23ec4899' stroke='%23ffffff' stroke-width='1.2'%3E%3Cellipse cx='9.4' cy='6.8' rx='2.4' ry='3.3' transform='rotate(-8 9.4 6.8)'/%3E%3Cellipse cx='16.6' cy='6.8' rx='2.4' ry='3.3' transform='rotate(8 16.6 6.8)'/%3E%3Cellipse cx='3.9' cy='11.6' rx='2.2' ry='3' transform='rotate(-28 3.9 11.6)'/%3E%3Cellipse cx='22.1' cy='11.6' rx='2.2' ry='3' transform='rotate(28 22.1 11.6)'/%3E%3Cpath d='M13 11.8c3.8 0 6.6 2.6 6.6 5.8 0 3-2.5 4.9-6.6 4.9s-6.6-1.9-6.6-4.9c0-3.2 2.8-5.8 6.6-5.8z'/%3E%3C/g%3E%3C/svg%3E") 13 13, pointer;
+        }
+
+        /* — Акцент: фирменный оранжевый → нежный розовый —
+              Бренд-акцент (кнопки, ссылки, фокусы, рамки, логотип) в розовой
+              теме #ec4899. Семантика не трогается: монеты — золото,
+              огонь серии входов — оранжевый, цвета редкости — как были. — */
+        [data-theme="pink"] .bg-orange-500,
+        [data-theme="pink"] .bg-orange-400,
+        [data-theme="pink"] .hover\:bg-orange-500:hover,
+        [data-theme="pink"] .group:hover .group-hover\:bg-orange-500 { background-color: #ec4899; }
+        [data-theme="pink"] .hover\:bg-orange-600:hover { background-color: #db2777; }
+        [data-theme="pink"] .hover\:bg-orange-400:hover { background-color: #f472b6; }
+        [data-theme="pink"] .bg-orange-500\/50 { background-color: rgba(236, 72, 153, .5); }
+        [data-theme="pink"] .bg-orange-500\/20,
+        [data-theme="pink"] .hover\:bg-orange-500\/20:hover { background-color: rgba(236, 72, 153, .2); }
+        [data-theme="pink"] .bg-orange-500\/15 { background-color: rgba(236, 72, 153, .15); }
+        [data-theme="pink"] .bg-orange-500\/10 { background-color: rgba(236, 72, 153, .12); }
+        [data-theme="pink"] .bg-orange-500\/5 { background-color: rgba(236, 72, 153, .07); }
+
+        [data-theme="pink"] .text-orange-500,
+        [data-theme="pink"] .hover\:text-orange-500:hover { color: #db2777; }
+        [data-theme="pink"] .text-orange-400,
+        [data-theme="pink"] .hover\:text-orange-400:hover { color: #ec4899; }
+        [data-theme="pink"] .text-orange-400\/80 { color: rgba(236, 72, 153, .8); }
+        [data-theme="pink"] .hover\:text-orange-300:hover { color: #f472b6; }
+
+        [data-theme="pink"] .border-orange-500,
+        [data-theme="pink"] .hover\:border-orange-500:hover,
+        [data-theme="pink"] .focus\:border-orange-500:focus { border-color: #ec4899; }
+        [data-theme="pink"] .border-orange-500\/50,
+        [data-theme="pink"] .hover\:border-orange-500\/50:hover,
+        [data-theme="pink"] .focus\:border-orange-500\/50:focus,
+        [data-theme="pink"] .hover\:border-orange-500\/60:hover { border-color: rgba(236, 72, 153, .55); }
+        [data-theme="pink"] .border-orange-500\/40,
+        [data-theme="pink"] .hover\:border-orange-500\/40:hover { border-color: rgba(236, 72, 153, .45); }
+        [data-theme="pink"] .border-orange-500\/30,
+        [data-theme="pink"] .hover\:border-orange-500\/30:hover { border-color: rgba(236, 72, 153, .38); }
+        [data-theme="pink"] .border-orange-500\/20 { border-color: rgba(236, 72, 153, .28); }
+        [data-theme="pink"] .border-orange-500\/10 { border-color: rgba(236, 72, 153, .16); }
+
+        [data-theme="pink"] .ring-orange-500\/50 { --tw-ring-color: rgba(236, 72, 153, .5); }
+        [data-theme="pink"] .ring-orange-500\/40,
+        [data-theme="pink"] .hover\:ring-orange-500\/40:hover { --tw-ring-color: rgba(236, 72, 153, .45); }
+        [data-theme="pink"] .focus\:ring-orange-500:focus { --tw-ring-color: #ec4899; }
+        [data-theme="pink"] .focus\:ring-orange-500\/20:focus { --tw-ring-color: rgba(236, 72, 153, .25); }
+
+        [data-theme="pink"] .from-orange-500\/10 {
+            --tw-gradient-from: rgb(236 72 153 / .12) var(--tw-gradient-from-position);
+            --tw-gradient-to: rgb(236 72 153 / 0) var(--tw-gradient-to-position);
+            --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+        }
+        [data-theme="pink"] .from-orange-500\/20 {
+            --tw-gradient-from: rgb(236 72 153 / .22) var(--tw-gradient-from-position);
+            --tw-gradient-to: rgb(236 72 153 / 0) var(--tw-gradient-to-position);
+            --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+        }
+
+        /* Произвольные оранжевые glow-тени → мягкое розовое свечение. */
+        [data-theme="pink"] [class*="shadow-["][class*="rgba(249"] { box-shadow: 0 0 22px rgba(236, 72, 153, .35); }
+
+        /* Инлайновые «тёплые» акценты (тосты, колокольчик) — розовые значения. */
+        :root[data-theme="pink"] {
+            --warm-acc: #db2777;
+            --warm-acc-bg: rgba(236, 72, 153, .14);
+        }
+
+        /* — Поверхности: карточки/модалки/тосты → розово-белые — */
+        [data-theme="pink"] .bg-\[\#161920\],
+        [data-theme="pink"] .bg-\[\#14171d\],
+        [data-theme="pink"] .bg-\[\#1a1d24\],
+        [data-theme="pink"] .bg-\[\#111318\] { background-color: #fff7fb; }
+        [data-theme="pink"] .bg-\[\#161920\]\/50,
+        [data-theme="pink"] .bg-\[\#161920\]\/40 { background-color: #fff7fb; }
+
+        /* — Вложенные/утопленные поверхности (инпуты, ячейки) — */
+        [data-theme="pink"] .bg-\[\#0f1115\],
+        [data-theme="pink"] .bg-\[\#0f1117\],
+        [data-theme="pink"] .bg-\[\#0d0f14\],
+        [data-theme="pink"] .bg-\[\#13151a\],
+        [data-theme="pink"] .bg-\[\#0f1115\]\/50 { background-color: #fbe7f2; }
+
+        /* — Серые фоны → розовая пастель — */
+        [data-theme="pink"] .bg-gray-900,
+        [data-theme="pink"] .bg-gray-950 { background-color: #fceef6; }
+        [data-theme="pink"] .bg-gray-800 { background-color: #f9dfee; }
+        [data-theme="pink"] .bg-gray-700 { background-color: #f3cfe3; }
+        [data-theme="pink"] .bg-gray-500 { background-color: #e9b6d2; }
+        [data-theme="pink"] .bg-gray-900\/80 { background-color: #fceef6; }
+        [data-theme="pink"] .bg-gray-900\/60 { background-color: #fcf0f7; }
+        [data-theme="pink"] .bg-gray-900\/50 { background-color: #fdf1f8; }
+        [data-theme="pink"] .bg-gray-900\/40 { background-color: #fdf2f8; }
+        [data-theme="pink"] .bg-gray-900\/30 { background-color: #fdf3f9; }
+        [data-theme="pink"] .bg-gray-900\/20 { background-color: #fef5fa; }
+        [data-theme="pink"] .bg-gray-800\/70 { background-color: #f9e1ee; }
+        [data-theme="pink"] .bg-gray-800\/60 { background-color: #fae3f0; }
+        [data-theme="pink"] .bg-gray-800\/50 { background-color: #fae5f1; }
+        [data-theme="pink"] .bg-gray-800\/30 { background-color: #fbeaf4; }
+        [data-theme="pink"] .bg-gray-800\/10 { background-color: #fdf2f8; }
+        [data-theme="pink"] .bg-gray-950\/40 { background-color: #fdf1f8; }
+        [data-theme="pink"] .bg-gray-950\/20 { background-color: #fef5fa; }
+
+        /* — hover-фоны — */
+        [data-theme="pink"] .hover\:bg-gray-800:hover { background-color: #f6d9e9; }
+        [data-theme="pink"] .hover\:bg-gray-700:hover { background-color: #f0c9df; }
+        [data-theme="pink"] .hover\:bg-gray-900\/30:hover { background-color: #fdf3f9; }
+        [data-theme="pink"] .hover\:bg-gray-900\/50:hover { background-color: #fdf1f8; }
+        [data-theme="pink"] .hover\:bg-gray-800\/60:hover { background-color: #fae3f0; }
+        [data-theme="pink"] .hover\:bg-gray-800\/50:hover { background-color: #fae5f1; }
+        [data-theme="pink"] .hover\:bg-gray-800\/80:hover { background-color: #f8dfec; }
+        [data-theme="pink"] .hover\:bg-gray-800\/70:hover { background-color: #f9e1ee; }
+
+        /* — Текст: белый/серый → тёплый розово-коричневый — */
+        [data-theme="pink"] .text-white,
+        [data-theme="pink"] .text-gray-200 { color: #4a2338; }
+        [data-theme="pink"] .text-gray-300 { color: #5e2f49; }
+        [data-theme="pink"] .text-gray-400 { color: #8a4f6e; }
+        [data-theme="pink"] .text-gray-500 { color: #a96f8e; }
+        [data-theme="pink"] .text-gray-600 { color: #c694ad; }
+        [data-theme="pink"] .hover\:text-white:hover,
+        [data-theme="pink"] .group:hover .group-hover\:text-white { color: #4a2338; }
+        [data-theme="pink"] .hover\:text-gray-400:hover { color: #8a4f6e; }
+        [data-theme="pink"] .hover\:text-gray-300:hover { color: #5e2f49; }
+        [data-theme="pink"] .group:hover .group-hover\:text-gray-400 { color: #8a4f6e; }
+
+        /* — Плейсхолдеры — */
+        [data-theme="pink"] .placeholder-gray-600::placeholder,
+        [data-theme="pink"] .placeholder-gray-700::placeholder,
+        [data-theme="pink"] .placeholder\:text-gray-600::placeholder,
+        [data-theme="pink"] .placeholder\:text-gray-700::placeholder { color: #c694ad; }
+
+        /* — Границы — */
+        [data-theme="pink"] .border-gray-900,
+        [data-theme="pink"] .border-gray-900\/80,
+        [data-theme="pink"] .border-gray-900\/50,
+        [data-theme="pink"] .border-gray-800,
+        [data-theme="pink"] .border-gray-800\/80,
+        [data-theme="pink"] .border-gray-800\/60,
+        [data-theme="pink"] .border-gray-800\/50,
+        [data-theme="pink"] .border-gray-800\/40 { border-color: #f4cce1; }
+        [data-theme="pink"] .border-gray-700,
+        [data-theme="pink"] .border-gray-700\/60,
+        [data-theme="pink"] .border-gray-700\/50,
+        [data-theme="pink"] .border-gray-700\/30 { border-color: #ecb9d5; }
+        [data-theme="pink"] .border-gray-600 { border-color: #e2a3c7; }
+        [data-theme="pink"] .hover\:border-gray-700:hover,
+        [data-theme="pink"] .hover\:border-gray-700\/60:hover { border-color: #ecb9d5; }
+        [data-theme="pink"] .hover\:border-gray-600:hover { border-color: #e2a3c7; }
+
+        /* — Разделители — */
+        [data-theme="pink"] .divide-gray-800 > :not([hidden]) ~ :not([hidden]),
+        [data-theme="pink"] .divide-gray-800\/60 > :not([hidden]) ~ :not([hidden]),
+        [data-theme="pink"] .divide-gray-800\/50 > :not([hidden]) ~ :not([hidden]),
+        [data-theme="pink"] .divide-gray-900\/60 > :not([hidden]) ~ :not([hidden]) { border-color: #f4cce1; }
+
+        /* — Градиенты: серые и тёмные hex-стопы → розовая пастель — */
+        [data-theme="pink"] .from-gray-800 {
+            --tw-gradient-from: #f9dfee var(--tw-gradient-from-position);
+            --tw-gradient-to: rgb(249 223 238 / 0) var(--tw-gradient-to-position);
+            --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+        }
+        [data-theme="pink"] .to-gray-900 { --tw-gradient-to: #fceef6 var(--tw-gradient-to-position); }
+        [data-theme="pink"] .from-gray-800\/40 {
+            --tw-gradient-from: rgb(249 223 238 / .45) var(--tw-gradient-from-position);
+            --tw-gradient-to: rgb(249 223 238 / 0) var(--tw-gradient-to-position);
+            --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+        }
+        [data-theme="pink"] .to-gray-900\/60 { --tw-gradient-to: rgb(252 238 246 / .65) var(--tw-gradient-to-position); }
+        [data-theme="pink"] .from-\[\#1a1d24\],
+        [data-theme="pink"] .from-\[\#161920\] {
+            --tw-gradient-from: #fff7fb var(--tw-gradient-from-position);
+            --tw-gradient-to: rgb(255 247 251 / 0) var(--tw-gradient-to-position);
+            --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+        }
+        [data-theme="pink"] .via-\[\#161920\] {
+            --tw-gradient-to: rgb(254 244 249 / 0) var(--tw-gradient-to-position);
+            --tw-gradient-stops: var(--tw-gradient-from), #fef4f9 var(--tw-gradient-via-position), var(--tw-gradient-to);
+        }
+        [data-theme="pink"] .to-\[\#0f1115\] { --tw-gradient-to: #fbe7f2 var(--tw-gradient-to-position); }
+
+        /* — Стикер-пикер — */
+        [data-theme="pink"] .from-\[\#13161d\] {
+            --tw-gradient-from: #fff7fb var(--tw-gradient-from-position);
+            --tw-gradient-to: rgb(255 247 251 / 0) var(--tw-gradient-to-position);
+            --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+        }
+        [data-theme="pink"] .to-\[\#0d0f15\] { --tw-gradient-to: #fbe7f2 var(--tw-gradient-to-position); }
+        [data-theme="pink"] .bg-\[\#0b0d12\] { background-color: #fbe7f2; }
+        [data-theme="pink"] .bg-\[\#0d0f15\]\/95 { background-color: rgba(255, 247, 251, .95); }
+
+        /* — Пагинация — */
+        [data-theme="pink"] .custom-pagination a,
+        [data-theme="pink"] .custom-pagination nav a,
+        [data-theme="pink"] .custom-pagination span[aria-disabled="true"] span {
+            background-color: #fff7fb !important;
+            border-color: #f2c4dc !important;
+            color: #a96f8e !important;
+        }
+        [data-theme="pink"] .custom-pagination a:hover,
+        [data-theme="pink"] .custom-pagination nav a:hover {
+            background-color: #fbe7f2 !important;
+            color: #4a2338 !important;
         }
 
         /* — Переключатель тем: показываем одну иконку по активной теме — */
@@ -447,6 +1050,14 @@
                             <div class="flex items-center justify-between gap-3 px-4 py-3 border-t border-[var(--border-color-light)]">
                                 <span class="text-sm text-[var(--text-secondary)]">Оформление</span>
                                 <div class="flex items-center gap-3">
+                                    {{-- Бейдж купленной темы: пока она надета, dark/light
+                                         переключатель спрятан (темой управляет мини-маркет).
+                                         Видимостью рулит syncSiteThemeUi(). --}}
+                                    <a id="site-theme-badge" href="{{ route('market.index') }}"
+                                       class="hidden items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 rounded-lg border border-[var(--border-color)] bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:border-violet-400/60 transition-colors"
+                                       title="Тема из мини-маркета — управление там">
+                                        <span id="site-theme-badge-name"></span>
+                                    </a>
                                     {{-- Theme Toggle Button --}}
                                     <button
                                         id="theme-toggle"
@@ -662,11 +1273,11 @@
         @php $st = session('streak_awarded'); @endphp
         <div id="t-streak" class="w-80 bg-[#1a1d24] border border-orange-500/30 rounded-2xl p-4 shadow-2xl toast pointer-events-auto">
             <div class="flex gap-3 items-start">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:rgba(249,115,22,0.15)">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" style="color:#fb923c"><path d="M12.5 2c.4 2.8 2.3 4.4 3.6 6 1.2 1.5 1.9 3 1.9 4.8a6 6 0 11-12 0c0-1.6.6-3 1.6-4.2.2.9.9 1.5 1.8 1.5 1.2 0 1.8-1 1.3-2.5C11.8 5.4 12 3.6 12.5 2z"/></svg>
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:var(--warm-acc-bg, rgba(249,115,22,0.15))">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" style="color:var(--warm-acc, #fb923c)"><path d="M12.5 2c.4 2.8 2.3 4.4 3.6 6 1.2 1.5 1.9 3 1.9 4.8a6 6 0 11-12 0c0-1.6.6-3 1.6-4.2.2.9.9 1.5 1.8 1.5 1.2 0 1.8-1 1.3-2.5C11.8 5.4 12 3.6 12.5 2z"/></svg>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <p class="text-xs font-bold uppercase tracking-widest" style="color:#fb923c">Серия входов</p>
+                    <p class="text-xs font-bold uppercase tracking-widest" style="color:var(--warm-acc, #fb923c)">Серия входов</p>
                     <p class="text-sm font-bold text-white mt-0.5">День {{ $st['streak'] }} подряд!</p>
                     <div class="flex items-center gap-3 mt-1">
                         <span class="text-xs text-gray-400">+{{ $st['xp'] }} XP</span>
@@ -744,14 +1355,14 @@
             el.className = 'w-80 bg-[#1a1d24] rounded-2xl p-4 shadow-2xl toast pointer-events-auto';
 
             if (type === 'achievement') {
-                el.style.border = '1px solid rgba(249,115,22,0.3)';
+                el.style.border = '1px solid var(--warm-acc-bg, rgba(249,115,22,0.3))';
                 el.innerHTML =
                     `<div class="flex gap-3 items-start">` +
-                        `<div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:rgba(249,115,22,0.15)">` +
-                            `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" style="color:#fb923c"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>` +
+                        `<div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:var(--warm-acc-bg, rgba(249,115,22,0.15))">` +
+                            `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" style="color:var(--warm-acc, #fb923c)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>` +
                         `</div>` +
                         `<div class="flex-1 min-w-0">` +
-                            `<p class="text-xs font-bold uppercase tracking-widest" style="color:#fb923c">Достижение разблокировано</p>` +
+                            `<p class="text-xs font-bold uppercase tracking-widest" style="color:var(--warm-acc, #fb923c)">Достижение разблокировано</p>` +
                             `<p class="text-sm font-bold text-white mt-0.5">${data.title}</p>` +
                             `<div class="flex items-center gap-3 mt-1">` +
                                 `<span class="text-xs text-gray-400">+${data.experience} XP</span>` +
@@ -907,6 +1518,35 @@
             window.applyUserBorder(e.detail ? e.detail.value : null);
         });
 
+        // ── Live site theme (куплена в мини-маркете) ─────────────
+        // Пока надета покупная тема, dark/light переключатель спрятан,
+        // вместо него — бейдж с названием темы. Маркет диспатчит
+        // `site-theme-changed` на покупку/экипировку/снятие — тема
+        // применяется ко всей странице мгновенно, без перезагрузки.
+        window.syncSiteThemeUi = function () {
+            const t      = window.__siteTheme;
+            const badge  = document.getElementById('site-theme-badge');
+            const name   = document.getElementById('site-theme-badge-name');
+            const toggle = document.getElementById('theme-toggle');
+            if (badge) {
+                badge.classList.toggle('hidden', !t);
+                badge.classList.toggle('inline-flex', !!t);
+            }
+            if (name && t) name.textContent = (window.SITE_THEMES || {})[t] || t;
+            if (toggle) toggle.style.display = t ? 'none' : '';
+        };
+        window.applySiteTheme = function (value) {
+            window.__siteTheme = value || null;
+            const fallback = localStorage.getItem('theme')
+                || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+            document.documentElement.setAttribute('data-theme', value || fallback);
+            window.syncSiteThemeUi();
+        };
+        window.addEventListener('site-theme-changed', function (e) {
+            window.applySiteTheme(e.detail ? e.detail.value : null);
+        });
+        window.syncSiteThemeUi();
+
         // ── Avatar dropdown ──────────────────────────────────────
         function toggleAvatarMenu() {
             const btn  = document.getElementById('avatar-btn');
@@ -1035,6 +1675,12 @@
             });
         })();
     </script>
+
+    {{-- Принудительно: бургер-меню работает на Alpine, который приезжает в
+         составе livewire.js. Без явной директивы Livewire подключает скрипты
+         только на страницах с компонентами — на гостевых (вход/регистрация)
+         их нет, и меню не открывалось. --}}
+    @livewireScripts
 
 </body>
 

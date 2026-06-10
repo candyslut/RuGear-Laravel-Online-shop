@@ -53,6 +53,44 @@ class ShopSeeder extends Seeder
                 'css_value'   => 'rainbow',
             ],
 
+            // ── Site themes ────────────────────────────────────────
+            // css_value хранит слаг темы: на клиенте он подставляется в
+            // <html data-theme="..."> и активирует CSS-блок в shop-layout.
+            // Тёмная и светлая — базовые: price 0 означает «есть у всех»,
+            // покупка не нужна (см. ShopController).
+            [
+                'slug'        => 'theme_dark',
+                'category'    => 'theme',
+                'name'        => 'Тёмная',
+                'description' => 'Классический тёмный интерфейс для настоящих гиков RuGear — строгий и контрастный. Есть у всех с самого начала',
+                'price'       => 0,
+                'css_value'   => 'dark',
+            ],
+            [
+                'slug'        => 'theme_light',
+                'category'    => 'theme',
+                'name'        => 'Светлая',
+                'description' => 'Дневной светлый интерфейс — мягкие поверхности и чистые цвета. Есть у всех с самого начала',
+                'price'       => 0,
+                'css_value'   => 'light',
+            ],
+            [
+                'slug'        => 'theme_cosmic',
+                'category'    => 'theme',
+                'name'        => 'Космос',
+                'description' => 'Глубокий космос: мерцающие звёзды, дрейфующие туманности и аврора-переливы по всему сайту',
+                'price'       => 450,
+                'css_value'   => 'cosmic',
+            ],
+            [
+                'slug'        => 'theme_pink',
+                'category'    => 'theme',
+                'name'        => 'Няшная',
+                'description' => 'Нежно-розовая пастель: парящие сердечки, мягкие переливы и курсор-лапка котика на каждой странице',
+                'price'       => 450,
+                'css_value'   => 'pink',
+            ],
+
             // ── Nickname colors ────────────────────────────────────
             [
                 'slug'        => 'nick_blue',

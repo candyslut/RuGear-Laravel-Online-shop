@@ -169,9 +169,11 @@ class Gamification
     /** Length of the repeating daily-login reward cycle — a six-month wheel. */
     public const STREAK_CYCLE = 180;
 
-    /** UI metadata (RU label + accent colour) for each reward tier. */
+    /** UI metadata (RU label + accent colour) for each reward tier.
+     *  Colour is a CSS value (rendered only in style attributes of the
+     *  profile HUD); var() lets the cosmic theme swap the warm orange. */
     public const STREAK_TIERS = [
-        'daily'   => ['label' => 'Ежедневная',   'color' => '#f97316'],
+        'daily'   => ['label' => 'Ежедневная',   'color' => 'var(--tier-daily, #f97316)'],
         'weekly'  => ['label' => 'Недельная',    'color' => '#22d3ee'],
         'monthly' => ['label' => 'Месячная',     'color' => '#a855f7'],
         'grand'   => ['label' => 'Главный приз', 'color' => '#fbbf24'],

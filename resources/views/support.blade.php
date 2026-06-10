@@ -49,7 +49,7 @@
                 </div>
 
                 <div class="relative h-64 bg-[#0d0f14] overflow-hidden border-t border-gray-800">
-                    <div class="absolute inset-0 opacity-20" style="background-image: linear-gradient(#f97316 1px, transparent 1px), linear-gradient(90deg, #f97316 1px, transparent 1px); background-size: 30px 30px;"></div>
+                    <div class="absolute inset-0 opacity-20" style="background-image: linear-gradient(var(--warm-acc, #f97316) 1px, transparent 1px), linear-gradient(90deg, var(--warm-acc, #f97316) 1px, transparent 1px); background-size: 30px 30px;"></div>
 
                     <svg class="absolute inset-0 w-full h-full opacity-10 text-orange-500" viewBox="0 0 800 400">
                         <circle cx="400" cy="200" r="150" stroke="currentColor" stroke-width="1" stroke-dasharray="10 5" />

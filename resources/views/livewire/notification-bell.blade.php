@@ -1,8 +1,9 @@
 @php
     $typeMeta = [
         'achievement' => [
-            'color' => '#fb923c',
-            'bg'    => 'rgba(249,115,22,.15)',
+            // Через var: тема «Космос» подменяет тёплый акцент на фиолетовый.
+            'color' => 'var(--warm-acc, #fb923c)',
+            'bg'    => 'var(--warm-acc-bg, rgba(249,115,22,.15))',
             'svg'   => '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>',
         ],
         'level_up' => [
@@ -31,8 +32,8 @@
             'svg'   => '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.23l-8.84-8.84a5.5 5.5 0 117.78-7.78L12 5.67l1.06-1.06a5.5 5.5 0 117.78 7.78z"/></svg>',
         ],
         'streak' => [
-            'color' => '#fb923c',
-            'bg'    => 'rgba(249,115,22,.15)',
+            'color' => 'var(--warm-acc, #fb923c)',
+            'bg'    => 'var(--warm-acc-bg, rgba(249,115,22,.15))',
             'svg'   => '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.5 2c.4 2.8 2.3 4.4 3.6 6 1.2 1.5 1.9 3 1.9 4.8a6 6 0 11-12 0c0-1.6.6-3 1.6-4.2.2.9.9 1.5 1.8 1.5 1.2 0 1.8-1 1.3-2.5C11.8 5.4 12 3.6 12.5 2z"/></svg>',
         ],
         'rank_up' => [

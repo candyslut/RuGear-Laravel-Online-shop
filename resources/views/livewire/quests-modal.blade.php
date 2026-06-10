@@ -60,9 +60,19 @@
             --bg:#ffffff; --bg-2:#f1f4f8; --inset:#e9edf2; --line:#d7dde6; --line-2:#c2cad6;
             --text:#141a22; --dim:#5b6472; --dim-2:#97a0ad; --accent:#ea580c; --track:#e6eaf0;
         }
+        /* Тема «Космос» из мини-маркета. */
+        [data-theme="cosmic"] .qm-hud {
+            --bg:#10153a; --bg-2:#161d4a; --inset:#0a0e29; --line:#36418c; --line-2:#4651a3;
+            --text:#eef1ff; --dim:#aab4e8; --dim-2:#7681bd; --accent:#a78bfa; --track:#1c2354;
+        }
+        /* Тема «Няшный розовый» из мини-маркета. */
+        [data-theme="pink"] .qm-hud {
+            --bg:#fff7fb; --bg-2:#fbe9f3; --inset:#f7ddeb; --line:#f0c6dc; --line-2:#e4abc9;
+            --text:#4a2338; --dim:#92607a; --dim-2:#bd93a9; --accent:#db2777; --track:#f3d9e6;
+        }
         .qm-overlay { position:fixed; inset:0; z-index:1000; display:flex; align-items:center; justify-content:center; padding:1rem; }
         .qm-backdrop { position:absolute; inset:0; background:rgba(0,0,0,.78); backdrop-filter:blur(4px); }
-        [data-theme="light"] .qm-backdrop { background:rgba(15,23,42,.45); }
+        :is([data-theme="light"], [data-theme="pink"]) .qm-backdrop { background:rgba(15,23,42,.45); }
         .qm-panel { position:relative; z-index:1; display:flex; flex-direction:column; width:100%; max-width:38rem; max-height:92vh; background:var(--bg); border:1px solid var(--line); border-radius:14px; box-shadow:0 30px 80px rgba(0,0,0,.55); color:var(--text); }
         @media (prefers-reduced-motion: no-preference) { .qm-panel { animation:qmIn .22s cubic-bezier(.22,1,.36,1); } }
         @keyframes qmIn { from { opacity:0; transform:translateY(10px) scale(.985); } to { opacity:1; transform:none; } }
