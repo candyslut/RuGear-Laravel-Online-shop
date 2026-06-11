@@ -1,6 +1,6 @@
 <div>
 @if($open)
-<div class="lb-overlay" x-data x-on:keydown.escape.window="$wire.close()">
+<div class="lb-overlay" x-data x-init="window.hideModalLoader && hideModalLoader()" x-on:keydown.escape.window="$wire.close()">
     <div class="lb-backdrop" wire:click="close"></div>
 
     <div class="hud lb-panel lb-panel--ach hud-corner" role="dialog" aria-modal="true">

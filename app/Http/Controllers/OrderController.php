@@ -103,41 +103,42 @@ class OrderController extends Controller
 
         $candidates = [];
 
-        // Первый заказ
+        // Первый заказ. firstOrCreate: награды живут в AchievementSeeder —
+        // существующие записи здесь не перезатираются.
         if (Order::where('user_id', $user->id)->where('status', '!=', 'cancelled')->count() === 1) {
-            $candidates[] = Achievement::updateOrCreate(
+            $candidates[] = Achievement::firstOrCreate(
                 ['slug' => 'first_order'],
                 [
                     'title'       => 'Первый заказ',
                     'description' => 'Вы оформили свой первый заказ на RuGear. Добро пожаловать в семью покупателей!',
                     'experience'  => 100,
-                    'coins'       => 25,
+                    'coins'       => 10,
                 ]
             );
         }
 
         // Накопительная сумма >= 10 000 ₽
         if ($totalSpent >= 10000) {
-            $candidates[] = Achievement::updateOrCreate(
+            $candidates[] = Achievement::firstOrCreate(
                 ['slug' => 'order_10k'],
                 [
                     'title'       => 'Крупная покупка',
                     'description' => 'Вы потратили в RuGear суммарно от 10 000 ₽. Серьёзный подход!',
                     'experience'  => 75,
-                    'coins'       => 40,
+                    'coins'       => 15,
                 ]
             );
         }
 
         // Накопительная сумма >= 50 000 ₽
         if ($totalSpent >= 50000) {
-            $candidates[] = Achievement::updateOrCreate(
+            $candidates[] = Achievement::firstOrCreate(
                 ['slug' => 'order_50k'],
                 [
                     'title'       => 'Кит',
                     'description' => 'Суммарные траты в RuGear от 50 000 ₽. Вы настоящий энтузиаст!',
                     'experience'  => 200,
-                    'coins'       => 150,
+                    'coins'       => 50,
                 ]
             );
         }
@@ -153,13 +154,13 @@ class OrderController extends Controller
             ->toArray();
 
         if (count(array_intersect([1, 2, 3, 4], $orderedCategoryIds)) === 4) {
-            $candidates[] = Achievement::updateOrCreate(
+            $candidates[] = Achievement::firstOrCreate(
                 ['slug' => 'all_categories'],
                 [
                     'title'       => 'Полный арсенал',
                     'description' => 'Вы заказали товары из всех категорий: клавиатуру, мышь, наушники и коврик.',
                     'experience'  => 150,
-                    'coins'       => 75,
+                    'coins'       => 30,
                 ]
             );
         }

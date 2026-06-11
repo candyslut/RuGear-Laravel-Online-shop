@@ -7,7 +7,7 @@
 <div class="qst {{ $done ? 'is-done' : '' }}">
     <div class="qst__icon">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-            {!! \App\Support\Quests::icon($type) !!}
+            {!! \App\Support\Quests::icon($q->slug, $type) !!}
         </svg>
         @if($done)
         <span class="qst__check">

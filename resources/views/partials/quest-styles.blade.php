@@ -16,4 +16,38 @@
     .qst__xp { font-family:ui-monospace,Menlo,monospace; font-size:.74rem; font-weight:800; color:var(--text); }
     .qst__coin { display:inline-flex; align-items:center; gap:4px; font-size:.74rem; font-weight:800; color:#f59e0b; }
     .qst-refresh { font-family:ui-monospace,Menlo,monospace; font-size:.62rem; color:var(--dim-2); }
+    .qst-note { max-width:30rem; font-size:.66rem; line-height:1.5; color:var(--dim-2); }
+
+    /* Реролл: единая кнопка-кубик, заменяет весь невыполненный набор. */
+    .qst-reroll { display:inline-flex; align-items:center; gap:.45rem; padding:.55rem .9rem; font-family:ui-monospace,Menlo,monospace; font-size:.64rem; font-weight:800; text-transform:uppercase; letter-spacing:.08em; color:var(--dim); background:transparent; border:1px solid var(--line-2, var(--line)); border-radius:8px; cursor:pointer; transition:color .12s, border-color .12s, background .12s; }
+    .qst-reroll:hover:not(:disabled) { color:var(--accent); border-color:var(--accent); background:color-mix(in srgb, var(--accent) 8%, transparent); }
+    .qst-reroll:disabled { opacity:.45; cursor:not-allowed; }
+    .qst-reroll__cost { display:inline-flex; align-items:center; gap:3px; color:#f59e0b; }
+    .qst__die { width:1rem; height:1rem; flex-shrink:0; }
+
+    /* Появление карточки (в т.ч. свежевыпавшей после реролла). */
+    @media (prefers-reduced-motion: no-preference) {
+        .qst { animation: qstIn .45s cubic-bezier(.22,1,.36,1) backwards; }
+    }
+    @keyframes qstIn { from { opacity:0; transform:perspective(700px) rotateX(-32deg) translateY(10px); } to { opacity:1; transform:none; } }
+
+    /* Запущенный реролл: все карточки дня «скидываются», кубик крутится. */
+    .qst-rolling .qst { pointer-events:none; animation: qstOut .6s ease forwards !important; }
+    @keyframes qstOut {
+        30%  { transform:perspective(700px) rotateX(12deg) scale(.99); opacity:.8; }
+        100% { transform:perspective(700px) rotateX(70deg) scale(.95) translateY(-6px); opacity:.15; filter:blur(2px); }
+    }
+    .qst-rolling .qst-reroll .qst__die { animation: qstDieSpin .6s linear infinite; }
+    @keyframes qstDieSpin { to { transform:rotate(360deg); } }
+
+    /* Реролл не удался (например, не хватило монет). */
+    .qst-reroll--shake { animation: qstShake .45s ease; }
+    @keyframes qstShake { 20%{transform:translateX(-5px)} 40%{transform:translateX(4px)} 60%{transform:translateX(-3px)} 80%{transform:translateX(2px)} }
+
+    /* Узкие экраны: колонка наград переезжает вниз отдельной строкой. */
+    @media (max-width: 430px) {
+        .qst { flex-wrap:wrap; }
+        .qst__reward { flex-direction:row; align-items:center; width:100%; justify-content:flex-end; gap:.7rem; padding-top:.55rem; border-top:1px dashed var(--line); }
+        .qst-reroll { width:100%; justify-content:center; }
+    }
 </style>

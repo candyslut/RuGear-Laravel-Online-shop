@@ -81,6 +81,7 @@ class ProfileHud extends Component
             ->map(fn ($a) => [
                 'title'      => $a->title,
                 'experience' => $a->experience,
+                'coins'      => $a->coins,
                 'icon'       => Gamification::icon($a->slug),
                 'rarity'     => Gamification::rarity($a),
             ]);

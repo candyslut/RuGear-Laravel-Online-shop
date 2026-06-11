@@ -23,7 +23,7 @@
 
         .custom-pagination nav { background: transparent !important; box-shadow: none !important; border: none !important; padding: 0 !important; display: flex !important; justify-content: flex-end !important; }
         .custom-pagination nav>div:first-child, .custom-pagination nav p { display: none !important; }
-        .custom-pagination nav>div:last-child { display: flex !important; background: transparent !important; }
+        .custom-pagination nav>div:last-child { display: flex !important; flex-wrap: wrap !important; justify-content: flex-end !important; gap: 4px 0 !important; background: transparent !important; }
         .custom-pagination a, .custom-pagination span[aria-current="page"] span { background: #161920 !important; color: #9ca3af !important; border: 1px solid #374151 !important; font-size: 12px !important; padding: 7px 13px !important; margin: 0 2px !important; border-radius: 10px !important; transition: all .15s !important; }
         .custom-pagination span[aria-disabled="true"] span { background: #161920 !important; color: #4b5563 !important; border: 1px solid #374151 !important; font-size: 12px !important; padding: 7px 13px !important; margin: 0 2px !important; border-radius: 10px !important; cursor: not-allowed !important; }
         .custom-pagination span[aria-current="page"] span { background: #f97316 !important; color: #000 !important; border-color: #f97316 !important; font-weight: 900 !important; }
@@ -33,6 +33,10 @@
 
         #ach-track { scrollbar-width: none; -ms-overflow-style: none; }
         #ach-track::-webkit-scrollbar { display: none; }
+        /* Центровка через auto-маржины: justify-center в overflow-контейнере
+           обрезает левый край без возможности доскроллить до него. */
+        #ach-track > :first-child { margin-left: auto; }
+        #ach-track > :last-child  { margin-right: auto; }
 
         /* ══════════════════════════════════════════════════ */
         /* ИГРОВОЙ БАННЕР                                      */
@@ -42,17 +46,31 @@
         .game-banner-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gb); }
         .game-banner-title { color: var(--gb); }
         .game-banner-bolt  { color: var(--gb); }
-        .game-chip { display: inline-flex; align-items: center; gap: .4rem; padding: .32rem .6rem; font-size: .72rem; color: var(--dim); background: var(--inset); border: 1px solid var(--line); }
+        .game-chip { display: inline-flex; align-items: center; flex-wrap: wrap; gap: .4rem; padding: .32rem .6rem; font-size: .72rem; color: var(--dim); background: var(--inset); border: 1px solid var(--line); }
+        .game-chip__sep { width: 1px; height: .85rem; background: var(--line); flex-shrink: 0; }
         .game-banner-btn { display: inline-flex; align-items: center; justify-content: center; gap: .55rem; padding: .72rem 1.5rem; border: 1px solid var(--gb); background: transparent; color: var(--gb); font-weight: 800; text-transform: uppercase; letter-spacing: .14em; transition: background .12s ease, transform .08s ease; }
         .game-banner-btn:hover  { background: color-mix(in srgb, var(--gb) 14%, transparent); }
         .game-banner-btn:active { transform: translateY(1px); }
         .game-banner--red { --gb: #f87171; }
         :is([data-theme="light"], [data-theme="pink"]) .game-banner--red { --gb: #dc2626; }
+        .game-banner--stats { --gb: #818cf8; }
+        :is([data-theme="light"], [data-theme="pink"]) .game-banner--stats { --gb: #6366f1; }
+
+        /* ── Игротека: две игры слева, панель статистики справа ── */
+        .arcade-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; padding: 1rem; }
+        .arcade-games { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+        .arcade-games > .game-banner { flex: 1; }
+        .arcade-stats { min-width: 0; }
+        @media (min-width: 1024px) {
+            .arcade-grid { grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); align-items: stretch; padding: 1.1rem; gap: 1.1rem; }
+        }
 
         /* Runner modal: red accents on the active site theme */
         .runner-modal { --rn-bg: #140a0c; --rn-line: rgba(127,29,29,.55); --rn-title: #f87171; --rn-dim: rgba(254,202,202,.6); --rn-hint: rgba(254,202,202,.4); --rn-x: rgba(252,165,165,.5); --rn-x-hover: #ffffff; background: var(--rn-bg); }
         :is([data-theme="light"], [data-theme="pink"]) .runner-modal { --rn-bg: #fff7f7; --rn-line: #fecaca; --rn-title: #dc2626; --rn-dim: rgba(127,29,29,.65); --rn-hint: rgba(127,29,29,.45); --rn-x: rgba(127,29,29,.45); --rn-x-hover: #7f1d1d; }
         .runner-toast { background: #1f0d10; border: 1px solid rgba(248,113,113,.45); color: #fecaca; box-shadow: 0 0 24px rgba(248,113,113,.15); }
+        /* Мобильная версия: тост полупрозрачный и компактный, чтобы не закрывать трассу */
+        @media (max-width: 639px) { .runner-toast { opacity: .92; } .runner-toast .w-10 { width: 2rem; height: 2rem; } }
         :is([data-theme="light"], [data-theme="pink"]) .runner-toast { background: #ffffff; border-color: #fca5a5; color: #7f1d1d; box-shadow: 0 12px 32px rgba(127,29,29,.18); }
 
         /* ── Light-theme dashboard fixes ── */
@@ -112,7 +130,7 @@
         .hud-corner::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; border-top-left-radius: 12px; }
         .hud-corner::after  { bottom: -1px; right: -1px; border-left: 0; border-top: 0; border-bottom-right-radius: 12px; }
 
-        .hud-head { display: flex; align-items: center; gap: .6rem; padding: .7rem .95rem; border-bottom: 1px solid var(--line); }
+        .hud-head { display: flex; align-items: center; flex-wrap: wrap; gap: .35rem .6rem; padding: .7rem .95rem; border-bottom: 1px solid var(--line); }
         .hud-head__bar { width: 3px; height: 15px; background: var(--accent); flex-shrink: 0; }
         .hud-head__title { font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .2em; color: var(--text); }
         .hud-head__code { margin-left: auto; font-size: .6rem; letter-spacing: .14em; color: var(--dim-2); font-family: ui-monospace, Menlo, monospace; }
@@ -175,6 +193,7 @@
         .ach-medallion__rarity { font-size: .54rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--rc); }
         .ach-medallion__title { font-size: .8rem; font-weight: 700; color: var(--text); line-height: 1.25; margin: .35rem 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2rem; }
         .ach-medallion__xp { font-family: ui-monospace, Menlo, monospace; font-size: .72rem; font-weight: 700; color: var(--accent); margin-top: .4rem; }
+        .ach-medallion__coins { color: #f59e0b; white-space: nowrap; }
         .new-badge { position: absolute; top: 6px; right: 6px; font-size: .5rem; font-weight: 900; letter-spacing: .08em; color: #000; background: var(--accent); padding: .12rem .32rem; }
 
         /* Overlay modals (leaderboard / achievements) */
@@ -227,6 +246,8 @@
         .ach-tile__desc { font-size: .72rem; color: var(--dim); margin-top: .2rem; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .ach-tile__xp { font-family: ui-monospace, Menlo, monospace; font-size: .9rem; font-weight: 800; color: var(--rc); line-height: 1; }
         .ach-tile.is-locked .ach-tile__xp { color: var(--dim-2); }
+        .ach-tile__coins { display: flex; align-items: center; justify-content: flex-end; gap: 3px; font-family: ui-monospace, Menlo, monospace; font-size: .72rem; font-weight: 800; color: #f59e0b; margin-top: .25rem; }
+        .ach-tile.is-locked .ach-tile__coins { opacity: .6; }
         .ach-tile__status { font-size: .54rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; margin-top: .25rem; }
         .ach-tile.is-got .ach-tile__status { color: #22c55e; }
         .ach-tile.is-locked .ach-tile__status { color: var(--dim-2); }
@@ -240,6 +261,8 @@
         .ach-tip__title { font-size: .95rem; font-weight: 800; color: var(--text); line-height: 1.2; }
         .ach-tip__rarity { font-size: .54rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--rc); margin-top: .15rem; }
         .ach-tip__desc { font-size: .8rem; color: var(--dim); line-height: 1.45; margin-top: .65rem; }
+        .ach-tip__reward { display: flex; align-items: center; gap: .9rem; margin-top: .65rem; padding-top: .6rem; border-top: 1px solid var(--line); font-family: ui-monospace, Menlo, monospace; font-size: .78rem; font-weight: 800; }
+        .ach-tip__reward-coins { display: inline-flex; align-items: center; gap: 4px; color: #f59e0b; }
 
         /* Level-up reveal (floating, theme-neutral) */
         .levelup-reveal { position: fixed; left: 50%; top: 1.5rem; transform: translateX(-50%); z-index: 80; display: flex; align-items: center; gap: .9rem; padding: .85rem 1.3rem; background: #14171d; border: 1px solid #20f8c0; color: #e6e8ec; box-shadow: 0 0 32px rgba(32,248,192,.22); }
@@ -258,8 +281,16 @@
         <livewire:profile-hud />
 
         {{-- ══════════════════════════════════════════════════ --}}
-        {{-- ИГРОВАЯ ЗОНА                                      --}}
+        {{-- ИГРОТЕКА (две игры слева + панель статистики справа) --}}
         {{-- ══════════════════════════════════════════════════ --}}
+        <section class="hudpanel overflow-hidden">
+            <div class="hud-head">
+                <span class="hud-head__bar"></span>
+                <span class="hud-head__title">Игротека</span>
+                <span class="hud-head__code">2 ИГРЫ</span>
+            </div>
+            <div class="arcade-grid">
+              <div class="arcade-games">
         <section class="game-banner hud-grid-bg clip-tr relative overflow-hidden">
             <span class="game-banner__rail"></span>
             <div class="relative z-10 p-5 sm:px-7 sm:py-6 flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-8">
@@ -275,15 +306,14 @@
                             <svg class="game-banner-bolt w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
-                            <span class="hud-mono">+5&nbsp;XP</span> за уровень
-                        </span>
-                        <span class="game-chip">
+                            <span class="hud-mono">+5&nbsp;XP</span>
+                            <span class="game-chip__sep"></span>
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0">
                                 <circle cx="12" cy="12" r="10" fill="#FBBF24" stroke="#D97706" stroke-width="1.5" />
                                 <circle cx="12" cy="12" r="7.5" fill="#F59E0B" stroke="#D97706" stroke-width="0.5" />
                                 <text x="12" y="16.5" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#78350F" font-family="Georgia,serif">₽</text>
                             </svg>
-                            <span class="hud-mono">+1</span> монета за уровень
+                            <span class="hud-mono">+1&nbsp;монета</span> за уровень
                         </span>
                     </div>
                 </div>
@@ -309,15 +339,14 @@
                             <svg class="game-banner-bolt w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
-                            <span class="hud-mono">+5&nbsp;XP</span> за рубеж дистанции
-                        </span>
-                        <span class="game-chip">
+                            <span class="hud-mono">+5&nbsp;XP</span>
+                            <span class="game-chip__sep"></span>
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0">
                                 <circle cx="12" cy="12" r="10" fill="#FBBF24" stroke="#D97706" stroke-width="1.5" />
                                 <circle cx="12" cy="12" r="7.5" fill="#F59E0B" stroke="#D97706" stroke-width="0.5" />
                                 <text x="12" y="16.5" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#78350F" font-family="Georgia,serif">₽</text>
                             </svg>
-                            <span class="hud-mono">+1</span> монета за рубеж
+                            <span class="hud-mono">+1&nbsp;монета</span> за рубеж дистанции
                         </span>
                     </div>
                 </div>
@@ -326,6 +355,14 @@
                     Играть
                 </button>
             </div>
+        </section>
+              </div>{{-- /arcade-games --}}
+
+              {{-- Панель статистики во всю высоту: сводка по игре + слайдер --}}
+              <div class="arcade-stats">
+                <livewire:game-stats-widget />
+              </div>
+            </div>{{-- /arcade-grid --}}
         </section>
 
         {{-- ══════════════════════════════════════════════════ --}}
@@ -543,7 +580,7 @@
                     </div>
                 </div>
 
-                <dialog id="tc-{{ $ticket->id }}" class="tcmodal bg-[#111318] border border-gray-800 rounded-2xl p-6 w-full max-w-lg shadow-2xl focus:outline-none">
+                <dialog id="tc-{{ $ticket->id }}" class="tcmodal bg-[#111318] border border-gray-800 rounded-2xl p-5 sm:p-6 w-[calc(100vw-2rem)] max-w-lg shadow-2xl focus:outline-none">
                     <div class="space-y-4">
                         <div class="flex items-center justify-between border-b border-gray-800 pb-4">
                             <div>
@@ -618,7 +655,8 @@
         </div>
         <div class="relative" style="background:var(--rn-bg)">
             <canvas id="runner-canvas" class="block w-full h-[440px] sm:h-[520px] max-h-[calc(100dvh-140px)] touch-none select-none cursor-pointer"></canvas>
-            <div id="runner-toast-wrap" class="absolute bottom-4 right-4 z-10 flex flex-col-reverse gap-3 items-end pointer-events-none"></div>
+            {{-- На мобильных тост живёт сверху (трасса и препятствия — внизу), на десктопе — снизу-справа --}}
+            <div id="runner-toast-wrap" class="absolute top-3 right-3 bottom-auto sm:top-auto sm:bottom-4 sm:right-4 z-10 flex flex-col sm:flex-col-reverse gap-2 sm:gap-3 items-end pointer-events-none"></div>
         </div>
         <div class="px-4 sm:px-5 py-2.5" style="border-top:1px solid var(--rn-line)">
             <p class="hud-mono text-[10px] uppercase tracking-widest" style="color:var(--rn-hint)">Пробел / тап — прыжок · Esc — выход</p>
@@ -641,8 +679,43 @@
     </div>
 
     <script>
-        const GAME_SRC = '{{ asset('index.html') }}';
+        const GAME_SRC = '{{ asset('index.html') }}?v=20260611b';
         const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const PLAY_URL = '{{ route('game.play') }}';
+
+        // ── Buzzword Blast run tracking ──
+        // A "run" spans from opening the game to game over (or closing the
+        // modal). We tally cleared levels and the coins/XP they paid, then post
+        // one game_plays row when the run ends (App\Support\GameStats).
+        let buzz = null;
+        function buzzStart() {
+            buzz = { levels: 0, coins: 0, xp: 0, score: 0, asteroids: 0, deaths: 0, start: Date.now(), logged: false };
+        }
+        function buzzRecord(finalScore) {
+            if (!buzz || buzz.logged) return;
+            const score = Math.max(finalScore || 0, buzz.score);
+            // Nothing happened this run (opened and closed) — don't log noise.
+            if (buzz.levels <= 0 && score <= 0) { buzz = null; return; }
+            buzz.logged = true;
+            fetch(PLAY_URL, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    game: 'buzzword',
+                    score: score,
+                    level: buzz.levels,
+                    duration_ms: Date.now() - buzz.start,
+                    coins: buzz.coins,
+                    xp: buzz.xp,
+                    meta: { asteroids: buzz.asteroids, deaths: buzz.deaths }
+                })
+            }).then(() => { if (window.Livewire) Livewire.dispatch('game-logged'); }).catch(() => {});
+            buzz = null;
+        }
 
         function focusGame() {
             const iframe = document.getElementById('game-iframe');
@@ -652,12 +725,15 @@
             const iframe = document.getElementById('game-iframe');
             if (iframe.src !== GAME_SRC) iframe.src = GAME_SRC;
             document.getElementById('mod-game').showModal();
+            buzzStart();
             focusGame();
             setTimeout(focusGame, 60);
         };
         function closeGame() { document.getElementById('mod-game').close(); }
         document.getElementById('mod-game').addEventListener('close', function() {
             document.getElementById('game-iframe').src = 'about:blank';
+            // Record a run abandoned without a game over (closed mid-game).
+            buzzRecord(buzz ? buzz.score : 0);
         });
 
         function toggleLogout(show) {
@@ -784,15 +860,15 @@
             const el = document.createElement('div');
             el.id = id;
             el.className = 'w-72 bg-[#1a1d24] rounded-2xl p-4 shadow-2xl toast pointer-events-auto';
-            el.style.border = '1px solid rgba(168,85,247,0.45)';
-            el.style.boxShadow = '0 0 24px rgba(168,85,247,0.15)';
+            el.style.border = '1px solid rgba(32,248,192,0.45)';
+            el.style.boxShadow = '0 0 24px rgba(32,248,192,0.15)';
             el.innerHTML =
                 '<div class="flex gap-3 items-start">' +
-                '<div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:rgba(168,85,247,0.18)">' +
-                '<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:#c084fc"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>' +
+                '<div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:rgba(32,248,192,0.18)">' +
+                '<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:#20f8c0"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>' +
                 '</div>' +
                 '<div class="flex-1 min-w-0">' +
-                '<p class="text-xs font-bold uppercase tracking-widest" style="color:#c084fc">Buzzword Blast</p>' +
+                '<p class="text-xs font-bold uppercase tracking-widest" style="color:#20f8c0">Buzzword Blast</p>' +
                 '<p class="text-sm font-bold text-white mt-0.5">Уровень пройден!</p>' +
                 '<div class="flex items-center gap-3 mt-1">' +
                 '<span class="text-xs text-gray-400">+' + data.xp + ' XP</span>' +
@@ -807,7 +883,31 @@
         }
 
         window.addEventListener('message', function(e) {
-            if (!e.data || e.data.type !== 'game_level_complete') return;
+            if (!e.data) return;
+
+            // Live counter sync (words shot = asteroids, ship crashes = deaths)
+            // so an abandoned run still records the right totals, not just a
+            // game over.
+            if (e.data.type === 'buzz_stats') {
+                if (buzz) { buzz.asteroids = e.data.asteroids || 0; buzz.deaths = e.data.deaths || 0; }
+                return;
+            }
+
+            // Game over — record the run, then we're done with this session.
+            if (e.data.type === 'game_over') {
+                if (buzz) { buzz.asteroids = e.data.asteroids || 0; buzz.deaths = e.data.deaths || 0; }
+                buzzRecord(e.data.score);
+                return;
+            }
+
+            if (e.data.type !== 'game_level_complete') return;
+
+            // Tally the cleared level toward the current run (in case the modal
+            // was already open before buzzStart, lazily begin a session).
+            if (!buzz) buzzStart();
+            buzz.levels += 1;
+            if (typeof e.data.score === 'number') buzz.score = e.data.score;
+
             fetch('{{ route('game.reward') }}', {
                 method: 'POST',
                 headers: {
@@ -818,6 +918,7 @@
             })
             .then(r => r.json())
             .then(data => {
+                if (buzz) { buzz.coins += (data.coins || 0); buzz.xp += (data.xp || 0); }
                 showGameToast(data);
                 // Quest completions / rank-up the level reward may have unlocked.
                 (data.quests || []).forEach(q => window.showToast && showToast('quest', q, false));
@@ -844,6 +945,8 @@
     <script>
     (function () {
         const REWARD_URL = '{{ route('game.runner.reward') }}';
+        const DIST_URL   = '{{ route('game.runner.distance') }}';
+        const PLAY_URL   = '{{ route('game.play') }}';
         const PX_PER_M   = 12;     // world px → "metres"
         const MILESTONE  = 500;    // first reward; each next gap grows by this much
         const BATS_FROM  = 1500;   // metres after which bats join in
@@ -889,7 +992,9 @@
             st = {
                 phase: 'ready', dist: 0, speed: 340, time: 0, runTime: 0, deadAt: 0,
                 nextReward: MILESTONE, rewardN: 0,
-                py: 0, vy: 0, leg: 0, obstacles: [], nextAt: W + 120, flashes: []
+                py: 0, vy: 0, leg: 0, obstacles: [], nextAt: W + 120, flashes: [],
+                // Per-run stats snapshot for the game_plays recorder.
+                coins: 0, xp: 0, jumps: 0, logged: false
             };
         }
 
@@ -897,7 +1002,7 @@
 
         function press() {
             if (st.phase === 'ready') { st.phase = 'run'; return; }
-            if (st.phase === 'run' && st.py === 0) { st.vy = 820; return; }
+            if (st.phase === 'run' && st.py === 0) { st.vy = 820; st.jumps++; return; }
             // small lockout so a late jump-press doesn't instantly restart
             if (st.phase === 'dead' && st.time - st.deadAt > 0.45) { reset(); st.phase = 'run'; }
         }
@@ -923,14 +1028,60 @@
             st.nextAt = x + gap;
         }
 
+        // Best distance unlocks legendary cosmetics in the market, so the
+        // server hears about it on every milestone, death and modal close.
+        let reportedM = 0;
+        function recordDistance(m) {
+            if (m <= 0 || m <= reportedM) return;
+            reportedM = m;
+            fetch(DIST_URL, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ m })
+            });
+        }
+
+        // End-of-run recorder: one game_plays row per run (death or abandon).
+        // Guarded so death + modal-close can't double-log the same run.
+        function recordPlay() {
+            if (!st || st.logged) return;
+            const m = metres();
+            if (m <= 0) { return; } // opened and closed without moving
+            st.logged = true;
+            fetch(PLAY_URL, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    game: 'redline',
+                    score: m,
+                    level: st.rewardN,
+                    duration_ms: Math.round(st.runTime * 1000),
+                    coins: st.coins,
+                    xp: st.xp,
+                    // died === collision (phase 'dead'); abandoned runs aren't a death.
+                    meta: { died: st.phase === 'dead' ? 1 : 0, jumps: st.jumps }
+                })
+            }).then(() => { if (window.Livewire) Livewire.dispatch('game-logged'); }).catch(() => {});
+        }
+
         function claimMilestone(m) {
+            recordDistance(m);
             fetch(REWARD_URL, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
-                }
+                },
+                body: JSON.stringify({ m })
             })
             .then(r => r.json())
             .then(data => {
@@ -947,7 +1098,7 @@
             const id = 'rt-' + Date.now();
             const el = document.createElement('div');
             el.id = id;
-            el.className = 'runner-toast w-72 rounded-2xl p-4 shadow-2xl toast pointer-events-auto';
+            el.className = 'runner-toast w-56 sm:w-72 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 shadow-2xl toast pointer-events-auto';
             el.innerHTML =
                 '<div class="flex gap-3 items-start">' +
                 '<div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style="background:rgba(248,113,113,0.18)">' +
@@ -973,8 +1124,10 @@
             if (st.phase !== 'run') return;
             st.runTime += dt;
 
-            // narrow canvas = less warning distance, so cap top speed lower
-            st.speed = Math.min(W < 520 ? 620 : 860, st.speed + 10 * dt);
+            // accel ramps with run time (12 → 24 px/s² over ~100 s) so long
+            // runs keep getting harder; narrow canvas = less warning
+            // distance, so cap top speed lower
+            st.speed = Math.min(W < 520 ? 620 : 860, st.speed + (12 + Math.min(12, st.runTime * 0.12)) * dt);
             const dx = st.speed * dt;
             st.dist += dx;
 
@@ -1009,6 +1162,8 @@
                     st.deadAt = st.time;
                     const m = metres();
                     if (m > best) { best = m; localStorage.setItem('runner_best', best); bestEl.textContent = best; }
+                    recordDistance(m);
+                    recordPlay(); // the run is over — snapshot it
                     break;
                 }
             }
@@ -1019,6 +1174,7 @@
                 const at = st.nextReward;
                 st.rewardN += 1;
                 st.nextReward += MILESTONE * (st.rewardN + 1);
+                st.coins += 1; st.xp += 5; // mirrors the runner-reward route payout
                 st.flashes.push({ text: '+5 XP · +1 ₽', y: groundY - 90, t: 0 });
                 claimMilestone(at);
             }
@@ -1156,6 +1312,7 @@
         };
         dlg.addEventListener('close', () => {
             if (raf) { cancelAnimationFrame(raf); raf = null; }
+            if (st) { recordDistance(metres()); recordPlay(); } // abandoned run still counts
         });
 
         document.addEventListener('keydown', e => {

@@ -41,13 +41,15 @@ class RegisteredUserController extends Controller
         event(new Registered($user));
         Auth::login($user);
 
-        $achievement = Achievement::updateOrCreate(
+        // firstOrCreate: награды задаёт AchievementSeeder, существующая запись
+        // не перезатирается значениями из кода.
+        $achievement = Achievement::firstOrCreate(
             ['slug' => 'registered'],
             [
                 'title'       => 'Первое достижение',
                 'description' => 'Вы получили достижение за регистрацию на RuGear.',
                 'experience'  => 50,
-                'coins'       => 5,
+                'coins'       => 2,
             ]
         );
 

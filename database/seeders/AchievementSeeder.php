@@ -15,7 +15,7 @@ class AchievementSeeder extends Seeder
                 'title'       => 'Крупная покупка',
                 'description' => 'Вы оформили заказ на сумму от 10 000 ₽. Серьёзный подход!',
                 'experience'  => 75,
-                'coins'       => 40,
+                'coins'       => 15,
                 'icon'        => null,
             ],
             [
@@ -23,7 +23,7 @@ class AchievementSeeder extends Seeder
                 'title'       => 'Кит',
                 'description' => 'Заказ на 50 000 ₽ и выше. Вы настоящий энтузиаст!',
                 'experience'  => 200,
-                'coins'       => 150,
+                'coins'       => 50,
                 'icon'        => null,
             ],
             [
@@ -31,7 +31,7 @@ class AchievementSeeder extends Seeder
                 'title'       => 'Полный арсенал',
                 'description' => 'Вы заказали товары из всех категорий: клавиатуру, мышь, наушники и коврик.',
                 'experience'  => 150,
-                'coins'       => 75,
+                'coins'       => 30,
                 'icon'        => null,
             ],
             [
@@ -39,7 +39,7 @@ class AchievementSeeder extends Seeder
                 'title'       => 'Первое достижение',
                 'description' => 'Вы получили достижение за регистрацию на RuGear.',
                 'experience'  => 50,
-                'coins'       => 5,
+                'coins'       => 2,
                 'icon'        => null,
             ],
             [
@@ -47,7 +47,7 @@ class AchievementSeeder extends Seeder
                 'title'       => 'Первый комментарий',
                 'description' => 'Спасибо за первый комментарий — добро пожаловать в обсуждение!',
                 'experience'  => 10,
-                'coins'       => 5,
+                'coins'       => 2,
                 'icon'        => null,
             ],
             [
@@ -55,7 +55,7 @@ class AchievementSeeder extends Seeder
                 'title'       => 'Тридцать? Нет — три комментария',
                 'description' => 'Вы оставили три комментария — вы активный участник сообщества!',
                 'experience'  => 30,
-                'coins'       => 10,
+                'coins'       => 4,
                 'icon'        => null,
             ],
             [
@@ -63,7 +63,7 @@ class AchievementSeeder extends Seeder
                 'title'       => 'Пятикратный комментатор',
                 'description' => 'Пять комментариев — класс! Спасибо за вклад в обсуждения.',
                 'experience'  => 60,
-                'coins'       => 20,
+                'coins'       => 8,
                 'icon'        => null,
             ],
             [
@@ -71,7 +71,7 @@ class AchievementSeeder extends Seeder
                 'title'       => 'Первый заказ',
                 'description' => 'Вы оформили свой первый заказ на RuGear. Добро пожаловать в семью покупателей!',
                 'experience'  => 100,
-                'coins'       => 25,
+                'coins'       => 10,
                 'icon'        => null,
             ],
 
@@ -81,7 +81,7 @@ class AchievementSeeder extends Seeder
                 'title'       => 'Неделя в строю',
                 'description' => 'Вы заходили семь дней подряд. Отличная привычка!',
                 'experience'  => 40,
-                'coins'       => 20,
+                'coins'       => 8,
                 'icon'        => null,
             ],
             [
@@ -89,7 +89,7 @@ class AchievementSeeder extends Seeder
                 'title'       => 'Месяц без пропусков',
                 'description' => 'Серия входов длиной в 30 дней. Железная дисциплина!',
                 'experience'  => 90,
-                'coins'       => 45,
+                'coins'       => 18,
                 'icon'        => null,
             ],
             [
@@ -97,7 +97,7 @@ class AchievementSeeder extends Seeder
                 'title'       => 'Полгода преданности',
                 'description' => 'Вы продержали серию входов целых 180 дней — главный приз заслужен!',
                 'experience'  => 250,
-                'coins'       => 150,
+                'coins'       => 60,
                 'icon'        => null,
             ],
 
@@ -107,7 +107,7 @@ class AchievementSeeder extends Seeder
                 'title'       => 'Первый лайк',
                 'description' => 'Вы впервые отметили чужой комментарий лайком. Поддержка ценится!',
                 'experience'  => 10,
-                'coins'       => 5,
+                'coins'       => 2,
                 'icon'        => null,
             ],
             [
@@ -115,7 +115,7 @@ class AchievementSeeder extends Seeder
                 'title'       => 'Щедрый на лайки',
                 'description' => 'Вы поставили 25 лайков чужим комментариям. Душа сообщества!',
                 'experience'  => 40,
-                'coins'       => 15,
+                'coins'       => 6,
                 'icon'        => null,
             ],
             [
@@ -123,7 +123,7 @@ class AchievementSeeder extends Seeder
                 'title'       => 'Король лайков',
                 'description' => 'Сотня лайков от вас — вы делаете обсуждения теплее.',
                 'experience'  => 100,
-                'coins'       => 50,
+                'coins'       => 20,
                 'icon'        => null,
             ],
 
@@ -133,7 +133,7 @@ class AchievementSeeder extends Seeder
                 'title'       => 'Народное признание',
                 'description' => 'Ваш комментарий набрал 10 лайков. Людям нравится то, что вы пишете!',
                 'experience'  => 50,
-                'coins'       => 20,
+                'coins'       => 8,
                 'icon'        => null,
             ],
             [
@@ -141,17 +141,17 @@ class AchievementSeeder extends Seeder
                 'title'       => 'Голос сообщества',
                 'description' => 'Один из ваших комментариев собрал 50 лайков. Настоящий хит!',
                 'experience'  => 120,
-                'coins'       => 60,
+                'coins'       => 25,
                 'icon'        => null,
             ],
 
             // ── Магазин ──
             [
                 'slug'        => 'store_complete',
-                'title'       => 'Скупил весь магазин',
-                'description' => 'Вы выкупили всё, что можно купить: каждый косметический предмет и набор стикеров. Коллекционер!',
+                'title'       => 'Коллекционер',
+                'description' => 'Вы выкупили всё, что можно купить: каждый косметический предмет и набор стикеров. Настоящий коллекционер!',
                 'experience'  => 300,
-                'coins'       => 250,
+                'coins'       => 100,
                 'icon'        => null,
             ],
         ];

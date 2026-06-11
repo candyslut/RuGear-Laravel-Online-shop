@@ -26,19 +26,10 @@ class DashboardController extends Controller
             session()->flash('streak_awarded', $streakReward);
         }
 
-        // A rank-up can come from the streak reward's XP or from the visit
-        // quest's XP below; addExperience() resets lastRankUp on each call, so
-        // capture across both and flash the toast once.
-        $rankUp = $user->lastRankUp;
-
-        // Opening the dashboard satisfies the "visit" quest; surface any quest
-        // finished here (the visit one, or another completed earlier today via
-        // a full page reload) as a toast.
-        if ($done = $this->questService->progress($user, 'visit')) {
-            session()->flash('quests_completed', $done);
-        }
-
-        if ($rankUp = $user->lastRankUp ?: $rankUp) {
+        // A rank-up can come from the streak reward's XP (the "visit" quest
+        // was retired from the pool, so the dashboard no longer advances any
+        // quest by itself).
+        if ($rankUp = $user->lastRankUp) {
             session()->flash('rank_up', $rankUp);
         }
 

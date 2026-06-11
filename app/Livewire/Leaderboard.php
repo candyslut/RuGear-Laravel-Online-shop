@@ -38,6 +38,13 @@ class Leaderboard extends Component
         $this->dispatch('open-ranks');
     }
 
+    /** Swap this modal for the game leaderboards (close → open-game-leaderboards). */
+    public function openGameBoards(): void
+    {
+        $this->open = false;
+        $this->dispatch('open-game-leaderboards');
+    }
+
     public function render()
     {
         $users = $this->open

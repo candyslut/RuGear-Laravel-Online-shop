@@ -4,8 +4,10 @@
     <div class="qm-backdrop" wire:click="close"></div>
 
     <div class="qm-panel" role="dialog" aria-modal="true"
-         x-data="{ left: {{ $resetIn }}, fmt() { const h=Math.floor(this.left/3600), m=Math.floor(this.left%3600/60), s=Math.floor(this.left%60); return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); } }"
-         x-init="setInterval(() => { if (left > 0) left--; }, 1000)">
+         x-data="{ rolling: false, shake: false, left: {{ $resetIn }}, fmt() { const h=Math.floor(this.left/3600), m=Math.floor(this.left%3600/60), s=Math.floor(this.left%60); return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); } }"
+         x-init="setInterval(() => { if (left > 0) left--; }, 1000)"
+         x-on:quests-rerolled.window="rolling = false"
+         x-on:quest-reroll-failed.window="rolling = false; shake = true; setTimeout(() => shake = false, 450)">
 
         {{-- Header --}}
         <div class="qm-head">
@@ -28,7 +30,7 @@
         </div>
 
         {{-- Quests --}}
-        <div class="qm-body">
+        <div class="qm-body" x-bind:class="rolling && 'qst-rolling'">
             @forelse($quests as $q)
                 <div wire:key="qm-quest-{{ $q->id }}">
                     @include('partials.quest-card', ['q' => $q])
@@ -39,11 +41,14 @@
                     <p class="text-xs qm-dim2 mt-1.5">Загляните завтра за новой тройкой</p>
                 </div>
             @endforelse
-            <p class="qm-foot">Задания обновляются каждый день в полночь. Награды начисляются автоматически.</p>
+            <p class="qm-foot">Задания обновляются каждый день в полночь. Награды начисляются автоматически.<br>Не подходят задания? Бросьте кубик — раз в сутки можно заменить весь набор за {{ \App\Support\Quests::REROLL_COST }} монет.</p>
         </div>
 
-        <div class="qm-footer">
-            <button wire:click="close" class="qm-btn">Закрыть</button>
+        <div class="qm-footer flex flex-wrap items-center gap-2.5">
+            @if($total > 0)
+                @include('partials.quest-reroll')
+            @endif
+            <button wire:click="close" class="qm-btn flex-1">Закрыть</button>
         </div>
     </div>
 

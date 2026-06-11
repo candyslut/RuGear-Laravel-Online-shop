@@ -175,7 +175,7 @@ class Gamification
     public const STREAK_TIERS = [
         'daily'   => ['label' => 'Ежедневная',   'color' => 'var(--tier-daily, #f97316)'],
         'weekly'  => ['label' => 'Недельная',    'color' => '#22d3ee'],
-        'monthly' => ['label' => 'Месячная',     'color' => '#a855f7'],
+        'monthly' => ['label' => 'Месячная',     'color' => '#f43f5e'],
         'grand'   => ['label' => 'Главный приз', 'color' => '#fbbf24'],
     ];
 

@@ -1,8 +1,9 @@
 <div>
 @if($open)
-<div class="lb-overlay" x-data="{ tip:false, tipTitle:'', tipRarity:'', tipDesc:'', tipIcon:'', tipColor:'', tipX:0, tipY:0,
-        showTip(el, e){ this.tipTitle=el.dataset.title; this.tipRarity=el.dataset.rarity; this.tipDesc=el.dataset.desc; this.tipIcon=el.querySelector('.ach-tile__icon').innerHTML; this.tipColor=el.style.getPropertyValue('--rc'); this.tip=true; this.moveTip(e); },
+<div class="lb-overlay" x-data="{ tip:false, tipTitle:'', tipRarity:'', tipDesc:'', tipIcon:'', tipColor:'', tipXp:'', tipCoins:'', tipX:0, tipY:0,
+        showTip(el, e){ this.tipTitle=el.dataset.title; this.tipRarity=el.dataset.rarity; this.tipDesc=el.dataset.desc; this.tipXp=el.dataset.xp; this.tipCoins=el.dataset.coins; this.tipIcon=el.querySelector('.ach-tile__icon').innerHTML; this.tipColor=el.style.getPropertyValue('--rc'); this.tip=true; this.moveTip(e); },
         moveTip(e){ const w=320, h=200, pad=12; let x=e.clientX+16, y=e.clientY+16; if(x+w+pad>window.innerWidth) x=e.clientX-w-16; if(y+h+pad>window.innerHeight) y=window.innerHeight-h-pad; if(y<pad) y=pad; this.tipX=x; this.tipY=y; } }"
+     x-init="window.hideModalLoader && hideModalLoader()"
      x-on:keydown.escape.window="$wire.close()">
     <div class="lb-backdrop" wire:click="close"></div>
 
@@ -40,6 +41,7 @@
                 @foreach($items as $a)
                 <div class="ach-tile {{ $a['got'] ? 'is-got' : 'is-locked' }}" data-state="{{ $a['got'] ? 'got' : 'locked' }}" style="--rc:{{ $a['rarity']['color'] }}"
                     data-title="{{ $a['title'] }}" data-rarity="{{ $a['rarity']['label'] }}" data-desc="{{ $a['description'] }}"
+                    data-xp="{{ $a['experience'] }}" data-coins="{{ $a['coins'] }}"
                     @mouseenter="showTip($el, $event)" @mousemove="moveTip($event)" @mouseleave="tip=false">
                     <div class="ach-tile__icon">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
@@ -58,6 +60,13 @@
                     </div>
                     <div class="text-right flex-shrink-0">
                         <p class="ach-tile__xp">+{{ $a['experience'] }}<span class="text-[10px]"> XP</span></p>
+                        <p class="ach-tile__coins">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="flex-shrink:0">
+                                <circle cx="12" cy="12" r="10" fill="#FBBF24" stroke="#D97706" stroke-width="1.5"/>
+                                <circle cx="12" cy="12" r="7.5" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/>
+                            </svg>
+                            +{{ $a['coins'] }}
+                        </p>
                         <p class="ach-tile__status">{{ $a['got'] ? 'Получено' : 'Закрыто' }}</p>
                     </div>
                 </div>
@@ -81,6 +90,17 @@
             </div>
         </div>
         <div class="ach-tip__desc" x-text="tipDesc"></div>
+        <div class="ach-tip__reward">
+            <span class="t-text font-bold">+<span x-text="tipXp"></span> XP</span>
+            <span class="ach-tip__reward-coins">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="flex-shrink:0">
+                    <circle cx="12" cy="12" r="10" fill="#FBBF24" stroke="#D97706" stroke-width="1.5"/>
+                    <circle cx="12" cy="12" r="7.5" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/>
+                    <text x="12" y="16.5" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#78350F" font-family="Georgia, serif">₽</text>
+                </svg>
+                +<span x-text="tipCoins"></span> монет
+            </span>
+        </div>
     </div>
 </div>
 @endif

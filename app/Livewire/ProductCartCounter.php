@@ -25,24 +25,17 @@ class ProductCartCounter extends Component
         }
     }
 
-    public function addToCart()
+    public function addToCart(\App\Services\CartService $cartService)
     {
-        if ($this->product->quantity <= 0) {
-            return;
+        // Goes through CartService so the "add to cart" quest is advanced
+        // exactly like every other entry point (stock guards live there too).
+        if ($done = $cartService->addToCart(auth()->user(), $this->product)) {
+            $this->dispatch('quests-completed', quests: $done);
         }
+        $this->dispatch('profile-refresh');
 
-        $item = auth()->user()->cartItems()->where('product_id', $this->product->id)->first();
-
-        if ($item && $item->quantity < $this->product->quantity) {
-            $item->increment('quantity');
-            $this->quantity = $item->quantity;
-        } elseif (!$item) {
-            auth()->user()->cartItems()->create([
-                'product_id' => $this->product->id,
-                'quantity' => 1,
-            ]);
-            $this->quantity = 1;
-        }
+        unset($this->itemInCart); // bust the #[Computed] cache after the write
+        $this->quantity = $this->itemInCart()?->quantity ?? 0;
 
         $this->dispatch('cartUpdated');
     }

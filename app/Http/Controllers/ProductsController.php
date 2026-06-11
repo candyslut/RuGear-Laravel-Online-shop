@@ -35,6 +35,27 @@ class ProductsController extends Controller
     public function show(Product $product)
     {
         $product->load(['category', 'commentaries.user']);
+
+        // Quest: viewing product pages. Deduped per product per day via the
+        // session so refreshing one card can't farm the counter.
+        if ($user = auth()->user()) {
+            $seen = session('quest_viewed_products', []);
+            if (($seen['date'] ?? null) !== now()->toDateString()) {
+                $seen = ['date' => now()->toDateString(), 'ids' => []];
+            }
+            if (!in_array($product->id, $seen['ids'], true)) {
+                $seen['ids'][] = $product->id;
+                session(['quest_viewed_products' => $seen]);
+
+                if ($done = app(\App\Services\DailyQuestService::class)->progress($user, 'product_view')) {
+                    session()->flash('quests_completed', $done);
+                }
+                if ($rankUp = $user->lastRankUp) {
+                    session()->flash('rank_up', $rankUp);
+                }
+            }
+        }
+
         return view('products.show', compact('product'));
     }
 }

@@ -1480,6 +1480,23 @@
                 const list = d && d.quests ? d.quests : (Array.isArray(d) ? d : []);
                 list.forEach((q, idx) => setTimeout(() => showToast('quest', q, false), idx * 600));
             });
+            // Live achievement toasts from Livewire components (likes etc.).
+            Livewire.on('achievements-awarded', (payload) => {
+                const d = Array.isArray(payload) ? payload[0] : payload;
+                const list = d && d.achievements ? d.achievements : (Array.isArray(d) ? d : []);
+                list.forEach((a, idx) => setTimeout(() => showToast('achievement', a, false), idx * 600));
+            });
+            // Live coin balance (quest reroll etc.) — updates every counter at
+            // once: the header chip and the dashboard HUD stat share #coin-count.
+            Livewire.on('coins-changed', (payload) => {
+                const d = Array.isArray(payload) ? payload[0] : payload;
+                const v = d && typeof d.coins === 'number' ? d.coins : null;
+                if (v === null) return;
+                document.querySelectorAll('#coin-count').forEach(el => {
+                    el.textContent = Number(v).toLocaleString('ru-RU');
+                    el.setAttribute('data-count-to', v);
+                });
+            });
             // Body scroll-lock for overlay modals (e.g. the global quests modal),
             // so it works on pages other than the dashboard too.
             Livewire.on('lock-body',   () => { document.body.style.overflow = 'hidden'; });
@@ -1623,6 +1640,53 @@
 
     {{-- Global daily-quests modal (opened from the burger menu on any page) --}}
     @livewire('quests-modal')
+
+    {{-- Global mini-game statistics modal (own profile + other players) --}}
+    @livewire('game-stats')
+
+    {{-- Global game leaderboards modal --}}
+    @livewire('game-leaderboards')
+
+    {{-- Мгновенный отклик при открытии тяжёлых модалок (рейтинг, достижения,
+         игровая статистика, лидерборды). Их оверлей появляется только после
+         round-trip к Livewire-компоненту, из-за чего клик «как будто залипает».
+         Спиннер показывается сразу по клику и снимается в тот момент, когда
+         реальная модалка смонтировалась (её x-init вызывает hideModalLoader). --}}
+    <div id="modal-loader" role="status" aria-label="Загрузка" aria-hidden="true">
+        <span class="ml-spinner"></span>
+    </div>
+    <style>
+        #modal-loader { display:none; position:fixed; inset:0; z-index:200; align-items:center; justify-content:center; background:rgba(0,0,0,.55); }
+        #modal-loader.is-on { display:flex; }
+        .ml-spinner { width:46px; height:46px; border-radius:50%; border:3px solid rgba(255,255,255,.18); border-top-color:#f97316; animation:mlspin .7s linear infinite; }
+        [data-theme="cosmic"] .ml-spinner { border-top-color:#a78bfa; }
+        [data-theme="pink"] .ml-spinner   { border-top-color:#ec4899; }
+        @keyframes mlspin { to { transform:rotate(360deg); } }
+        @media (prefers-reduced-motion: reduce) { .ml-spinner { animation-duration:1.4s; } }
+    </style>
+    <script>
+        (function () {
+            var el = document.getElementById('modal-loader');
+            var timer = null;
+            window.showModalLoader = function () {
+                if (!el) return;
+                el.classList.add('is-on');
+                clearTimeout(timer);
+                // Подстраховка: спиннер не должен зависнуть, если модалка не смонтировалась.
+                timer = setTimeout(window.hideModalLoader, 6000);
+            };
+            window.hideModalLoader = function () {
+                if (!el) return;
+                el.classList.remove('is-on');
+                clearTimeout(timer);
+            };
+            // Показать спиннер мгновенно, затем попросить Livewire открыть модалку.
+            window.openModal = function (event, params) {
+                window.showModalLoader();
+                if (window.Livewire) Livewire.dispatch(event, params || {});
+            };
+        })();
+    </script>
     @endauth
 
     {{-- ─── Image lightbox (фото в отзывах и т.п.) ──────────────────────

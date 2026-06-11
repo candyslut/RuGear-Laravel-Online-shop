@@ -13,7 +13,7 @@
 
     <div class="divide-y max-h-72 overflow-y-auto cs pb-3 pr-1" style="border-color:var(--line)">
         @foreach($cartItems as $item)
-        <div class="flex items-center gap-4 py-4" wire:key="profile-cart-item-{{ $item->id }}">
+        <div class="flex items-center flex-wrap gap-x-4 gap-y-2.5 py-4" wire:key="profile-cart-item-{{ $item->id }}">
 
             <div class="w-11 h-11 overflow-hidden flex-shrink-0 flex items-center justify-center" style="background:var(--inset);border:1px solid var(--line)">
                 <img src="{{ asset($item->product->image) }}"
@@ -21,7 +21,7 @@
                      class="w-full h-full object-contain p-1">
             </div>
 
-            <div class="flex-1 min-w-0">
+            <div class="flex-1 min-w-[9rem]">
                 <p class="text-sm font-semibold t-text line-clamp-1">{{ $item->product->name }}</p>
                 <p class="hud-mono text-[10px] uppercase tracking-wider t-dim2 mt-0.5 truncate">{{ $item->product->category->name ?? '—' }}</p>
             </div>
@@ -45,7 +45,7 @@
                 @endif
             </div>
 
-            <div class="text-right flex-shrink-0 w-28">
+            <div class="text-right flex-shrink-0 w-28 ml-auto">
                 <p class="text-sm font-black t-text tabular-nums">{{ number_format($item->product->price * $item->quantity, 0, '.', ' ') }} ₽</p>
                 <p class="hud-mono text-[10px] t-dim2 mt-0.5 tabular-nums">{{ number_format($item->product->price, 0, '.', ' ') }} ₽/шт.</p>
             </div>
@@ -131,7 +131,7 @@
                     {{-- Delivery --}}
                     <div>
                         <label class="font-mono text-[10px] uppercase tracking-widest text-gray-500 mb-2 block">Способ доставки</label>
-                        <div class="grid grid-cols-3 gap-3" id="delivery-cards">
+                        <div class="grid grid-cols-1 min-[420px]:grid-cols-3 gap-3" id="delivery-cards">
                             <label class="delivery-card cursor-pointer flex">
                                 <input type="radio" name="delivery_type" value="courier" class="sr-only" checked>
                                 <div class="delivery-card-inner w-full h-full border border-gray-800 bg-[#0d0f14] rounded-xl p-3 text-center transition hover:border-orange-500/40">
@@ -165,7 +165,7 @@
                     {{-- Payment method --}}
                     <div>
                         <label class="font-mono text-[10px] uppercase tracking-widest text-gray-500 mb-2 block">Способ оплаты</label>
-                        <div class="grid grid-cols-2 gap-3" id="payment-cards">
+                        <div class="grid grid-cols-1 min-[480px]:grid-cols-2 gap-3" id="payment-cards">
                             <label class="payment-card cursor-pointer flex">
                                 <input type="radio" name="payment_method" value="card" class="sr-only" checked>
                                 <div class="payment-card-inner w-full h-full border border-orange-500/40 bg-orange-500/5 rounded-xl p-4 transition hover:border-orange-500/60">

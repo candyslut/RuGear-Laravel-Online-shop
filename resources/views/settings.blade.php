@@ -119,6 +119,24 @@
                     @enderror
                 </div>
 
+                <div class="border-t border-gray-800"></div>
+
+                {{-- Приватность игровой статистики --}}
+                <div>
+                    <label class="block text-sm font-semibold text-gray-400 mb-2">Приватность</label>
+                    <label for="stats_public" class="flex items-start gap-3 cursor-pointer bg-[#0f1115] border border-gray-700 rounded-xl px-4 py-3.5 hover:border-orange-500/60 transition">
+                        <input type="checkbox" id="stats_public" name="stats_public" value="1" @checked(old('stats_public', $user->stats_public)) class="peer sr-only">
+                        <span class="mt-0.5 relative w-10 h-6 flex-shrink-0 rounded-full bg-gray-700 transition peer-checked:bg-orange-500 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-5 after:h-5 after:rounded-full after:bg-white after:transition peer-checked:after:translate-x-4"></span>
+                        <span class="min-w-0">
+                            <span class="block text-sm font-semibold text-white">Публичная игровая статистика</span>
+                            <span class="block text-xs text-gray-500 mt-0.5">Другие игроки смогут открыть ваш профиль мини-игр с графиками и рекордами. В лидербордах ваш рекорд виден всегда.</span>
+                        </span>
+                    </label>
+                    @error('stats_public')
+                        <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <div class="flex items-center justify-between pt-2">
                     <a href="{{ route('dashboard') }}" class="text-sm text-gray-500 hover:text-gray-300 transition">
                         ← Назад в кабинет

@@ -38,7 +38,12 @@ class CartCounter extends Component
             return;
         }
 
-        $cartService->addToCart(Auth::user(), $this->product);
+        // CartService advances the "add to cart" quest; surface completions
+        // as the live bottom-right toast and refresh the HUD / quest panels.
+        if ($done = $cartService->addToCart(Auth::user(), $this->product)) {
+            $this->dispatch('quests-completed', quests: $done);
+        }
+        $this->dispatch('profile-refresh');
         $this->updateQuantity();
     }
 

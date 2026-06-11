@@ -93,13 +93,13 @@
                 @endif
 
                 <div class="mt-4 flex flex-col sm:flex-row gap-2 w-full sm:max-w-sm">
-                    <button onclick="Livewire.dispatch('open-leaderboard')" class="hud-btn w-full sm:flex-1 whitespace-nowrap">
+                    <button onclick="openModal('open-leaderboard')" class="hud-btn w-full sm:flex-1 whitespace-nowrap">
                         <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                         </svg>
                         Рейтинг
                     </button>
-                    <button onclick="Livewire.dispatch('open-achievements')" class="hud-btn w-full sm:flex-1 whitespace-nowrap">
+                    <button onclick="openModal('open-achievements')" class="hud-btn w-full sm:flex-1 whitespace-nowrap">
                         <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M5 3h14v2a5 5 0 01-3 4.58V11a4 4 0 01-3 3.87V17h3v2H7v-2h3v-2.13A4 4 0 017 11V9.58A5 5 0 014 5V3z" />
                         </svg>
@@ -198,7 +198,7 @@
         $wkPct     = ($cycleDay > 0 && $cycleDay % 7 === 0)  ? 100 : ($cycleDay % 7)  / 7  * 100;
         $moPct     = ($cycleDay > 0 && $cycleDay % 30 === 0) ? 100 : ($cycleDay % 30) / 30 * 100;
         // daily идёт через var: тема «Космос» подменяет тёплый оранжевый.
-        $tierColors = ['daily' => 'var(--tier-daily, #f97316)', 'weekly' => '#22d3ee', 'monthly' => '#a855f7', 'grand' => '#fbbf24'];
+        $tierColors = ['daily' => 'var(--tier-daily, #f97316)', 'weekly' => '#22d3ee', 'monthly' => '#f43f5e', 'grand' => '#fbbf24'];
         // Reward table for the client-side preview slider (one source of truth: PHP).
         $rewardTable = [];
         for ($d = 1; $d <= $cycle; $d++) { $rewardTable[$d] = Gamification::streakReward($d); }
@@ -208,9 +208,21 @@
         $cx = 130; $cy = 130; $R = 100;
         $circ = 2 * M_PI * $R;
         $dash = round($circ * ($cycle > 0 ? min($cycleDay, $cycle) / $cycle : 0), 2);
-        $markers = [];
-        for ($d = 30; $d < $cycle; $d += 30) { $markers[$d] = 'monthly'; }
-        $markers[$cycle] = 'grand';
+        // Кольцевые отметки: каждый месяц (30 дн.) — крупный стад с номером
+        // месяца, день 180 — главный приз, и недельные риски (7 дн.) между ними.
+        $monthMarks = [];
+        for ($d = 30; $d < $cycle; $d += 30) { $monthMarks[$d] = (int) ($d / 30); }
+        // Недельную риску не рисуем, если она встаёт вплотную (≤2 дн.) к месячному
+        // студу или к финалу — иначе кружок месяца наезжает на пунктир. На месте
+        // такой «поглощённой» недели остаётся более крупная веха (дни 28, 91, 119).
+        $weekMarks = [];
+        for ($d = 7; $d < $cycle; $d += 7) {
+            $clash = ($cycle - $d) <= 2;
+            foreach (array_keys($monthMarks) as $m) {
+                if (abs($d - $m) <= 2) { $clash = true; break; }
+            }
+            if (!$clash) { $weekMarks[] = $d; }
+        }
     @endphp
 
     <div wire:ignore>
@@ -255,18 +267,43 @@
                                     stroke="url(#srGrad)" stroke-width="9" stroke-linecap="round"
                                     stroke-dasharray="{{ $dash }} {{ round($circ - $dash, 2) }}"
                                     transform="rotate(-90 {{ $cx }} {{ $cy }})"/>
-                            {{-- Milestone studs (monthly + grand prize) --}}
-                            @foreach($markers as $d => $tier)
+                            {{-- Недельные отметки — мелкие риски поперёк кольца --}}
+                            @foreach($weekMarks as $d)
+                                @php
+                                    $ang = deg2rad(-90 + ($d / $cycle) * 360);
+                                    $x1  = round($cx + ($R - 6.5) * cos($ang), 2);
+                                    $y1  = round($cy + ($R - 6.5) * sin($ang), 2);
+                                    $x2  = round($cx + ($R + 6.5) * cos($ang), 2);
+                                    $y2  = round($cy + ($R + 6.5) * sin($ang), 2);
+                                    $reached = $d <= $cycleDay;
+                                @endphp
+                                <line x1="{{ $x1 }}" y1="{{ $y1 }}" x2="{{ $x2 }}" y2="{{ $y2 }}"
+                                      stroke="{{ $reached ? $tierColors['weekly'] : 'var(--line-2)' }}"
+                                      stroke-width="2.5" stroke-linecap="round"
+                                      opacity="{{ $reached ? '.95' : '.45' }}"/>
+                            @endforeach
+                            {{-- Месячные отметки — крупные студы с номером месяца снаружи кольца --}}
+                            @foreach($monthMarks as $d => $month)
                                 @php
                                     $ang = deg2rad(-90 + ($d / $cycle) * 360);
                                     $mx  = round($cx + $R * cos($ang), 2);
                                     $my  = round($cy + $R * sin($ang), 2);
+                                    $lx  = round($cx + ($R + 16) * cos($ang), 2);
+                                    $ly  = round($cy + ($R + 16) * sin($ang), 2);
                                     $reached = $d <= $cycleDay;
                                 @endphp
-                                <circle cx="{{ $mx }}" cy="{{ $my }}" r="{{ $tier === 'grand' ? 5.5 : 4 }}"
-                                        fill="{{ $reached ? $tierColors[$tier] : 'var(--bg)' }}"
-                                        stroke="{{ $reached ? $tierColors[$tier] : 'var(--line-2)' }}" stroke-width="1.5"/>
+                                <circle cx="{{ $mx }}" cy="{{ $my }}" r="5"
+                                        fill="{{ $reached ? $tierColors['monthly'] : 'var(--bg)' }}"
+                                        stroke="{{ $reached ? $tierColors['monthly'] : 'var(--line-2)' }}" stroke-width="2"/>
+                                <text x="{{ $lx }}" y="{{ $ly }}" text-anchor="middle" dominant-baseline="central"
+                                      font-size="9" font-weight="800" font-family="ui-monospace,Menlo,monospace"
+                                      fill="{{ $reached ? $tierColors['monthly'] : 'var(--dim-2, #7d8694)' }}">{{ $month }}М</text>
                             @endforeach
+                            {{-- Главный приз — крупный золотой стад на дне 180 (вершина кольца) --}}
+                            @php $gReached = $cycleDay >= $cycle; @endphp
+                            <circle cx="{{ $cx }}" cy="{{ $cy - $R }}" r="7"
+                                    fill="{{ $gReached ? $tierColors['grand'] : 'var(--bg)' }}"
+                                    stroke="{{ $tierColors['grand'] }}" stroke-width="2.5"/>
                             {{-- Current-day knob marks where you are on the ring --}}
                             @if($cycleDay > 0)
                                 @php
@@ -306,10 +343,10 @@
                         </div>
                         <div>
                             <div class="sr-mile__top">
-                                <span class="sr-mile__name"><span class="sr-mile__dot" style="background:#a855f7"></span>Месячная награда</span>
+                                <span class="sr-mile__name"><span class="sr-mile__dot" style="background:#f43f5e"></span>Месячная награда</span>
                                 <span class="sr-mile__val">{{ $toMonthly === 0 ? 'сегодня!' : 'через '.$toMonthly.' дн.' }}</span>
                             </div>
-                            <div class="sr-bar"><span style="width:{{ $moPct }}%;background:#a855f7"></span></div>
+                            <div class="sr-bar"><span style="width:{{ $moPct }}%;background:#f43f5e"></span></div>
                         </div>
                         <div>
                             <div class="sr-mile__top">
@@ -423,7 +460,7 @@
             <span class="hud-head__bar"></span>
             <span class="hud-head__title">Достижения</span>
             <span class="hud-head__code">{{ $achCount }} ПОЛУЧЕНО</span>
-            <button onclick="Livewire.dispatch('open-achievements')"
+            <button onclick="openModal('open-achievements')"
                 class="ml-3 hud-mono text-[11px] font-bold uppercase tracking-widest t-acc hover:opacity-80 transition">
                 Все →
             </button>
@@ -431,7 +468,7 @@
 
         @if($achievements->count() > 0)
         <div class="p-5 lg:p-6">
-            <div id="ach-track" class="flex items-center justify-center gap-3 overflow-x-auto pb-1" style="scroll-snap-type:x mandatory;scroll-behavior:smooth;">
+            <div id="ach-track" class="flex items-center gap-3 overflow-x-auto pb-1" style="scroll-snap-type:x mandatory;scroll-behavior:smooth;">
                 @foreach($achievements as $idx => $a)
                 <div class="ach-medallion flex-shrink-0" style="--rc:{{ $a['rarity']['color'] }};width:150px;scroll-snap-align:start;">
                     @if($idx === 0)<span class="new-badge">NEW</span>@endif
@@ -442,7 +479,15 @@
                     </div>
                     <p class="ach-medallion__rarity">{{ $a['rarity']['label'] }}</p>
                     <p class="ach-medallion__title">{{ $a['title'] }}</p>
-                    <p class="ach-medallion__xp">+{{ $a['experience'] }} XP</p>
+                    <p class="ach-medallion__xp">+{{ $a['experience'] }} XP
+                        <span class="ach-medallion__coins">·
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;display:inline">
+                                <circle cx="12" cy="12" r="10" fill="#FBBF24" stroke="#D97706" stroke-width="1.5"/>
+                                <circle cx="12" cy="12" r="7.5" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/>
+                            </svg>
+                            +{{ $a['coins'] }}
+                        </span>
+                    </p>
                 </div>
                 @endforeach
             </div>

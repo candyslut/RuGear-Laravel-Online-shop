@@ -10,8 +10,11 @@
     $rgb   = $m['rgb'];
     $label = $m['l'];
     $src   = $pack['preview'][0] ?? null;
+    // Легендарные паки заперты за игровыми рубежами ($legendaryUnlocked из
+    // market.blade.php); сервер дублирует проверку (buy → legendary_locked).
+    $packLocked = $rk === 'legendary' && !$legendaryUnlocked;
 @endphp
-<article class="pkx" style="--rgb: {{ $rgb }};">
+<article class="pkx {{ $rk === 'legendary' ? 'pkx--legendary' : '' }}" style="--rgb: {{ $rgb }};">
     <button type="button" class="pkx__stage pkx__stage--btn" title="Посмотреть стикеры"
             onclick="openPackPreview('{{ $pack['slug'] }}')">
         @if($src)
@@ -44,10 +47,17 @@
                 </svg>
                 {{ number_format($pack['price']) }}
             </span>
-            <button type="button" class="pkx-buy"
-                    onclick="purchasePack('{{ $pack['slug'] }}')">
-                Купить
-            </button>
+            @if($packLocked)
+                <button type="button" class="pkx-buy" disabled
+                        title="Откроется за {{ \App\Models\User::LEGENDARY_BUZZWORD_LEVELS }} уровней Buzzword Blast и {{ number_format(\App\Models\User::LEGENDARY_REDLINE_DISTANCE, 0, ',', ' ') }} м в Redline Rush">
+                    Закрыто
+                </button>
+            @else
+                <button type="button" class="pkx-buy"
+                        onclick="purchasePack('{{ $pack['slug'] }}')">
+                    Купить
+                </button>
+            @endif
         @endif
     </div>
 </article>

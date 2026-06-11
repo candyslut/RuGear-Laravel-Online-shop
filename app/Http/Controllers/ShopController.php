@@ -16,33 +16,20 @@ class ShopController extends Controller
 
         // Cosmetics live in the spotlight grid; sticker packs get their own section.
         // Внутри категории: бесплатные базовые → дешёвые → дорогие.
+        // Порядок секций на странице: обводки → никнеймы → темы.
+        $categoryOrder = ['border', 'nickname_color', 'theme'];
         $items = ShopItem::whereNotIn('category', ['font', 'sticker_pack'])
             ->get()
             ->groupBy('category')
-            ->map(fn ($group) => $group->sortBy([['price', 'asc'], ['id', 'asc']])->values());
+            ->map(fn ($group) => $group->sortBy([['price', 'asc'], ['id', 'asc']])->values())
+            ->sortBy(fn ($group, $cat) => array_search($cat, $categoryOrder));
         $owned = $user->shopItems()->pluck('shop_item_id')->toArray();
-
-        // Imported Telegram sets get a curated rarity tier that drives the
-        // showcase styling (glow, gem, stars).
-        $rarityBySlug  = [
-            'catsunicmass'              => 'mythic',     // 120 video stickers — the showpiece
-            'cherryblack'               => 'legendary',
-            'prettysailormoon'          => 'epic',
-            'jjks2_pt2'                 => 'mythic',
-            'skalddealsex_by_fstikbot'  => 'epic',
-            'biscvit_vk'                => 'rare',
-            'sti_586dd_by_tgemodzibot'  => 'rare',
-        ];
-        // Fallback rarity (for any future imported pack) derived from price.
-        // Floored at "rare": the common tier was retired with the Noto packs.
-        $priceRarity = fn ($p) => ($p = (int) $p) >= 400 ? 'legendary'
-            : ($p >= 300 ? 'mythic' : ($p >= 200 ? 'epic' : 'rare'));
 
         $stickerPacks = StickerPack::active()
             ->with(['stickers', 'shopItem'])
             ->orderBy('sort_order')
             ->get()
-            ->map(function (StickerPack $pack) use ($owned, $rarityBySlug, $priceRarity) {
+            ->map(function (StickerPack $pack) use ($owned) {
                 $shopItem = $pack->shopItem;
                 return [
                     'slug'         => $pack->slug,
@@ -65,7 +52,7 @@ class ShopController extends Controller
                     'owned'        => $shopItem === null || in_array($shopItem->id, $owned),
                     'animated'     => $pack->stickers->contains(fn ($s) => $s->is_animated),
                     // Premium packs use their curated tier (or a price-derived fallback).
-                    'rarity'       => $rarityBySlug[$pack->slug] ?? $priceRarity($shopItem?->price),
+                    'rarity'       => $this->packRarity($pack, $shopItem?->price),
                 ];
             });
 
@@ -93,6 +80,13 @@ class ShopController extends Controller
             ]);
         }
 
+        // Легендарная косметика и легендарные стикерпаки заперты за игровыми
+        // рубежами: 10 уровней в Buzzword Blast и 10 000 м в Redline Rush
+        // (User::legendaryUnlocked()).
+        if ($this->isLegendary($item) && !$user->legendaryUnlocked()) {
+            return response()->json(['error' => 'legendary_locked'], 403);
+        }
+
         if (in_array($item->id, $user->shopItems()->pluck('shop_item_id')->toArray())) {
             return response()->json(['error' => 'already_owned'], 400);
         }
@@ -106,13 +100,16 @@ class ShopController extends Controller
 
         $this->applyCosmetic($user, $item);
 
-        $this->checkStoreCompletion($user);
+        $awarded = $this->checkStoreCompletion($user);
 
         return response()->json([
-            'coins'    => $user->fresh()->coins,
-            'equipped' => true,
-            'category' => $item->category,
-            'css'      => $item->css_value,
+            'coins'       => $user->fresh()->coins,
+            'equipped'    => true,
+            'category'    => $item->category,
+            'css'         => $item->css_value,
+            // Completionist achievement, if this purchase just unlocked it —
+            // the market JS surfaces it as the bottom-right toast.
+            'achievement' => $awarded,
         ]);
     }
 
@@ -171,18 +168,74 @@ class ShopController extends Controller
      * price-0 base themes belong to everyone, so both are excluded, mirroring
      * the guards in buy()). awardAchievement() dedupes, so this only ever
      * pays out once.
+     *
+     * @return array{title:string, experience:int, coins:int}|null  Toast payload
+     *         when the achievement was just granted.
      */
-    private function checkStoreCompletion($user): void
+    private function checkStoreCompletion($user): ?array
     {
         $buyableIds = ShopItem::where('category', '!=', 'font')->where('price', '>', 0)->pluck('id');
         $ownedIds   = $user->shopItems()->pluck('shop_item_id');
 
         if ($buyableIds->isNotEmpty() && $buyableIds->diff($ownedIds)->isEmpty()) {
             $achievement = Achievement::where('slug', 'store_complete')->first();
-            if ($achievement) {
-                $user->awardAchievement($achievement);
+            if ($achievement && $user->awardAchievement($achievement)) {
+                return [
+                    'title'      => $achievement->title,
+                    'experience' => $achievement->experience,
+                    'coins'      => $achievement->coins,
+                ];
             }
         }
+
+        return null;
+    }
+
+    /**
+     * Imported Telegram sets get a curated rarity tier that drives the
+     * showcase styling (glow, gem, stars).
+     */
+    private const PACK_RARITY_BY_SLUG = [
+        'catsunicmass'              => 'mythic',     // 120 video stickers — the showpiece
+        'cherryblack'               => 'legendary',
+        'prettysailormoon'          => 'epic',
+        'jjks2_pt2'                 => 'mythic',
+        'skalddealsex_by_fstikbot'  => 'epic',
+        'biscvit_vk'                => 'rare',
+        'sti_586dd_by_tgemodzibot'  => 'rare',
+    ];
+
+    /**
+     * Curated tier for imported packs, or a price-derived fallback for any
+     * future pack. Floored at "rare": the common tier was retired with the
+     * Noto packs.
+     */
+    private function packRarity(StickerPack $pack, $price): string
+    {
+        if (isset(self::PACK_RARITY_BY_SLUG[$pack->slug])) {
+            return self::PACK_RARITY_BY_SLUG[$pack->slug];
+        }
+        $price = (int) $price;
+
+        return $price >= 400 ? 'legendary'
+            : ($price >= 300 ? 'mythic' : ($price >= 200 ? 'epic' : 'rare'));
+    }
+
+    /**
+     * Mirrors the spotlight's rarity rule (resources/views/market.blade.php,
+     * $rarityOf): cosmetics priced 250+ are legendary. Sticker packs follow
+     * their showcase tier (packRarity).
+     */
+    private function isLegendary(ShopItem $item): bool
+    {
+        if ($item->category === 'sticker_pack') {
+            $pack = $item->stickerPack;
+
+            return $pack !== null && $this->packRarity($pack, $item->price) === 'legendary';
+        }
+
+        return in_array($item->category, ['border', 'nickname_color', 'theme'])
+            && (int) $item->price >= 250;
     }
 
     private function applyCosmetic($user, ShopItem $item): void

@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'role', 'phone', 'gender', 'about', 'avatar', 'cosmetic_border', 'cosmetic_font', 'cosmetic_nickname_color', 'cosmetic_theme'])]
+#[Fillable(['name', 'email', 'password', 'role', 'phone', 'gender', 'about', 'avatar', 'cosmetic_border', 'cosmetic_font', 'cosmetic_nickname_color', 'cosmetic_theme', 'stats_public'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -21,6 +21,10 @@ class User extends Authenticatable
 
     public int $lastLevelUp = 0;
     public int $lastLevelCoins = 0;
+
+    /** Игровые рубежи, открывающие покупку легендарной косметики. */
+    public const LEGENDARY_BUZZWORD_LEVELS  = 10;
+    public const LEGENDARY_REDLINE_DISTANCE = 10000;
 
     /**
      * Rank-up summary set by addExperience() when the most recent XP gain
@@ -37,6 +41,8 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'last_active_date' => 'date',
+            'last_quest_reroll_date' => 'date',
+            'stats_public' => 'boolean',
         ];
     }
 
@@ -69,6 +75,11 @@ class User extends Authenticatable
     public function dailyQuests(): HasMany
     {
         return $this->hasMany(DailyQuest::class);
+    }
+
+    public function gamePlays(): HasMany
+    {
+        return $this->hasMany(GamePlay::class);
     }
 
     public function orders(): HasMany
@@ -143,6 +154,16 @@ class User extends Authenticatable
     public function addCoins(int $amount): void
     {
         $this->increment('coins', $amount);
+    }
+
+    /**
+     * Legendary cosmetics are gated behind both mini-games: clear 10 levels
+     * in Buzzword Blast and survive to 10 000 m in Redline Rush.
+     */
+    public function legendaryUnlocked(): bool
+    {
+        return (int) $this->buzzword_levels >= self::LEGENDARY_BUZZWORD_LEVELS
+            && (int) $this->redline_best_distance >= self::LEGENDARY_REDLINE_DISTANCE;
     }
 
     /**

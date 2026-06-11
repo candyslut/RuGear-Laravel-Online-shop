@@ -24,6 +24,10 @@ class SettingsController extends Controller
             'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
+        // Unchecked checkbox isn't submitted — resolve it explicitly so toggling
+        // the game-stats privacy off actually persists.
+        $data['stats_public'] = $request->boolean('stats_public');
+
         $user = $request->user();
 
         if ($request->hasFile('avatar')) {

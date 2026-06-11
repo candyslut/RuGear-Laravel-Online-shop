@@ -51,6 +51,7 @@ class AchievementsModal extends Component
                     'title'       => $a->title,
                     'description' => $a->description,
                     'experience'  => $a->experience,
+                    'coins'       => $a->coins,
                     'icon'        => Gamification::icon($a->slug),
                     'rarity'      => Gamification::rarity($a),
                     'got'         => $got,

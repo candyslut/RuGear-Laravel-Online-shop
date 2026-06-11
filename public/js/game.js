@@ -617,6 +617,10 @@ if (typeof window.yodorada === 'undefined') {
 				this.currentNode.leave(this);
 				this.currentNode = null;
 				Game.lives--;
+				Game.statDeaths++;
+				// Живой отчёт счётчиков родителю, чтобы даже брошенный (не доигранный
+				// до game over) забег записал верные «смерти/астероиды».
+				try { window.parent.postMessage({ type: 'buzz_stats', asteroids: Game.statAsteroids, deaths: Game.statDeaths }, '*'); } catch (e) {}
 				Game.soundPool.playerdied.get();
 			};
 
@@ -693,6 +697,9 @@ if (typeof window.yodorada === 'undefined') {
 			this.collision = function(other) {
 				if (other.name == "ship" && other.spawning) return;
 				if (other.name == "bullet") {
+					Game.statAsteroids++;
+					// Живой отчёт счётчиков родителю (см. комментарий у statDeaths).
+					try { window.parent.postMessage({ type: 'buzz_stats', asteroids: Game.statAsteroids, deaths: Game.statDeaths }, '*'); } catch (e) {}
 					var asteroidSpeed = Math.max(1.2, Math.abs(parseInt(Math.max(this.vel.x, this.vel.y) * 10) / 10));
 					Game.score += (120 / this.scale) * Math.floor(other.scoreFactor + asteroidSpeed);
 				}
@@ -987,6 +994,10 @@ if (typeof window.yodorada === 'undefined') {
 			lifeCache: 0,
 			scoreCache: 0,
 
+			// Per-run counters surfaced in the game-stats modal (App\Support\GameStats).
+			statAsteroids: 0,
+			statDeaths: 0,
+
 			gameAudio: {},
 			atmoAudio: {},
 			soundPool: {},
@@ -1188,6 +1199,8 @@ if (typeof window.yodorada === 'undefined') {
 
 						Game.score = 0;
 						Game.lives = 3;
+						Game.statAsteroids = 0;
+						Game.statDeaths = 0;
 					} else {
 						Game.score = Game.scoreCache;
 						Game.lives = Game.lifeCache;
@@ -1250,7 +1263,7 @@ if (typeof window.yodorada === 'undefined') {
 							Game.scoreCache = Game.score;
 							Game.lifeCache = Game.lives;
 							$('#screens').removeClass('ready').removeClass('loss').addClass('win');
-							window.parent.postMessage({ type: 'game_level_complete' }, '*');
+							window.parent.postMessage({ type: 'game_level_complete', score: Game.score }, '*');
 							$('#continue').fadeOut(0);
 							$('#restart').fadeOut(0);
 							window.setTimeout(function() {
@@ -1296,6 +1309,16 @@ if (typeof window.yodorada === 'undefined') {
 				},
 				player_died: function() {
 					if (Game.lives < 1) {
+						// Game over — hand the final score and run counters to the
+						// parent so the dashboard can record the run
+						// (App\Support\GameStats). Read them before the caches below
+						// are cleared.
+						window.parent.postMessage({
+							type: 'game_over',
+							score: Game.score,
+							asteroids: Game.statAsteroids,
+							deaths: Game.statDeaths
+						}, '*');
 						$('#screens').removeClass('ready').removeClass('win').addClass('loss');
 						$('#game').removeClass('continued');
 						Game.scoreCache = 0;

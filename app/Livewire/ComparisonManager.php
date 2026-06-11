@@ -40,6 +40,24 @@ class ComparisonManager extends Component
         if (!in_array($this->product->id, $comparison)) {
             $comparison[] = $this->product->id;
             session(['comparison' => $comparison]);
+
+            // Quest: building a comparison. Deduped per product per day so
+            // re-adding the same item after removing it doesn't count twice.
+            if ($user = auth()->user()) {
+                $counted = session('quest_compared_products', []);
+                if (($counted['date'] ?? null) !== now()->toDateString()) {
+                    $counted = ['date' => now()->toDateString(), 'ids' => []];
+                }
+                if (!in_array($this->product->id, $counted['ids'], true)) {
+                    $counted['ids'][] = $this->product->id;
+                    session(['quest_compared_products' => $counted]);
+
+                    if ($done = app(\App\Services\DailyQuestService::class)->progress($user, 'compare')) {
+                        $this->dispatch('quests-completed', quests: $done);
+                    }
+                    $this->dispatch('profile-refresh');
+                }
+            }
         }
 
         $this->comparisonItems = $comparison;

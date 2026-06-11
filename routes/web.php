@@ -93,6 +93,10 @@ Route::middleware('auth')->group(function () {
         $user->addCoins(1);
         $user->addExperience(5);
 
+        // Lifetime cleared-level counter — gates legendary cosmetics
+        // (see User::legendaryUnlocked()).
+        $user->increment('buzzword_levels');
+
         // Clearing a level advances the "play the mini-game" quest. Completed
         // quests (and any rank-up the rewards triggered) ride back in the JSON
         // so the in-page handler can toast them without a reload.
@@ -106,10 +110,18 @@ Route::middleware('auth')->group(function () {
         ]);
     })->name('game.reward');
 
-    Route::post('/game/runner-reward', function () {
+    Route::post('/game/runner-reward', function (\Illuminate\Http\Request $request) {
         $user = auth()->user();
         $user->addCoins(1);
         $user->addExperience(5);
+
+        // Milestone claims carry the current run distance; keep the best one
+        // for the legendary-cosmetics gate.
+        $m = min(100000, max(0, (int) $request->input('m')));
+        if ($m > (int) $user->redline_best_distance) {
+            $user->redline_best_distance = $m;
+            $user->save();
+        }
 
         // Each distance milestone in the runner (500, 1500, 3000 m…) counts
         // as a cleared mini-game level for the game_play daily quests.
@@ -122,6 +134,76 @@ Route::middleware('auth')->group(function () {
             'rank_up' => $user->lastRankUp,
         ]);
     })->name('game.runner.reward');
+
+    // Stats-only ping (no rewards): the runner reports the final distance on
+    // death/close so a 10 000 m run counts even between milestones.
+    Route::post('/game/runner-distance', function (\Illuminate\Http\Request $request) {
+        $user = auth()->user();
+        $m = min(100000, max(0, (int) $request->input('m')));
+        if ($m > (int) $user->redline_best_distance) {
+            $user->redline_best_distance = $m;
+            $user->save();
+        }
+
+        return response()->json(['best' => (int) $user->redline_best_distance]);
+    })->name('game.runner.distance');
+
+    // End-of-run recorder: one row per finished run (death/abandon in Redline,
+    // game over in Buzzword). This is the source of truth for the whole
+    // game-stats surface — rewards stay on the endpoints above, here we only
+    // snapshot the result. Returns whether the run set a new personal best.
+    Route::post('/game/play', function (\Illuminate\Http\Request $request) {
+        $data = $request->validate([
+            'game'        => ['required', 'string', \Illuminate\Validation\Rule::in(\App\Support\GameStats::keys())],
+            'score'       => ['required', 'integer', 'min:0', 'max:1000000'],
+            'level'       => ['nullable', 'integer', 'min:0', 'max:65535'],
+            'duration_ms' => ['nullable', 'integer', 'min:0', 'max:86400000'],
+            'coins'       => ['nullable', 'integer', 'min:0', 'max:65535'],
+            'xp'          => ['nullable', 'integer', 'min:0', 'max:65535'],
+            'meta'        => ['nullable', 'array'],
+        ]);
+
+        // Keep only the whitelisted per-run counters from meta, each a small
+        // non-negative int — never trust arbitrary client JSON wholesale.
+        $meta = [];
+        foreach (\App\Support\GameStats::metaKeys($data['game']) as $key) {
+            if (isset($data['meta'][$key]) && is_numeric($data['meta'][$key])) {
+                $meta[$key] = min(1000000, max(0, (int) $data['meta'][$key]));
+            }
+        }
+
+        $user = auth()->user();
+
+        // Previous best for this game before we insert (drives the "new record!"
+        // flag and is unaffected by the row we're about to write).
+        $prevBest = (int) \App\Models\GamePlay::where('user_id', $user->id)
+            ->where('game', $data['game'])
+            ->max('score');
+
+        $play = \App\Models\GamePlay::create([
+            'user_id'      => $user->id,
+            'game'         => $data['game'],
+            'score'        => $data['score'],
+            'level'        => $data['level'] ?? null,
+            'duration_ms'  => $data['duration_ms'] ?? 0,
+            'coins_earned' => $data['coins'] ?? 0,
+            'xp_earned'    => $data['xp'] ?? 0,
+            'meta'         => $meta ?: null,
+        ]);
+
+        // Keep the lifetime best distance fresh for the legendary gate even if
+        // the live distance ping was deduped (it's a max, so this is idempotent).
+        if ($data['game'] === 'redline' && $data['score'] > (int) $user->redline_best_distance) {
+            $user->redline_best_distance = $data['score'];
+            $user->save();
+        }
+
+        return response()->json([
+            'ok'      => true,
+            'record'  => $data['score'] > 0 && $data['score'] > $prevBest,
+            'play_id' => $play->id,
+        ]);
+    })->name('game.play');
 });
 
 

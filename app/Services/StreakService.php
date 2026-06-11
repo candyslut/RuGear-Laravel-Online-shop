@@ -52,12 +52,21 @@ class StreakService
 
         // Milestone achievements mirror the reward-wheel tiers (weekly /
         // monthly / six-month grand finale). awardAchievement() dedupes, so a
-        // looping streak only ever pays each one out once.
+        // looping streak only ever pays each one out once. touch() always runs
+        // in a full-page request (login / dashboard GET), so the bottom-right
+        // toast goes through the layout's achievements_awarded session queue.
         $milestones = [7 => 'streak_7', 30 => 'streak_30', 180 => 'streak_180'];
         if (isset($milestones[$user->streak])) {
             $achievement = \App\Models\Achievement::where('slug', $milestones[$user->streak])->first();
-            if ($achievement) {
-                $user->awardAchievement($achievement);
+            if ($achievement && $user->awardAchievement($achievement)) {
+                session()->flash('achievements_awarded', array_merge(
+                    session('achievements_awarded', []),
+                    [[
+                        'title'      => $achievement->title,
+                        'experience' => $achievement->experience,
+                        'coins'      => $achievement->coins,
+                    ]],
+                ));
             }
         }
 

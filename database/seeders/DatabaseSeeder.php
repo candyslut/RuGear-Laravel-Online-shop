@@ -33,6 +33,7 @@ class DatabaseSeeder extends Seeder
             TicketSeeder::class,
             StickerSeeder::class,
             TelegramPackSeeder::class,
+            GamePlaySeeder::class,
         ]);
     }
 }

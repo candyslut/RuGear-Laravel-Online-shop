@@ -37,8 +37,13 @@ class ProfileCart extends Component
             return;
         }
 
-        $cartService->addToCart(Auth::user(), $product);
-        $this->loadCart($cartService); 
+        // CartService advances the "add to cart" quest; surface completions
+        // live and refresh the dashboard quest panel / HUD instantly.
+        if ($done = $cartService->addToCart(Auth::user(), $product)) {
+            $this->dispatch('quests-completed', quests: $done);
+        }
+        $this->dispatch('profile-refresh');
+        $this->loadCart($cartService);
         $this->dispatch('cart-updated');
     }
 

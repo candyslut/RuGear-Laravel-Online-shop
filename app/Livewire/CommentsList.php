@@ -128,6 +128,11 @@ class CommentsList extends Component
      * exact threshold (mirrors the comment-milestone style); since likes move
      * by one at a time, each threshold is hit precisely once. awardAchievement()
      * dedupes, so this stays a no-op after the first grant.
+     *
+     * When the awarded user is the one acting in this request, the grant is
+     * also surfaced as the bottom-right toast (`achievements-awarded` browser
+     * event, handled globally in shop-layout). Awards for another user (the
+     * comment's author getting liked_10/50) can only reach them via the bell.
      */
     private function awardBySlug(\App\Models\User $user, array $thresholds, int $count): void
     {
@@ -136,8 +141,12 @@ class CommentsList extends Component
         }
 
         $achievement = Achievement::where('slug', $thresholds[$count])->first();
-        if ($achievement) {
-            $user->awardAchievement($achievement);
+        if ($achievement && $user->awardAchievement($achievement) && $user->id === auth()->id()) {
+            $this->dispatch('achievements-awarded', achievements: [[
+                'title'      => $achievement->title,
+                'experience' => $achievement->experience,
+                'coins'      => $achievement->coins,
+            ]]);
         }
     }
 

@@ -289,12 +289,17 @@
         .spot__status--active { background: rgba(16, 185, 129, .18); color: #10b981; border-color: rgba(16, 185, 129, .4); }
         .spot__status--owned { background: rgba(var(--rgb), .16); color: rgb(var(--rgb)); border-color: rgba(var(--rgb), .4); }
         .spot__name { font-size: 1.5rem; font-weight: 900; color: var(--text-primary); line-height: 1.05; }
-        .spot__desc { font-size: .9rem; color: var(--text-secondary); line-height: 1.5; }
-        .spot__action { margin-top: .5rem; }
+        /* Все витрины одного роста: описание резервирует две строки, зона
+           действия — кнопку плюс замочную приписку легендарок. Без этого
+           карточка прыгала по высоте при наведении между редкостями. */
+        .spot__desc { font-size: .9rem; color: var(--text-secondary); line-height: 1.5; min-height: 2.7rem; }
+        .spot__action { margin-top: .5rem; min-height: 4.3rem; }
 
         @media (max-width: 640px) {
             .spot { flex-direction: column; text-align: center; align-items: center; padding: 1.4rem; }
             .spot__meta { justify-content: center; }
+            /* В колоночной раскладке замочная приписка переносится на две строки. */
+            .spot__action { min-height: 5.4rem; }
         }
 
         /* ── Лоток-селектор (свотчи) ── */
@@ -340,6 +345,33 @@
         }
         .avatar-rainbow { animation: rainbow-shadow 2.5s linear infinite; }
         .spot-rainbow-ring { padding: 5px; border-radius: 999px; background: conic-gradient(from 0deg, #ff4444, #ff8800, #ffee00, #44ff44, #0099ff, #aa00ff, #ff4444); display: flex; }
+
+        /* ── Легендарная редкость: радужная обводка витрины ──
+              Бегущий градиент рисуется псевдослоем-рамкой (mask вырезает
+              середину), чтобы не трогать фон и содержимое карточки. */
+        @keyframes mk-legend-rainbow { from { background-position: 0% 50%; } to { background-position: 200% 50%; } }
+        .spot--legendary, .orb--legendary, .pkx--legendary { position: relative; border-color: transparent; }
+        .spot--legendary::before, .orb--legendary::before, .pkx--legendary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 2px;
+            background: linear-gradient(90deg, #ff4444, #ff8800, #ffee00, #44ff44, #0099ff, #aa00ff, #ff4444);
+            background-size: 200% 100%;
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: mk-legend-rainbow 3.5s linear infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .orb--legendary::before { padding: 1.5px; }
+        .orb--legendary:hover, .orb--legendary.is-active { border-color: transparent; }
+
+        /* Замок легендарки: рубежи мини-игр ещё не взяты */
+        .rbtn--locked { background: var(--bg-tertiary); border-color: var(--border-color); color: var(--text-tertiary); cursor: not-allowed; }
+        .spot__lock-note { font-size: .72rem; color: var(--text-tertiary); line-height: 1.5; margin-top: .45rem; }
 
         @keyframes mkToastIn { from { transform: translateX(420px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes spotIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -421,6 +453,9 @@
             white-space: nowrap; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary);
             transition: border-color .18s ease, color .18s ease; }
         .pkx-buy:hover { border-color: #f97316; color: #f97316; }
+        /* Замок легендарного пака: те же габариты, что у «Купить», — карточки
+           не меняют размер. Перебивает и тематические :hover-акценты. */
+        .pkx-buy:disabled, .pkx-buy:disabled:hover { cursor: not-allowed; border-color: var(--border-color); color: var(--text-tertiary); }
 
         /* превью-кнопка пака (вся сцена кликабельна) */
         .pkx__stage--btn { position: relative; width: 100%; border: none; cursor: pointer; padding: 0;
@@ -480,10 +515,13 @@
             'legendary' => ['l' => 'Легендарный', 'rgb' => '245,158,11',  'stars' => 5],
         ];
         $rarityOf = function ($item) {
-            if ($item->css_value === 'rainbow') return 'mythic';
             $p = (int) $item->price;
             return $p >= 250 ? 'legendary' : ($p >= 160 ? 'mythic' : ($p >= 120 ? 'epic' : ($p >= 80 ? 'rare' : 'common')));
         };
+
+        // Легендарная косметика заперта за игровыми рубежами; покупку также
+        // блокирует сервер (ShopController::buy → legendary_locked).
+        $legendaryUnlocked = $user->legendaryUnlocked();
 
         // Статистика коллекции
         $catStats = [];
@@ -515,6 +553,7 @@
                 'rgb'         => $m['rgb'],
                 'stars'       => $m['stars'],
                 'animated'    => !empty($p['animated']),
+                'legendary'   => $rk === 'legendary',
                 'owned'       => (bool) $p['owned'],
                 'price'       => (int) ($p['price'] ?? 0),
                 'shopItemId'  => $p['shop_item_id'],
@@ -540,6 +579,7 @@
                     'rgb'         => $m['rgb'],
                     'stars'       => $m['stars'],
                     'mythic'      => $r === 'mythic',
+                    'legendary'   => $r === 'legendary',
                     'owned'       => in_array($it->id, $ownedIds),
                     'equipped'    => ($activeMap[$it->category] ?? null) === $it->css_value,
                 ];
@@ -684,7 +724,7 @@
                                 ? $item->css_value
                                 : (preg_match('/#[0-9a-fA-F]{6}/', $item->css_value, $mm) ? $mm[0] : '#f97316');
                         @endphp
-                        <button type="button" class="orb {{ $isEquipped ? 'is-active' : '' }}"
+                        <button type="button" class="orb {{ $r === 'legendary' ? 'orb--legendary' : '' }} {{ $isEquipped ? 'is-active' : '' }}"
                                 data-cat="{{ $category }}" data-idx="{{ $i }}"
                                 style="--rgb: {{ $m['rgb'] }};"
                                 title="{{ $item->name }}"
@@ -768,6 +808,12 @@
         const market = @json($catData);
         const packData = @json($packsForJs);
         const packCollection = { owned: {{ $packOwned }}, total: {{ $packTotal }} };
+
+        // Гейт легендарок: рубежи мини-игр (need) и текущий прогресс (have).
+        const LEGENDARY_UNLOCKED = @json($legendaryUnlocked);
+        const LEGENDARY_NEED = { bw: {{ \App\Models\User::LEGENDARY_BUZZWORD_LEVELS }}, rr: {{ \App\Models\User::LEGENDARY_REDLINE_DISTANCE }} };
+        const LEGENDARY_HAVE = { bw: {{ (int) $user->buzzword_levels }}, rr: {{ (int) $user->redline_best_distance }} };
+        const LEGENDARY_LOCK_MSG = `Легендарка закрыта: нужно ${LEGENDARY_NEED.bw} уровней Buzzword Blast и ${LEGENDARY_NEED.rr.toLocaleString('ru-RU')} м в Redline Rush!`;
         const selected = {};   // индекс предмета в спотлайте
         const locked = {};     // примерка «зафиксирована» кликом
 
@@ -828,7 +874,7 @@
                         : `<span class="orb__dot" style="background:${orbColorFor(item)};"></span>`);
                 const badge = item.equipped ? `<span class="orb__check">✓</span>`
                     : (item.owned ? `<span class="orb__own"></span>` : '');
-                return `<button type="button" class="orb ${i === sel ? 'is-active' : ''}" data-cat="${cat}" data-idx="${i}" style="--rgb:${item.rgb};" title="${esc(item.name)}" onclick="selectItem('${cat}',${i})" onmouseenter="hoverItem('${cat}',${i})" onmouseleave="unhoverItem('${cat}')">${dot}${badge}</button>`;
+                return `<button type="button" class="orb ${item.legendary ? 'orb--legendary' : ''} ${i === sel ? 'is-active' : ''}" data-cat="${cat}" data-idx="${i}" style="--rgb:${item.rgb};" title="${esc(item.name)}" onclick="selectItem('${cat}',${i})" onmouseenter="hoverItem('${cat}',${i})" onmouseleave="unhoverItem('${cat}')">${dot}${badge}</button>`;
             }).join('');
         }
 
@@ -909,6 +955,12 @@
             const isTheme = item.category === 'theme';
             if (item.equipped) return `<button class="rbtn rbtn--unequip" onclick="marketUnequip('${item.category}')">${isTheme ? 'Отключить тему' : 'Снять с профиля'}</button>`;
             if (item.owned)    return `<button class="rbtn rbtn--equip" onclick="marketEquip(${item.id}, '${item.category}', '${cssArg}')">${isTheme ? 'Применить' : 'Надеть'}</button>`;
+            // Легендарки заперты, пока не взяты оба игровых рубежа (сервер
+            // дублирует проверку и вернёт legendary_locked).
+            if (item.legendary && !LEGENDARY_UNLOCKED) {
+                return `<button class="rbtn rbtn--locked" disabled>Закрыто · ${COIN_SVG} ${item.price.toLocaleString('ru-RU')}</button>` +
+                    `<p class="spot__lock-note">Buzzword Blast: ${Math.min(LEGENDARY_HAVE.bw, LEGENDARY_NEED.bw)}/${LEGENDARY_NEED.bw} уровней · Redline Rush: ${Math.min(LEGENDARY_HAVE.rr, LEGENDARY_NEED.rr).toLocaleString('ru-RU')}/${LEGENDARY_NEED.rr.toLocaleString('ru-RU')} м</p>`;
+            }
             return `<button class="rbtn rbtn--buy" onclick="marketBuy(${item.id}, ${item.price}, '${item.category}', '${cssArg}')">${COIN_SVG} Купить · ${item.price.toLocaleString('ru-RU')}</button>`;
         }
 
@@ -917,6 +969,7 @@
             const spot = document.getElementById('spot-' + cat);
             if (!spot || !item) return;
             spot.style.setProperty('--rgb', item.rgb);
+            spot.classList.toggle('spot--legendary', !!item.legendary);
             const status = item.equipped
                 ? '<span class="spot__status spot__status--active">✓ Активно</span>'
                 : (item.owned ? '<span class="spot__status spot__status--owned">В коллекции</span>' : '');
@@ -997,9 +1050,15 @@
 
             const res = await fetch(`/market/buy/${id}`, { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' } });
             const data = await res.json();
-            if (!res.ok) { marketToast(data.error === 'not_enough_coins' ? 'Недостаточно монет!' : 'Ошибка транзакции', false); return; }
+            if (!res.ok) {
+                marketToast(data.error === 'not_enough_coins' ? 'Недостаточно монет!'
+                    : data.error === 'legendary_locked' ? LEGENDARY_LOCK_MSG
+                    : 'Ошибка транзакции', false);
+                return;
+            }
 
             setCoins(data.coins);
+            if (data.achievement && window.showToast) showToast('achievement', data.achievement, false);
 
             // Buying a cosmetic also equips it: own it, equip it, unequip siblings.
             const item = market[category][idxOf(category, id)];
@@ -1086,8 +1145,11 @@
         function packFootHTML(pack) {
             if (pack.owned)
                 return `<span class="pkx__owned">✓ В коллекции</span><span class="pkx__count">${pack.count} шт.</span>`;
-            return `<span class="pkx__price">${COIN_SVG} ${pack.price.toLocaleString('ru-RU')}</span>` +
-                   `<button type="button" class="rbtn rbtn--buy" onclick="purchasePack('${pack.slug}')">Купить</button>`;
+            const price = `<span class="pkx__price">${COIN_SVG} ${pack.price.toLocaleString('ru-RU')}</span>`;
+            // Легендарные паки заперты за игровыми рубежами (как косметика).
+            if (pack.legendary && !LEGENDARY_UNLOCKED)
+                return price + `<button type="button" class="rbtn rbtn--locked" disabled title="${esc(LEGENDARY_LOCK_MSG)}">Закрыто</button>`;
+            return price + `<button type="button" class="rbtn rbtn--buy" onclick="purchasePack('${pack.slug}')">Купить</button>`;
         }
 
         function renderPackModal(pack) {
@@ -1131,6 +1193,8 @@
         async function purchasePack(slug) {
             const pack = packData[slug];
             if (!pack || pack.owned) return;
+            // Сервер дублирует проверку (buy → legendary_locked).
+            if (pack.legendary && !LEGENDARY_UNLOCKED) { marketToast(LEGENDARY_LOCK_MSG, false); return; }
 
             const coinsEl = document.getElementById('market-coins');
             const current = parseInt(coinsEl.textContent.replace(/\s/g, '').replace(/,/g, ''), 10);
@@ -1138,9 +1202,15 @@
 
             const res = await fetch(`/market/buy/${pack.shopItemId}`, { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' } });
             const data = await res.json();
-            if (!res.ok) { marketToast(data.error === 'not_enough_coins' ? 'Недостаточно монет!' : 'Ошибка транзакции', false); return; }
+            if (!res.ok) {
+                marketToast(data.error === 'not_enough_coins' ? 'Недостаточно монет!'
+                    : data.error === 'legendary_locked' ? LEGENDARY_LOCK_MSG
+                    : 'Ошибка транзакции', false);
+                return;
+            }
 
             setCoins(data.coins);
+            if (data.achievement && window.showToast) showToast('achievement', data.achievement, false);
             pack.owned = true;
             packCollection.owned = Math.min(packCollection.owned + 1, packCollection.total);
 

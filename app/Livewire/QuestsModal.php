@@ -38,21 +38,39 @@ class QuestsModal extends Component
         //
     }
 
+    /** Swap all active quests for new ones (costs Quests::REROLL_COST coins). */
+    public function rerollAll(): void
+    {
+        $user   = Auth::user();
+        $result = app(DailyQuestService::class)->rerollAll($user);
+
+        if ($result === 'ok') {
+            $this->dispatch('coins-changed', coins: (int) $user->fresh()->coins);
+            $this->dispatch('quests-rerolled');
+            $this->dispatch('profile-refresh');
+        } else {
+            $this->dispatch('quest-reroll-failed', reason: $result);
+        }
+    }
+
     public function render()
     {
         if (! $this->open) {
             return view('livewire.quests-modal', [
                 'quests' => collect(), 'completed' => 0, 'total' => 0, 'resetIn' => 0,
+                'coins' => 0, 'rerollUsed' => false,
             ]);
         }
 
         $quests = app(DailyQuestService::class)->todayFor(Auth::user());
 
         return view('livewire.quests-modal', [
-            'quests'    => $quests,
-            'completed' => $quests->where('is_completed', true)->count(),
-            'total'     => $quests->count(),
-            'resetIn'   => (int) abs(Carbon::now()->diffInSeconds(Carbon::tomorrow())),
+            'quests'     => $quests,
+            'completed'  => $quests->where('is_completed', true)->count(),
+            'total'      => $quests->count(),
+            'coins'      => (int) Auth::user()->coins,
+            'rerollUsed' => (bool) Auth::user()->last_quest_reroll_date?->isToday(),
+            'resetIn'    => (int) abs(Carbon::now()->diffInSeconds(Carbon::tomorrow())),
         ]);
     }
 }
