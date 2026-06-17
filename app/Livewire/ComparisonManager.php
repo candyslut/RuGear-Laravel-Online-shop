@@ -54,6 +54,8 @@ class ComparisonManager extends Component
 
                     if ($done = app(\App\Services\DailyQuestService::class)->progress($user, 'compare')) {
                         $this->dispatch('quests-completed', quests: $done);
+                        // Live-sync the header coin chip (outside Livewire).
+                        $this->dispatch('coins-changed', coins: (int) $user->fresh()->coins);
                     }
                     $this->dispatch('profile-refresh');
                 }

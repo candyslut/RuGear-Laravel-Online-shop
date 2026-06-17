@@ -28,17 +28,14 @@ class GameStatsWidget extends Component
         $uid = Auth::id();
 
         // One compact bundle per game: career summary, global standing and a
-        // 14-day activity sparkline (runs per day).
+        // 14-day activity series (runs per day) feeding the interactive sparkline.
         $games = [];
         foreach (Stats::keys() as $key) {
             $games[$key] = [
                 'meta'    => Stats::game($key),
                 'summary' => Stats::summary($uid, $key),
                 'rank'    => Stats::globalRank($uid, $key),
-                'spark'   => array_map(
-                    fn ($d) => $d['plays'],
-                    Stats::dailySeries($uid, $key, 14)
-                ),
+                'series'  => Stats::dailySeries($uid, $key, 14),
             ];
         }
 

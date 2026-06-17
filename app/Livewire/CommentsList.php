@@ -116,6 +116,8 @@ class CommentsList extends Component
             // Quest: giving likes to other people's comments.
             if ($done = app(\App\Services\DailyQuestService::class)->progress($user, 'like_give')) {
                 $this->dispatch('quests-completed', quests: $done);
+                // Live-sync the viewer's coin chip (header, outside Livewire).
+                $this->dispatch('coins-changed', coins: (int) $user->fresh()->coins);
             }
             $this->dispatch('profile-refresh'); // live-sync coins / quest panel
         }

@@ -53,9 +53,9 @@
 
                 <div class="border-t border-gray-800"></div>
 
-                {{-- ФИО --}}
+                {{-- Никнейм / Логин --}}
                 <div>
-                    <label class="block text-sm font-semibold text-gray-400 mb-2" for="name">ФИО</label>
+                    <label class="block text-sm font-semibold text-gray-400 mb-2" for="name">Никнейм / Логин</label>
                     <input
                         id="name"
                         name="name"
@@ -63,9 +63,25 @@
                         value="{{ old('name', $user->name) }}"
                         required
                         class="w-full bg-[#0f1115] border border-gray-700 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-orange-500 transition"
-                        placeholder="Введите ваше полное имя"
+                        placeholder="Ghost_Rider"
                     >
                     @error('name')
+                        <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- ФИО --}}
+                <div>
+                    <label class="block text-sm font-semibold text-gray-400 mb-2" for="full_name">ФИО</label>
+                    <input
+                        id="full_name"
+                        name="full_name"
+                        type="text"
+                        value="{{ old('full_name', $user->full_name) }}"
+                        class="w-full bg-[#0f1115] border border-gray-700 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 focus:outline-none focus:border-orange-500 transition"
+                        placeholder="Иванов Иван Иванович"
+                    >
+                    @error('full_name')
                         <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
                     @enderror
                 </div>

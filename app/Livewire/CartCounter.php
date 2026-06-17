@@ -42,6 +42,8 @@ class CartCounter extends Component
         // as the live bottom-right toast and refresh the HUD / quest panels.
         if ($done = $cartService->addToCart(Auth::user(), $this->product)) {
             $this->dispatch('quests-completed', quests: $done);
+            // Live-sync the header coin chip (outside Livewire) on any page.
+            $this->dispatch('coins-changed', coins: (int) Auth::user()->fresh()->coins);
         }
         $this->dispatch('profile-refresh');
         $this->updateQuantity();

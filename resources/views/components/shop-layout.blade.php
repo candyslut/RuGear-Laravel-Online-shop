@@ -1087,14 +1087,6 @@
                             <p class="text-xs text-[var(--text-tertiary)] leading-none mb-0.5">Личный кабинет</p>
                             <p class="text-sm font-bold leading-none"
                                style="color:{{ auth()->user()->cosmetic_nickname_color ?? 'var(--text-primary)' }};{{ auth()->user()->cosmetic_font ? 'font-family:'.auth()->user()->cosmetic_font.';' : '' }}">{{ auth()->user()->name }}</p>
-                            <div class="flex items-center justify-end gap-1 mt-1">
-                                <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none">
-                                    <circle cx="12" cy="12" r="10" fill="#FBBF24" stroke="#D97706" stroke-width="1.5"/>
-                                    <circle cx="12" cy="12" r="7.5" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/>
-                                    <text x="12" y="16.5" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#78350F" font-family="Georgia, serif">₽</text>
-                                </svg>
-                                <span id="coin-count" class="text-xs font-black tabular-nums" style="color:#f59e0b;">{{ number_format(auth()->user()->coins) }}</span>
-                            </div>
                         </div>
                         <div class="relative" id="avatar-menu-wrap">
                             <button
@@ -1119,7 +1111,10 @@
                             >
                                 <!-- Header -->
                                 <div class="px-4 py-3 border-b border-[var(--border-color-light)] bg-[var(--bg-tertiary)]">
-                                    <p class="text-xs text-[var(--text-secondary)] font-semibold">{{ auth()->user()->name }}</p>
+                                    <p class="text-xs text-[var(--text-secondary)] font-semibold truncate">{{ auth()->user()->name }}</p>
+                                    @if(auth()->user()->full_name)
+                                    <p class="text-[10px] text-[var(--text-tertiary)] mt-0.5 truncate">{{ auth()->user()->full_name }}</p>
+                                    @endif
                                     <p class="text-[10px] text-[var(--text-tertiary)] mt-0.5">Уровень {{ auth()->user()->level }}</p>
                                 </div>
 
@@ -1684,6 +1679,18 @@
             window.openModal = function (event, params) {
                 window.showModalLoader();
                 if (window.Livewire) Livewire.dispatch(event, params || {});
+            };
+            // Мгновенное закрытие модалки: проигрываем анимацию ухода сразу и
+            // снимаем блокировку прокрутки, а серверный round-trip Livewire
+            // (close() и его побочную обработку) оставляем работать в фоне.
+            window.dismissModal = function (node) {
+                var overlay = node && node.closest
+                    ? node.closest('.lb-overlay, .qm-overlay')
+                    : null;
+                if (!overlay || overlay.classList.contains('is-closing')) return;
+                overlay.classList.add('is-closing');
+                document.body.style.overflow = '';
+                if (window.hideModalLoader) window.hideModalLoader();
             };
         })();
     </script>

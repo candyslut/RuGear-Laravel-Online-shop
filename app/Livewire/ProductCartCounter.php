@@ -31,6 +31,8 @@ class ProductCartCounter extends Component
         // exactly like every other entry point (stock guards live there too).
         if ($done = $cartService->addToCart(auth()->user(), $this->product)) {
             $this->dispatch('quests-completed', quests: $done);
+            // Live-sync the header coin chip (outside Livewire) on any page.
+            $this->dispatch('coins-changed', coins: (int) auth()->user()->fresh()->coins);
         }
         $this->dispatch('profile-refresh');
 

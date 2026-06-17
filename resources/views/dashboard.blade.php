@@ -38,33 +38,6 @@
         #ach-track > :first-child { margin-left: auto; }
         #ach-track > :last-child  { margin-right: auto; }
 
-        /* ══════════════════════════════════════════════════ */
-        /* ИГРОВОЙ БАННЕР                                      */
-        /* ══════════════════════════════════════════════════ */
-        .game-banner { --gb: var(--mint); background: var(--bg); border: 1px solid var(--line); }
-        .game-banner__rail { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--gb); z-index: 20; }
-        .game-banner-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gb); }
-        .game-banner-title { color: var(--gb); }
-        .game-banner-bolt  { color: var(--gb); }
-        .game-chip { display: inline-flex; align-items: center; flex-wrap: wrap; gap: .4rem; padding: .32rem .6rem; font-size: .72rem; color: var(--dim); background: var(--inset); border: 1px solid var(--line); }
-        .game-chip__sep { width: 1px; height: .85rem; background: var(--line); flex-shrink: 0; }
-        .game-banner-btn { display: inline-flex; align-items: center; justify-content: center; gap: .55rem; padding: .72rem 1.5rem; border: 1px solid var(--gb); background: transparent; color: var(--gb); font-weight: 800; text-transform: uppercase; letter-spacing: .14em; transition: background .12s ease, transform .08s ease; }
-        .game-banner-btn:hover  { background: color-mix(in srgb, var(--gb) 14%, transparent); }
-        .game-banner-btn:active { transform: translateY(1px); }
-        .game-banner--red { --gb: #f87171; }
-        :is([data-theme="light"], [data-theme="pink"]) .game-banner--red { --gb: #dc2626; }
-        .game-banner--stats { --gb: #818cf8; }
-        :is([data-theme="light"], [data-theme="pink"]) .game-banner--stats { --gb: #6366f1; }
-
-        /* ── Игротека: две игры слева, панель статистики справа ── */
-        .arcade-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; padding: 1rem; }
-        .arcade-games { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
-        .arcade-games > .game-banner { flex: 1; }
-        .arcade-stats { min-width: 0; }
-        @media (min-width: 1024px) {
-            .arcade-grid { grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); align-items: stretch; padding: 1.1rem; gap: 1.1rem; }
-        }
-
         /* Runner modal: red accents on the active site theme */
         .runner-modal { --rn-bg: #140a0c; --rn-line: rgba(127,29,29,.55); --rn-title: #f87171; --rn-dim: rgba(254,202,202,.6); --rn-hint: rgba(254,202,202,.4); --rn-x: rgba(252,165,165,.5); --rn-x-hover: #ffffff; background: var(--rn-bg); }
         :is([data-theme="light"], [data-theme="pink"]) .runner-modal { --rn-bg: #fff7f7; --rn-line: #fecaca; --rn-title: #dc2626; --rn-dim: rgba(127,29,29,.65); --rn-hint: rgba(127,29,29,.45); --rn-x: rgba(127,29,29,.45); --rn-x-hover: #7f1d1d; }
@@ -155,8 +128,6 @@
         .hud-row:hover { background: var(--bg-2); }
         .clip-tr { clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%); }
 
-        .game-banner::after { content: ''; position: absolute; top: 0; right: 0; width: 18px; height: 18px; z-index: 30; pointer-events: none; background: linear-gradient(to top right, transparent calc(50% - 0.9px), var(--gb) calc(50% - 0.9px), var(--gb) calc(50% + 0.9px), transparent calc(50% + 0.9px)); }
-
         .stat-cell { position: relative; background: var(--bg); padding: 1.1rem 1.15rem; }
         .stat-cell::after { content: ''; position: absolute; top: 8px; right: 8px; width: 6px; height: 6px; border-top: 1px solid var(--dim-2); border-right: 1px solid var(--dim-2); }
 
@@ -203,8 +174,17 @@
         .lb-panel { position: relative; z-index: 1; display: flex; flex-direction: column; width: 100%; max-width: 56rem; height: 92vh; max-height: 92vh; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 30px 80px rgba(0,0,0,.55); }
         .lb-panel--ach { max-width: 42rem; }
         :is([data-theme="light"], [data-theme="pink"]) .lb-panel { box-shadow: 0 24px 60px rgba(15,23,42,.22); }
-        @media (prefers-reduced-motion: no-preference) { .lb-panel { animation: lbIn .22s cubic-bezier(.22,1,.36,1); } }
+        @media (prefers-reduced-motion: no-preference) {
+            .lb-panel { animation: lbIn .22s cubic-bezier(.22,1,.36,1); }
+            .lb-backdrop { animation: lbFadeIn .22s ease; }
+            .lb-overlay.is-closing .lb-panel { animation: lbOut .16s cubic-bezier(.4,0,1,1) forwards; }
+            .lb-overlay.is-closing .lb-backdrop { animation: lbFadeOut .16s ease forwards; }
+        }
+        .lb-overlay.is-closing { pointer-events: none; }
         @keyframes lbIn { from { opacity: 0; transform: translateY(10px) scale(.985); } to { opacity: 1; transform: none; } }
+        @keyframes lbOut { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(8px) scale(.985); } }
+        @keyframes lbFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes lbFadeOut { from { opacity: 1; } to { opacity: 0; } }
         .lb-head-mark { width: 2.1rem; height: 2.1rem; display: flex; align-items: center; justify-content: center; border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--line)); background: color-mix(in srgb, var(--accent) 10%, transparent); }
         .lb-x { width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center; color: var(--dim); border: 1px solid var(--line); border-radius: 8px; background: transparent; transition: color .12s, border-color .12s, background .12s; flex-shrink: 0; cursor: pointer; }
         .lb-x:hover { color: var(--text); border-color: var(--accent); background: var(--bg-2); }
@@ -244,11 +224,15 @@
         .ach-tile__rarity { flex-shrink: 0; font-size: .5rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--rc); padding: .06rem .3rem; border: 1px solid color-mix(in srgb, var(--rc) 35%, transparent); }
         .ach-tile.is-locked .ach-tile__rarity { color: var(--dim-2); border-color: var(--line); }
         .ach-tile__desc { font-size: .72rem; color: var(--dim); margin-top: .2rem; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .ach-tile__xp { font-family: ui-monospace, Menlo, monospace; font-size: .9rem; font-weight: 800; color: var(--rc); line-height: 1; }
-        .ach-tile.is-locked .ach-tile__xp { color: var(--dim-2); }
-        .ach-tile__coins { display: flex; align-items: center; justify-content: flex-end; gap: 3px; font-family: ui-monospace, Menlo, monospace; font-size: .72rem; font-weight: 800; color: #f59e0b; margin-top: .25rem; }
-        .ach-tile.is-locked .ach-tile__coins { opacity: .6; }
-        .ach-tile__status { font-size: .54rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; margin-top: .25rem; }
+        .ach-tile__aside { display: flex; flex-direction: column; align-items: flex-end; gap: .35rem; }
+        .ach-tile__reward { display: inline-flex; align-items: center; gap: .5rem; padding: .3rem .55rem; background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px; }
+        .ach-tile.is-locked .ach-tile__reward { opacity: .6; }
+        .ach-tile__reward-xp { font-family: ui-monospace, Menlo, monospace; font-size: .9rem; font-weight: 800; color: var(--rc); line-height: 1; }
+        .ach-tile.is-locked .ach-tile__reward-xp { color: var(--dim-2); }
+        .ach-tile__reward-unit { font-size: .55rem; font-weight: 800; letter-spacing: .04em; margin-left: 2px; opacity: .85; }
+        .ach-tile__reward-sep { width: 1px; align-self: stretch; background: var(--line); }
+        .ach-tile__reward-coins { display: inline-flex; align-items: center; gap: 3px; font-family: ui-monospace, Menlo, monospace; font-size: .8rem; font-weight: 800; color: #f59e0b; line-height: 1; }
+        .ach-tile__status { font-size: .54rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
         .ach-tile.is-got .ach-tile__status { color: #22c55e; }
         .ach-tile.is-locked .ach-tile__status { color: var(--dim-2); }
         .ach-tile { cursor: default; }
@@ -281,88 +265,20 @@
         <livewire:profile-hud />
 
         {{-- ══════════════════════════════════════════════════ --}}
-        {{-- ИГРОТЕКА (две игры слева + панель статистики справа) --}}
+        {{-- ИГРОТЕКА (слайдер-консоль: запуск + статистика по игре) --}}
         {{-- ══════════════════════════════════════════════════ --}}
         <section class="hudpanel overflow-hidden">
             <div class="hud-head">
                 <span class="hud-head__bar"></span>
                 <span class="hud-head__title">Игротека</span>
-                <span class="hud-head__code">2 ИГРЫ</span>
+                @php
+                    $gameCount = count(\App\Support\GameStats::keys());
+                    $gameWord = ($gameCount % 10 === 1 && $gameCount % 100 !== 11) ? 'ИГРА'
+                        : ((in_array($gameCount % 10, [2, 3, 4]) && !in_array($gameCount % 100, [12, 13, 14])) ? 'ИГРЫ' : 'ИГР');
+                @endphp
+                <span class="hud-head__code">{{ $gameCount }} {{ $gameWord }}</span>
             </div>
-            <div class="arcade-grid">
-              <div class="arcade-games">
-        <section class="game-banner hud-grid-bg clip-tr relative overflow-hidden">
-            <span class="game-banner__rail"></span>
-            <div class="relative z-10 p-5 sm:px-7 sm:py-6 flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-8">
-                <div class="min-w-0 flex-1">
-                    <div class="flex items-center gap-2.5 mb-2.5">
-                        <span class="game-banner-dot flex-shrink-0"></span>
-                        <span class="hud-mono text-[10px] font-bold uppercase tracking-[0.22em] t-dim2">МИНИ-ИГРА // ACTIVE</span>
-                    </div>
-                    <h2 class="game-banner-title text-xl sm:text-2xl font-black uppercase tracking-widest leading-none">BUZZWORD BLAST</h2>
-                    <p class="text-sm t-dim mt-2">Уничтожь астероиды — заработай награды</p>
-                    <div class="flex flex-wrap items-center gap-2 mt-3.5">
-                        <span class="game-chip">
-                            <svg class="game-banner-bolt w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
-                            <span class="hud-mono">+5&nbsp;XP</span>
-                            <span class="game-chip__sep"></span>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0">
-                                <circle cx="12" cy="12" r="10" fill="#FBBF24" stroke="#D97706" stroke-width="1.5" />
-                                <circle cx="12" cy="12" r="7.5" fill="#F59E0B" stroke="#D97706" stroke-width="0.5" />
-                                <text x="12" y="16.5" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#78350F" font-family="Georgia,serif">₽</text>
-                            </svg>
-                            <span class="hud-mono">+1&nbsp;монета</span> за уровень
-                        </span>
-                    </div>
-                </div>
-                <button onclick="openGame()" class="game-banner-btn w-full sm:w-auto flex-shrink-0 text-sm">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
-                    Играть
-                </button>
-            </div>
-        </section>
-
-        <section class="game-banner game-banner--red hud-grid-bg clip-tr relative overflow-hidden">
-            <span class="game-banner__rail"></span>
-            <div class="relative z-10 p-5 sm:px-7 sm:py-6 flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-8">
-                <div class="min-w-0 flex-1">
-                    <div class="flex items-center gap-2.5 mb-2.5">
-                        <span class="game-banner-dot flex-shrink-0"></span>
-                        <span class="hud-mono text-[10px] font-bold uppercase tracking-[0.22em] t-dim2">МИНИ-ИГРА // ACTIVE</span>
-                    </div>
-                    <h2 class="game-banner-title text-xl sm:text-2xl font-black uppercase tracking-widest leading-none">REDLINE RUSH</h2>
-                    <p class="text-sm t-dim mt-2">Беги, прыгай через преграды — получай награды за дистанцию</p>
-                    <div class="flex flex-wrap items-center gap-2 mt-3.5">
-                        <span class="game-chip">
-                            <svg class="game-banner-bolt w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
-                            <span class="hud-mono">+5&nbsp;XP</span>
-                            <span class="game-chip__sep"></span>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0">
-                                <circle cx="12" cy="12" r="10" fill="#FBBF24" stroke="#D97706" stroke-width="1.5" />
-                                <circle cx="12" cy="12" r="7.5" fill="#F59E0B" stroke="#D97706" stroke-width="0.5" />
-                                <text x="12" y="16.5" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#78350F" font-family="Georgia,serif">₽</text>
-                            </svg>
-                            <span class="hud-mono">+1&nbsp;монета</span> за рубеж дистанции
-                        </span>
-                    </div>
-                </div>
-                <button onclick="openRunner()" class="game-banner-btn w-full sm:w-auto flex-shrink-0 text-sm">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
-                    Играть
-                </button>
-            </div>
-        </section>
-              </div>{{-- /arcade-games --}}
-
-              {{-- Панель статистики во всю высоту: сводка по игре + слайдер --}}
-              <div class="arcade-stats">
-                <livewire:game-stats-widget />
-              </div>
-            </div>{{-- /arcade-grid --}}
+            <livewire:game-stats-widget />
         </section>
 
         {{-- ══════════════════════════════════════════════════ --}}

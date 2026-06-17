@@ -267,6 +267,48 @@
     .void__msg { font-size: 1.05rem; font-weight: 800; font-style: italic; color: var(--text-secondary); }
 
     .pager { margin-top: 3.5rem; }
+
+    /* ════════════════════════════════════════════════════════════
+       СВЕТЛАЯ ТЕМА · акцент на контентных блоках
+       На белой подложке панели сливались с фоном — тонкая граница
+       (var(--border-color)=#e2e5ea) терялась. Только для светлой темы:
+       • усиливаем границы через переменную, заданную на <main>, —
+         оранжевые фокус/ховер/active-состояния идут через var(--hud)
+         и потому не ломаются;
+       • даём внешним панелям мягкую тень — блоки «отрываются» от фона
+         и читаются как отдельные карточки;
+       • надписи на рыжих кнопках делаем белыми (+ лёгкое тёплое свечение).
+       ──────────────────────────────────────────────────────────── */
+    [data-theme="light"] main { --border-color: #cdd4e0; }
+
+    /* Внешние панели: мягкая тень-подъём */
+    [data-theme="light"] .hud-statusbar,
+    [data-theme="light"] .filters-card,
+    [data-theme="light"] .feature,
+    [data-theme="light"] .rank,
+    [data-theme="light"] .sector,
+    [data-theme="light"] .gear {
+        box-shadow: 0 1px 3px rgba(30,41,59,.06), 0 8px 20px -10px rgba(30,41,59,.15);
+    }
+    [data-theme="light"] .gear:hover,
+    [data-theme="light"] .sector:hover {
+        box-shadow: 0 12px 28px -10px rgba(30,41,59,.22);
+    }
+    /* Поисковое поле: тонкая тень, чтобы не сливалось с фоном */
+    [data-theme="light"] .term__input { box-shadow: 0 1px 3px rgba(30,41,59,.06); }
+
+    /* Рыжие кнопки: белые надписи (вместо чёрных) + тёплое свечение */
+    [data-theme="light"] .term__submit,
+    [data-theme="light"] .cta--primary,
+    [data-theme="light"] .term__params.is-active { color: #fff; }
+    [data-theme="light"] .term__submit,
+    [data-theme="light"] .cta--primary {
+        box-shadow: 0 2px 12px -2px rgba(var(--hud-rgb), .42);
+    }
+    [data-theme="light"] .term__submit:hover,
+    [data-theme="light"] .cta--primary:hover {
+        box-shadow: 0 4px 16px -2px rgba(var(--hud-rgb), .5);
+    }
 </style>
 
 <x-shop-layout>

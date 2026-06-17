@@ -1,7 +1,7 @@
 <div>
 @if($open)
-<div class="lb-overlay" x-data x-init="window.hideModalLoader && hideModalLoader()" x-on:keydown.escape.window="$wire.close()">
-    <div class="lb-backdrop" wire:click="close"></div>
+<div class="lb-overlay" x-data x-init="window.hideModalLoader && hideModalLoader()" x-on:keydown.escape.window="dismissModal($el); $wire.close()">
+    <div class="lb-backdrop" @click="dismissModal($el); $wire.close()"></div>
 
     <div class="hud lb-panel lb-panel--ach hud-corner" role="dialog" aria-modal="true">
         {{-- Header --}}
@@ -14,7 +14,7 @@
                     <span class="mx-1">·</span> УРОВЕНЬ <span class="t-text font-bold">{{ $level }}</span>
                 </p>
             </div>
-            <button wire:click="close" class="lb-x ml-auto" aria-label="Закрыть">
+            <button @click="dismissModal($el); $wire.close()" class="lb-x ml-auto" aria-label="Закрыть">
                 <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" /></svg>
             </button>
         </div>
@@ -77,7 +77,7 @@
         </div>
 
         <div class="px-5 sm:px-6 py-4 border-t flex-shrink-0" style="border-color:var(--line)">
-            <button wire:click="close" class="hud-btn w-full justify-center">Закрыть</button>
+            <button @click="dismissModal($el); $wire.close()" class="hud-btn w-full justify-center">Закрыть</button>
         </div>
     </div>
 

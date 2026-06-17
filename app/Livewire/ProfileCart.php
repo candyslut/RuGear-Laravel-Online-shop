@@ -41,6 +41,8 @@ class ProfileCart extends Component
         // live and refresh the dashboard quest panel / HUD instantly.
         if ($done = $cartService->addToCart(Auth::user(), $product)) {
             $this->dispatch('quests-completed', quests: $done);
+            // Live-sync the header coin chip (outside Livewire).
+            $this->dispatch('coins-changed', coins: (int) Auth::user()->fresh()->coins);
         }
         $this->dispatch('profile-refresh');
         $this->loadCart($cartService);

@@ -17,11 +17,19 @@
                     @csrf
 
                     <div class="space-y-2">
-                        <label class="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-bold ml-1">Никнейм / Имя</label>
+                        <label class="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-bold ml-1">Никнейм / Логин</label>
                         <input type="text" name="name" value="{{ old('name') }}" required autofocus
                             class="w-full bg-[#0f1115] border border-gray-800 rounded-2xl px-5 py-4 text-gray-200 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all placeholder:text-gray-700"
                             placeholder="Ghost_Rider">
                         <x-input-error :messages="$errors->get('name')" />
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-bold ml-1">ФИО</label>
+                        <input type="text" name="full_name" value="{{ old('full_name') }}" required
+                            class="w-full bg-[#0f1115] border border-gray-800 rounded-2xl px-5 py-4 text-gray-200 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all placeholder:text-gray-700"
+                            placeholder="Иванов Иван Иванович">
+                        <x-input-error :messages="$errors->get('full_name')" />
                     </div>
 
 

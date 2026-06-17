@@ -4,8 +4,8 @@
         showTip(el, e){ this.tipTitle=el.dataset.title; this.tipRarity=el.dataset.rarity; this.tipDesc=el.dataset.desc; this.tipXp=el.dataset.xp; this.tipCoins=el.dataset.coins; this.tipIcon=el.querySelector('.ach-tile__icon').innerHTML; this.tipColor=el.style.getPropertyValue('--rc'); this.tip=true; this.moveTip(e); },
         moveTip(e){ const w=320, h=200, pad=12; let x=e.clientX+16, y=e.clientY+16; if(x+w+pad>window.innerWidth) x=e.clientX-w-16; if(y+h+pad>window.innerHeight) y=window.innerHeight-h-pad; if(y<pad) y=pad; this.tipX=x; this.tipY=y; } }"
      x-init="window.hideModalLoader && hideModalLoader()"
-     x-on:keydown.escape.window="$wire.close()">
-    <div class="lb-backdrop" wire:click="close"></div>
+     x-on:keydown.escape.window="dismissModal($el); $wire.close()">
+    <div class="lb-backdrop" @click="dismissModal($el); $wire.close()"></div>
 
     <div class="hud lb-panel lb-panel--ach hud-corner" role="dialog" aria-modal="true">
         {{-- Header --}}
@@ -18,7 +18,7 @@
                     <span class="mx-1">·</span> Σ <span class="t-text font-bold">{{ number_format($earnedXp) }}</span> XP
                 </p>
             </div>
-            <button wire:click="close" class="lb-x ml-auto" aria-label="Закрыть">
+            <button @click="dismissModal($el); $wire.close()" class="lb-x ml-auto" aria-label="Закрыть">
                 <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" /></svg>
             </button>
         </div>
@@ -58,15 +58,18 @@
                         <p class="hud-mono text-[10px] t-dim2 mt-1">{{ \Carbon\Carbon::parse($a['awarded_at'])->diffForHumans() }}</p>
                         @endif
                     </div>
-                    <div class="text-right flex-shrink-0">
-                        <p class="ach-tile__xp">+{{ $a['experience'] }}<span class="text-[10px]"> XP</span></p>
-                        <p class="ach-tile__coins">
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" style="flex-shrink:0">
-                                <circle cx="12" cy="12" r="10" fill="#FBBF24" stroke="#D97706" stroke-width="1.5"/>
-                                <circle cx="12" cy="12" r="7.5" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/>
-                            </svg>
-                            +{{ $a['coins'] }}
-                        </p>
+                    <div class="ach-tile__aside flex-shrink-0">
+                        <div class="ach-tile__reward">
+                            <span class="ach-tile__reward-xp">+{{ $a['experience'] }}<span class="ach-tile__reward-unit">XP</span></span>
+                            <span class="ach-tile__reward-sep"></span>
+                            <span class="ach-tile__reward-coins">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="flex-shrink:0">
+                                    <circle cx="12" cy="12" r="10" fill="#FBBF24" stroke="#D97706" stroke-width="1.5"/>
+                                    <circle cx="12" cy="12" r="7.5" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/>
+                                </svg>
+                                +{{ $a['coins'] }}
+                            </span>
+                        </div>
                         <p class="ach-tile__status">{{ $a['got'] ? 'Получено' : 'Закрыто' }}</p>
                     </div>
                 </div>
@@ -76,7 +79,7 @@
         </div>
 
         <div class="px-5 sm:px-6 py-4 border-t flex-shrink-0" style="border-color:var(--line)">
-            <button wire:click="close" class="hud-btn w-full justify-center">Закрыть</button>
+            <button @click="dismissModal($el); $wire.close()" class="hud-btn w-full justify-center">Закрыть</button>
         </div>
     </div>
 

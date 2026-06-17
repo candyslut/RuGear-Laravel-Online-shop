@@ -23,11 +23,17 @@ class GameStats extends Component
     public bool $open = false;
     public ?int $targetUserId = null;
 
+    /** Which game tab to open on — set from the dashboard widget's current slide. */
+    public ?string $initialGame = null;
+
     #[On('open-game-stats')]
-    public function open(?int $userId = null): void
+    public function open(?int $userId = null, ?string $game = null): void
     {
         // The leaderboard passes the row's user id; null means "show me".
         $this->targetUserId = ($userId && $userId !== Auth::id()) ? $userId : null;
+        // The dashboard widget passes the game the user was viewing so the modal
+        // opens on that tab instead of defaulting to the favourite.
+        $this->initialGame = Stats::exists($game) ? $game : null;
         $this->open = true;
         $this->dispatch('lock-body');
     }
@@ -36,6 +42,7 @@ class GameStats extends Component
     {
         $this->open = false;
         $this->targetUserId = null;
+        $this->initialGame = null;
         $this->dispatch('unlock-body');
     }
 

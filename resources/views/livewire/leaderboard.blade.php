@@ -1,8 +1,8 @@
 @php use App\Support\Gamification; @endphp
 <div>
 @if($open)
-<div class="lb-overlay" x-data="{}" x-init="window.hideModalLoader && hideModalLoader()" x-on:keydown.escape.window="$wire.close()">
-    <div class="lb-backdrop" wire:click="close"></div>
+<div class="lb-overlay" x-data="{}" x-init="window.hideModalLoader && hideModalLoader()" x-on:keydown.escape.window="dismissModal($el); $wire.close()">
+    <div class="lb-backdrop" @click="dismissModal($el); $wire.close()"></div>
 
     <div class="hud lb-panel hud-corner" role="dialog" aria-modal="true">
         {{-- Header --}}
@@ -19,7 +19,7 @@
                 <span class="text-base font-black t-acc hud-tnum leading-none">#{{ $myRank }}</span>
             </span>
             @endif
-            <button wire:click="close" class="lb-x {{ $myRank ? 'ml-2' : 'ml-auto' }}" aria-label="Закрыть">
+            <button @click="dismissModal($el); $wire.close()" class="lb-x {{ $myRank ? 'ml-2' : 'ml-auto' }}" aria-label="Закрыть">
                 <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" /></svg>
             </button>
         </div>
@@ -52,6 +52,7 @@
                             <span class="lb-podium__rank">{{ $pos + 1 }}</span>
                         </div>
                         <p class="lb-podium__name truncate" style="{{ $u->cosmetic_nickname_color ? 'color:'.$u->cosmetic_nickname_color.';' : '' }}{{ $u->cosmetic_font ? 'font-family:'.$u->cosmetic_font.';' : '' }}">{{ $u->name }}</p>
+                        @if($u->full_name)<p class="text-[10px] t-dim2 truncate w-full">{{ $u->full_name }}</p>@endif
                         <p class="hud-mono text-[10px]" style="color:{{ $tier['color'] }}">{{ $tier['name'] }}</p>
                         <p class="lb-podium__lvl">LV {{ $u->level }} · {{ number_format($u->experience) }} XP</p>
                     </div>
@@ -67,7 +68,7 @@
                     $tier = Gamification::rankTier($u->level);
                     $prog = $u->experienceProgress;
                 @endphp
-                <div class="lb-row" data-name="{{ mb_strtolower($u->name) }}">
+                <div class="lb-row" data-name="{{ mb_strtolower(trim($u->name.' '.$u->full_name)) }}">
                     <div class="hud-row flex flex-wrap items-center gap-x-3 gap-y-2 px-4 sm:px-6 py-3 {{ $isMe ? 'lb-row--me' : '' }}">
                         <div class="w-7 flex-shrink-0 text-center">
                             @if($i < 3)
@@ -87,6 +88,7 @@
                             <p class="text-sm font-bold truncate" style="{{ $u->cosmetic_nickname_color ? 'color:'.$u->cosmetic_nickname_color.';' : ($isMe ? 'color:var(--accent);' : 'color:var(--text);') }}{{ $u->cosmetic_font ? 'font-family:'.$u->cosmetic_font.';' : '' }}">
                                 {{ $u->name }}@if($isMe)<span class="text-[10px] font-normal t-acc ml-1" style="font-family:inherit">вы</span>@endif
                             </p>
+                            @if($u->full_name)<p class="text-[11px] t-dim2 truncate">{{ $u->full_name }}</p>@endif
                             <span class="lb-tier" style="--tc:{{ $tier['color'] }}"><span class="lb-tier__dot"></span>{{ $tier['name'] }}</span>
                         </div>
 
@@ -145,7 +147,7 @@
                 </svg>
                 Игры
             </button>
-            <button wire:click="close" class="hud-btn w-full justify-center">Закрыть</button>
+            <button @click="dismissModal($el); $wire.close()" class="hud-btn w-full justify-center">Закрыть</button>
         </div>
     </div>
 </div>

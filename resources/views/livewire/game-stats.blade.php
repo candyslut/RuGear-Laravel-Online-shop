@@ -5,7 +5,10 @@
     $private = $private ?? false;
     $isSelf  = $isSelf ?? true;
     $games   = $games ?? [];
-    $defaultTab = ($overview['favorite'] ?? null) ?: (array_key_first($games) ?: 'redline');
+    // Открываем вкладку игры, с которой пришли из виджета; иначе — любимую игру.
+    $defaultTab = (isset($initialGame) && isset($games[$initialGame]))
+        ? $initialGame
+        : (($overview['favorite'] ?? null) ?: (array_key_first($games) ?: 'redline'));
 @endphp
 
 <div class="gs-hud gs-overlay" x-data x-init="window.hideModalLoader && hideModalLoader()" x-on:keydown.escape.window="$wire.close()">

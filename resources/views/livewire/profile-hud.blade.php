@@ -57,6 +57,10 @@
                 <p class="hud-kicker">RUGEAR // ЛИЧНЫЙ КАБИНЕТ</p>
                 <h1 class="text-2xl lg:text-3xl font-black leading-tight mt-1.5 t-text" style="{{ $nameStyle }}">{{ $u->name }}</h1>
 
+                @if($u->full_name)
+                <p class="text-sm font-semibold t-dim truncate mt-1.5">{{ $u->full_name }}</p>
+                @endif
+
                 <p class="hud-mono text-xs t-dim2 truncate mt-2">{{ $u->email }}</p>
 
                 @if($u->phone || $u->gender)

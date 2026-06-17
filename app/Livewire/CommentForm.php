@@ -82,6 +82,10 @@ class CommentForm extends Component
         // is a Livewire round-trip, not a full page load.
         if ($done = app(\App\Services\DailyQuestService::class)->progress($user, 'comment')) {
             $this->dispatch('quests-completed', quests: $done);
+            // Live-sync every #coin-count (incl. the header chip, which lives
+            // outside Livewire) to the authoritative balance — works on pages
+            // without a ProfileHud too.
+            $this->dispatch('coins-changed', coins: (int) $user->fresh()->coins);
             $this->dispatch('profile-refresh'); // live-sync the stat matrix + quest panel
         }
     }

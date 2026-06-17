@@ -23,6 +23,7 @@ class ProfileHud extends Component
 {
     /** Baselines carried across poll requests to detect external changes. */
     public int $lastSeenLevel = 0;
+    public int $lastSeenCoins = 0;
     public array $lastSeenAchIds = [];
 
     private ?User $cachedUser = null;
@@ -31,6 +32,7 @@ class ProfileHud extends Component
     {
         $u = $this->user();
         $this->lastSeenLevel = $u->level;
+        $this->lastSeenCoins = (int) $u->coins;
         $this->lastSeenAchIds = $u->achievements->pluck('id')->all();
     }
 
@@ -62,7 +64,17 @@ class ProfileHud extends Component
             $this->dispatch('hud-achievement', count: count($newIds));
         }
 
+        // Live-sync the header coin chip (static Blade outside Livewire — only JS
+        // can touch it). Fires whenever the balance moved since we last looked:
+        // a quest/game reward in-session (via `profile-refresh`) or an external
+        // change picked up by the 4s poll. The `coins-changed` handler sets the
+        // absolute value on every #coin-count, so there is no additive drift.
+        if ((int) $u->coins !== $this->lastSeenCoins) {
+            $this->dispatch('coins-changed', coins: (int) $u->coins);
+        }
+
         $this->lastSeenLevel = $u->level;
+        $this->lastSeenCoins = (int) $u->coins;
         $this->lastSeenAchIds = $u->achievements->pluck('id')->all();
     }
 

@@ -1,7 +1,7 @@
 <div>
 @if($open)
-<div class="qm-hud qm-overlay" x-data x-on:keydown.escape.window="$wire.close()">
-    <div class="qm-backdrop" wire:click="close"></div>
+<div class="qm-hud qm-overlay" x-data x-on:keydown.escape.window="dismissModal($el); $wire.close()">
+    <div class="qm-backdrop" @click="dismissModal($el); $wire.close()"></div>
 
     <div class="qm-panel" role="dialog" aria-modal="true"
          x-data="{ rolling: false, shake: false, left: {{ $resetIn }}, fmt() { const h=Math.floor(this.left/3600), m=Math.floor(this.left%3600/60), s=Math.floor(this.left%60); return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); } }"
@@ -19,7 +19,7 @@
                     <span class="mx-1">·</span> обновление через <span x-text="fmt()"></span>
                 </p>
             </div>
-            <button wire:click="close" class="qm-x ml-auto" aria-label="Закрыть">
+            <button @click="dismissModal($el); $wire.close()" class="qm-x ml-auto" aria-label="Закрыть">
                 <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" /></svg>
             </button>
         </div>
@@ -48,7 +48,7 @@
             @if($total > 0)
                 @include('partials.quest-reroll')
             @endif
-            <button wire:click="close" class="qm-btn flex-1">Закрыть</button>
+            <button @click="dismissModal($el); $wire.close()" class="qm-btn flex-1">Закрыть</button>
         </div>
     </div>
 
@@ -79,8 +79,17 @@
         .qm-backdrop { position:absolute; inset:0; background:rgba(0,0,0,.78); backdrop-filter:blur(4px); }
         :is([data-theme="light"], [data-theme="pink"]) .qm-backdrop { background:rgba(15,23,42,.45); }
         .qm-panel { position:relative; z-index:1; display:flex; flex-direction:column; width:100%; max-width:38rem; max-height:92vh; background:var(--bg); border:1px solid var(--line); border-radius:14px; box-shadow:0 30px 80px rgba(0,0,0,.55); color:var(--text); }
-        @media (prefers-reduced-motion: no-preference) { .qm-panel { animation:qmIn .22s cubic-bezier(.22,1,.36,1); } }
+        @media (prefers-reduced-motion: no-preference) {
+            .qm-panel { animation:qmIn .22s cubic-bezier(.22,1,.36,1); }
+            .qm-backdrop { animation:qmFadeIn .22s ease; }
+            .qm-overlay.is-closing .qm-panel { animation:qmOut .16s cubic-bezier(.4,0,1,1) forwards; }
+            .qm-overlay.is-closing .qm-backdrop { animation:qmFadeOut .16s ease forwards; }
+        }
+        .qm-overlay.is-closing { pointer-events:none; }
         @keyframes qmIn { from { opacity:0; transform:translateY(10px) scale(.985); } to { opacity:1; transform:none; } }
+        @keyframes qmOut { from { opacity:1; transform:none; } to { opacity:0; transform:translateY(8px) scale(.985); } }
+        @keyframes qmFadeIn { from { opacity:0; } to { opacity:1; } }
+        @keyframes qmFadeOut { from { opacity:1; } to { opacity:0; } }
         .qm-head { display:flex; align-items:center; gap:.7rem; padding:1rem 1.2rem; border-bottom:1px solid var(--line); background:var(--bg-2); border-radius:14px 14px 0 0; flex-shrink:0; }
         .qm-head__bar { width:3px; height:18px; background:var(--accent); flex-shrink:0; }
         .qm-head__title { font-size:.78rem; font-weight:800; text-transform:uppercase; letter-spacing:.18em; color:var(--text); }

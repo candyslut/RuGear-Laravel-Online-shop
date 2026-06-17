@@ -13,10 +13,11 @@ class AdminSeeder extends Seeder
     public function run(): void
     {
         $admin = User::create([
-            'name'     => 'admin',
-            'email'    => 'admin@mail.com',
-            'password' => Hash::make('admin123'),
-            'role'     => 'admin',
+            'name'      => 'admin',
+            'full_name' => 'Администратор RuGear',
+            'email'     => 'admin@mail.com',
+            'password'  => Hash::make('admin123'),
+            'role'      => 'admin',
         ]);
 
         // coins, level/experience и поля стрика не входят в #[Fillable],
