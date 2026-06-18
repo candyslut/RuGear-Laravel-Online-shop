@@ -12,7 +12,7 @@
     resources/js/livefeed.js. Rendered with the header (sticky right below it)
     and only hidden by JS if there is genuinely no activity.
 --}}
-<div id="live-feed-bar" class="transition-colors duration-300 sticky top-20 z-40">
+<div id="live-feed-bar" class="transition-colors duration-300 top-20 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
         {{-- Desktop: a fixed row that drops the oldest chips to fit.
              Mobile (≤639px, via CSS): this same row becomes a single
