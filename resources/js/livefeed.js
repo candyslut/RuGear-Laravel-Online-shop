@@ -30,6 +30,11 @@ function initLiveFeed() {
     let eodId = null;
     let pool = [];   // latest events (newest-first) — the source for (re)fills
 
+    // On phones the strip is a swipeable, horizontally-scrollable lane: we keep
+    // every event (no fit-to-width dropping) so ≥4 stay reachable by swiping.
+    const mq = window.matchMedia('(max-width: 639px)');
+    const isMobile = () => mq.matches;
+
     const esc = (s) => {
         const d = document.createElement('div');
         d.textContent = s == null ? '' : String(s);
@@ -156,7 +161,9 @@ function initLiveFeed() {
 
     // ─── strip plumbing ───────────────────────────────────────────────────────
     // Drop the oldest cards (rightmost) until the row fits; keep the newest.
+    // No-op on mobile — there the lane scrolls, so cards are never dropped.
     const fitRight = () => {
+        if (isMobile()) return;
         let guard = 0;
         while (track.scrollWidth > track.clientWidth + 1 && track.children.length > 1 && guard++ < 100) {
             track.removeChild(track.lastElementChild);
@@ -209,6 +216,12 @@ function initLiveFeed() {
     // order: just the latest events in sequence, never shuffled.
     const fillFromPool = () => {
         track.innerHTML = '';
+        if (isMobile()) {
+            // Mobile: render the whole pool — the lane scrolls, so we never drop
+            // events. This is what guarantees ≥4 are swipeable when they exist.
+            for (const ev of pool) track.appendChild(block(ev));
+            return;
+        }
         for (const ev of pool) {            // pool is newest-first
             const el = block(ev);
             track.appendChild(el);
@@ -247,6 +260,11 @@ function initLiveFeed() {
         clearTimeout(resizeT);
         resizeT = setTimeout(fillFromPool, 150);
     });
+
+    // Re-lay-out the moment we cross the mobile breakpoint (desktop drop-to-fit
+    // ⇄ mobile full swipe lane), without waiting on the debounced resize.
+    if (mq.addEventListener) mq.addEventListener('change', fillFromPool);
+    else if (mq.addListener) mq.addListener(fillFromPool);   // older Safari
 
     // Catch up immediately when the user returns to the tab.
     document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); });

@@ -944,6 +944,46 @@
         .lf-tip .lf-tip-val  { font-size: 12.5px; font-weight: 500; color: var(--text-secondary); margin-top: 3px; line-height: 1.3; white-space: normal; }
         .lf-tip .lf-tip-time { font-size: 10.5px; color: var(--text-tertiary); margin-top: 8px; letter-spacing: .04em; }
 
+        /* ─── Live Feed — mobile / touch (≤639px) ──────────────────────────────
+           On phones the strip can't fit a card or two, so instead of dropping
+           events it becomes ONE horizontally-scrollable, swipeable lane: the
+           pinned «Событие дня» first, then every recent chip. Nothing is clipped
+           away — the user swipes through ≥4 events. The JS stops dropping cards
+           in this mode (see livefeed.js → isMobile()). */
+        @media (max-width: 639px) {
+            #live-feed-row {
+                gap: .55rem;
+                overflow-x: auto;
+                overflow-y: hidden;
+                scroll-snap-type: x proximity;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior-x: contain;
+                scrollbar-width: none;                 /* Firefox */
+                /* soft fade on both edges to hint there's more to swipe */
+                -webkit-mask-image: linear-gradient(to right, transparent, #000 14px, #000 calc(100% - 18px), transparent);
+                        mask-image: linear-gradient(to right, transparent, #000 14px, #000 calc(100% - 18px), transparent);
+            }
+            #live-feed-row::-webkit-scrollbar { display: none; }   /* Chrome/Safari */
+
+            /* the track no longer grows or clips: its chips lay out at their
+               natural width inside the scrolling row */
+            #live-feed-track {
+                flex: 0 0 auto;
+                overflow: visible;
+                -webkit-mask-image: none;
+                        mask-image: none;
+            }
+
+            /* «Событие дня» loses its divider — it's just the first swipe stop */
+            .lf-eod-zone { padding-right: 0; margin-right: 0; border-right: 0; }
+            .lf-eod, .lf-block { scroll-snap-align: start; }
+
+            /* a touch more compact + cap the name width so more fits per swipe */
+            .lf-block { height: 44px; }
+            .lf-eod   { height: 46px; }
+            .lf-row, .lf-eod .lf-row { max-width: 54vw; }
+        }
+
         @keyframes rainbow-shadow {
             0%   { box-shadow: 0 0 0 3px #ff4444, 0 0 14px rgba(255,68,68,.5); }
             16%  { box-shadow: 0 0 0 3px #ff8800, 0 0 14px rgba(255,136,0,.5); }

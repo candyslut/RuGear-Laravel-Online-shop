@@ -13,8 +13,12 @@
     and only hidden by JS if there is genuinely no activity.
 --}}
 <div id="live-feed-bar" class="transition-colors duration-300 sticky top-20 z-40">
-    <div class="max-w-7xl mx-auto px-6">
-        <div class="flex items-center h-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        {{-- Desktop: a fixed row that drops the oldest chips to fit.
+             Mobile (≤639px, via CSS): this same row becomes a single
+             horizontally-scrollable, swipeable lane — nothing is dropped, so
+             ≥4 events stay reachable by swiping. --}}
+        <div id="live-feed-row" class="flex items-center h-16">
 
             {{-- Подпись ленты (идентичность полосы) --}}
             <div class="lf-bar-label hidden sm:flex">Лента</div>
@@ -24,7 +28,8 @@
                 <div id="live-feed-eod"></div>
             </div>
 
-            {{-- Поток последних событий (переполнение → старые отбрасываются) --}}
+            {{-- Поток последних событий (десктоп: старые отбрасываются;
+                 мобильные: прокручиваются свайпом) --}}
             <div id="live-feed-track" class="flex items-center gap-2.5 flex-1 min-w-0 overflow-hidden"></div>
         </div>
     </div>
