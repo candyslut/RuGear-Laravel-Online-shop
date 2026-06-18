@@ -68,6 +68,9 @@ class OrderController extends Controller
 
             DB::commit();
 
+            // Surface the order in the public Live Feed (generic — no items/amount).
+            app(\App\Services\FeedService::class)->record('order', $user);
+
             return redirect()->route('orders.payment', $order);
 
         } catch (\Exception $e) {

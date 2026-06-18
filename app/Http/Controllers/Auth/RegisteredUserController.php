@@ -43,6 +43,10 @@ class RegisteredUserController extends Controller
         event(new Registered($user));
         Auth::login($user);
 
+        // Surface the new player in the public Live Feed (the "registered"
+        // achievement is kept out of the feed to avoid a duplicate entry).
+        app(\App\Services\FeedService::class)->record('registration', $user);
+
         // firstOrCreate: награды задаёт AchievementSeeder, существующая запись
         // не перезатирается значениями из кода.
         $achievement = Achievement::firstOrCreate(

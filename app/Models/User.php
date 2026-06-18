@@ -114,6 +114,7 @@ class User extends Authenticatable
             $this->lastLevelCoins = $this->lastLevelUp * 10;
             $this->addCoins($this->lastLevelCoins);
             app(\App\Services\NotificationService::class)->levelUp($this, $this->level);
+            app(\App\Services\FeedService::class)->record('level_up', $this, ['title' => (string) $this->level]);
             $this->handleRankUp($oldLevel);
         } else {
             $this->lastLevelCoins = 0;
@@ -149,6 +150,10 @@ class User extends Authenticatable
         ];
 
         app(\App\Services\NotificationService::class)->rankUp($this, $newTier['name'], $reward);
+        app(\App\Services\FeedService::class)->record('rank_up', $this, [
+            'title' => $newTier['name'],
+            'color' => $newTier['color'],
+        ]);
     }
 
     public function addCoins(int $amount): void
@@ -177,6 +182,14 @@ class User extends Authenticatable
 
         $this->achievements()->attach($achievement->id, ['awarded_at' => now()]);
         app(\App\Services\NotificationService::class)->achievement($this, $achievement);
+        // Registration has its own feed event ("Новый игрок"), so skip the
+        // welcome achievement here to avoid a duplicate feed entry.
+        if ($achievement->slug !== 'registered') {
+            app(\App\Services\FeedService::class)->record('achievement', $this, [
+                'title' => $achievement->title,
+                'color' => \App\Support\Gamification::rarity($achievement)['color'],
+            ]);
+        }
         $this->addExperience($achievement->experience);
         $this->addCoins($achievement->coins);
 

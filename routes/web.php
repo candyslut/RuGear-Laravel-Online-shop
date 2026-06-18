@@ -9,6 +9,7 @@ use App\Http\Controllers\{
     CommentaryController,
     TicketController,
     ComparisonController,
+    FeedController,
     OrderController,
     SettingsController,
     ShopController
@@ -24,6 +25,9 @@ Route::post('/compare/clear', [ComparisonController::class, 'clear'])->name('com
 Route::get('/support', function () {
     return view('support');
 })->name('support');
+
+// Public "Live Feed" stream — polled by the ambient ticker + history panel.
+Route::get('/feed', [FeedController::class, 'index'])->name('feed.index');
 
 
 Route::get('/dashboard', [DashboardController::class, 'index'])

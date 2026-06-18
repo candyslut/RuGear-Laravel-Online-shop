@@ -391,12 +391,15 @@
         }
 
         .stk-badge {
-            display: inline-flex; align-items: center; gap: .4rem;
+            display: inline-flex; align-items: center; gap: .4rem; white-space: nowrap;
             font-size: .6rem; font-weight: 900; letter-spacing: .16em; text-transform: uppercase;
             color: #c084fc; background: rgba(168,85,247,.14);
             border: 1px solid rgba(168,85,247,.45); padding: .3rem .65rem; border-radius: .55rem;
         }
-        .stk-badge .dot { width: .42rem; height: .42rem; border-radius: 999px; background: #c084fc; }
+        .stk-badge .dot { width: .42rem; height: .42rem; border-radius: 999px; background: #c084fc; flex: none; }
+        @media (max-width: 480px) {
+            .stk-badge { font-size: .52rem; letter-spacing: .1em; padding: .28rem .55rem; }
+        }
 
         /* ── Стикерпаки · ровная «полка» карточек ──
               Чисто и сдержанно: нейтральные рамки, без сияний, градиентов и

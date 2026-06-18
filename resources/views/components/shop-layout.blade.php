@@ -58,6 +58,7 @@
             --text-tertiary: #7681bd;
             --border-color: #3d4a99;
             --border-color-light: #283273;
+            --lf-brand: #8b5cf6;
         }
 
         /* ════════════════════════════════════════════════════════════
@@ -76,6 +77,7 @@
             --text-tertiary: #bd8aa3;
             --border-color: #f2c4dc;
             --border-color-light: #f8dcea;
+            --lf-brand: #ec4899;
         }
 
         /* ════════════════════════════════════════════════════════════
@@ -819,6 +821,129 @@
         .toast { animation: tin .4s cubic-bezier(.34,1.56,.64,1); }
         .toast.out { animation: tout .3s ease-in forwards; }
 
+        /* ─── Live Feed strip — editorial, restrained palette ──────────────── */
+        /* Accent (--lf-accent) is a desaturated, cool, per-type hue set inline.
+           Colour is used sparingly: a 5px node, the avatar ring and hovers —
+           the cards themselves stay neutral, so the look reads premium not loud.
+           The feed fades softly at its right edge (alpha mask, not a gradient). */
+        /* The strip itself — a clearly framed band (crisp hairlines that read in
+           the light theme too) with its own surface. */
+        #live-feed-bar {
+            background: var(--bg-secondary);
+            border-top: 1px solid color-mix(in srgb, var(--text-primary) 22%, var(--border-color));
+            border-bottom: 1px solid color-mix(in srgb, var(--text-primary) 22%, var(--border-color));
+        }
+        .lf-bar-label {
+            flex-shrink: 0; display: flex; align-items: center; gap: 7px;
+            padding-right: 1rem; margin-right: 1rem;
+            border-right: 1px solid var(--border-color);
+            font-size: 10px; font-weight: 800; letter-spacing: .22em;
+            text-transform: uppercase; color: var(--text-secondary);
+        }
+        .lf-bar-label::before {
+            content: ""; width: 6px; height: 6px; border-radius: 2px;
+            background: var(--text-tertiary); transform: rotate(45deg);
+        }
+        #live-feed-track {
+            -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 64px), transparent);
+                    mask-image: linear-gradient(to right, #000 calc(100% - 64px), transparent);
+        }
+
+        /* avatar — neutral circle with a hairline ring */
+        .lf-ava {
+            flex-shrink: 0; border-radius: 50%; object-fit: cover;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; color: var(--text-secondary);
+            background: var(--bg-tertiary);
+            box-shadow: inset 0 0 0 1px var(--border-color);
+        }
+        .lf-ava-sm { width: 28px; height: 28px; font-size: 11px; }
+        .lf-ava-lg { width: 38px; height: 38px; font-size: 13px; }
+
+        /* eyebrow — uppercase micro-label with a small accent node */
+        .lf-eyebrow {
+            display: flex; align-items: center; gap: 6px; min-width: 0;
+            font-size: 9px; font-weight: 800; letter-spacing: .15em;
+            text-transform: uppercase; line-height: 1; color: var(--lf-accent);
+        }
+        .lf-eyebrow-txt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .lf-node { width: 5px; height: 5px; border-radius: 50%; background: var(--lf-accent); flex-shrink: 0; }
+        .lf-strong { color: var(--lf-accent); font-weight: 800; }
+
+        /* primary line — name · value, single line with ellipsis */
+        .lf-body { min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+        .lf-row  { max-width: 210px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .lf-name { font-size: 12.5px; font-weight: 600; color: var(--text-primary); }
+        .lf-dot  { color: var(--text-tertiary); margin: 0 .3rem; }
+        .lf-val  { font-size: 12px; font-weight: 500; color: var(--text-secondary); }
+
+        /* recent chip — flat with a neutral hairline + a brand decorative stripe */
+        .lf-block {
+            display: flex; align-items: center; gap: .6rem; flex-shrink: 0;
+            height: 46px; padding: 0 .9rem 0 .7rem;
+            border: 1px solid color-mix(in srgb, var(--text-primary) 18%, var(--border-color));
+            border-left: 3px solid var(--lf-brand, #f97316);
+            border-radius: 9px;
+            background: transparent;
+            transition: opacity .5s ease, transform .5s cubic-bezier(.34,1.4,.64,1),
+                        background-color .25s ease;
+        }
+        .lf-block:hover { background: color-mix(in srgb, var(--text-primary) 5%, transparent); }
+        .lf-block.enter { opacity: 0; transform: translateX(-22px); }
+
+        /* event of the day — filled, elevated, divider-separated */
+        .lf-eod-zone {
+            display: flex; align-items: center; flex-shrink: 0;
+            padding-right: 1.1rem; margin-right: 1.1rem;
+            border-right: 1px solid var(--border-color);
+        }
+        .lf-eod {
+            display: flex; align-items: center; gap: .7rem; flex-shrink: 0;
+            height: 52px; padding: 0 1.05rem 0 .8rem;
+            border: 1px solid color-mix(in srgb, var(--lf-brand, #f97316) 45%, var(--border-color));
+            border-left: 4px solid var(--lf-brand, #f97316);
+            border-radius: 11px;
+            background: color-mix(in srgb, var(--lf-brand, #f97316) 10%, var(--bg-secondary));
+        }
+        .lf-eod .lf-ava { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lf-brand, #f97316) 50%, var(--border-color)); }
+        .lf-eod .lf-row { max-width: 240px; }
+        .lf-eod .lf-name { font-size: 13px; font-weight: 700; }
+        /* «Событие дня» — a filled brand badge so it clearly reads as featured */
+        .lf-eod-head { display: flex; align-items: center; gap: 7px; min-width: 0; }
+        .lf-eod-badge {
+            flex-shrink: 0;
+            padding: 2px 7px; border-radius: 5px;
+            background: var(--lf-brand, #f97316); color: #fff;
+            font-size: 8.5px; font-weight: 800; letter-spacing: .12em;
+            text-transform: uppercase; line-height: 1.5;
+        }
+        .lf-eod-head .lf-strong {
+            font-size: 9px; font-weight: 800; letter-spacing: .12em;
+            text-transform: uppercase; color: var(--lf-accent);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .lf-block { transition: border-color .25s ease, background-color .25s ease; }
+            .lf-block.enter { opacity: 1; transform: none; }
+        }
+
+        /* cursor tooltip — the full, untruncated card shown on hover */
+        .lf-tip {
+            position: fixed; z-index: 1000; pointer-events: none;
+            opacity: 0; transform: translateY(4px);
+            transition: opacity .13s ease, transform .13s ease;
+            max-width: 300px; padding: .7rem .8rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-left: 3px solid var(--lf-brand, #f97316);
+            border-radius: 10px;
+        }
+        .lf-tip.show { opacity: 1; transform: translateY(0); }
+        .lf-tip .lf-eyebrow { margin-bottom: 8px; }
+        .lf-tip .lf-tip-name { font-size: 13.5px; font-weight: 700; color: var(--text-primary); line-height: 1.3; white-space: normal; }
+        .lf-tip .lf-tip-val  { font-size: 12.5px; font-weight: 500; color: var(--text-secondary); margin-top: 3px; line-height: 1.3; white-space: normal; }
+        .lf-tip .lf-tip-time { font-size: 10.5px; color: var(--text-tertiary); margin-top: 8px; letter-spacing: .04em; }
+
         @keyframes rainbow-shadow {
             0%   { box-shadow: 0 0 0 3px #ff4444, 0 0 14px rgba(255,68,68,.5); }
             16%  { box-shadow: 0 0 0 3px #ff8800, 0 0 14px rgba(255,136,0,.5); }
@@ -1167,6 +1292,9 @@
             </div>
         </div>
     </header>
+
+    {{-- ─── Живая лента: полоска событий под шапкой ──────────────────────── --}}
+    <x-live-feed />
 
     <main class="flex-grow py-12 transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-6">
